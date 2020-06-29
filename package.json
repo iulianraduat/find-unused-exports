@@ -107,7 +107,8 @@
     "pretest": "yarn run compile && yarn run lint",
     "test": "echo node ./out/test/runTest.js",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.0.0.vsix"
+    "install:local": "code --install-extension find-unused-exports-1.0.0.vsix",
+    "publish": "vsce publish"
   },
   "dependencies": {
     "glob": "^7.1.6"
