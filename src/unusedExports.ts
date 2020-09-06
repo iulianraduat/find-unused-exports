@@ -1,17 +1,14 @@
-import { TNotUsed } from "./unused-exports/notUsed";
-import * as vscode from "vscode";
-import * as fs from "fs";
-import * as path from "path";
-import { app } from "./unused-exports/app";
+import { TNotUsed } from './unused-exports/notUsed';
+import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
+import { app } from './unused-exports/app';
 
-export class UnusedExportsProvider
-  implements vscode.TreeDataProvider<TDependency> {
-  private _onDidChangeTreeData: vscode.EventEmitter<
+export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependency> {
+  private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> = new vscode.EventEmitter<
     TDependency | undefined
-  > = new vscode.EventEmitter<TDependency | undefined>();
-  public readonly onDidChangeTreeData: vscode.Event<
-    TDependency | undefined
-  > = this._onDidChangeTreeData.event;
+  >();
+  public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
 
   private cache: Record<string, TNotUsed[]> = {};
 
@@ -23,38 +20,33 @@ export class UnusedExportsProvider
   }
 
   public open(filePath: string): void {
-    vscode.workspace
-      .openTextDocument(path.resolve(this.workspaceRoot, filePath))
-      .then((doc) => {
-        vscode.window.showTextDocument(doc);
-      });
+    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
+      vscode.window.showTextDocument(doc);
+    });
   }
 
   public findUnsedExportInFile(filePath: string, unusedExport: string): void {
-    vscode.workspace
-      .openTextDocument(path.resolve(this.workspaceRoot, filePath))
-      .then((doc) => {
-        vscode.window.showTextDocument(doc).then(() => {
-          const editor: vscode.TextEditor | undefined =
-            vscode.window.activeTextEditor;
-          const document: vscode.TextDocument | undefined = editor?.document;
-          if (editor === undefined || document === undefined) {
-            return;
-          }
+    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
+      vscode.window.showTextDocument(doc).then(() => {
+        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+        const document: vscode.TextDocument | undefined = editor?.document;
+        if (editor === undefined || document === undefined) {
+          return;
+        }
 
-          const num = document.lineCount;
-          for (let i = 0; i < num; i++) {
-            const line = document.lineAt(i);
-            if (line.text.includes(unusedExport)) {
-              const start = line.text.indexOf(unusedExport);
-              const end = start + unusedExport.length;
-              editor.selection = new vscode.Selection(i, start, i, end);
-              break;
-            }
+        const num = document.lineCount;
+        for (let i = 0; i < num; i++) {
+          const line = document.lineAt(i);
+          if (line.text.includes(unusedExport)) {
+            const start = line.text.indexOf(unusedExport);
+            const end = start + unusedExport.length;
+            editor.selection = new vscode.Selection(i, start, i, end);
+            break;
           }
-          vscode.commands.executeCommand("actions.find");
-        });
+        }
+        vscode.commands.executeCommand('actions.find');
       });
+    });
   }
 
   public delete(node: TDependency): void {
@@ -94,7 +86,7 @@ export class UnusedExportsProvider
   }
 
   private noWorkspace(): Thenable<TDependency[]> {
-    this.showInformationMessage("No dependency checks in an empty workspace!");
+    this.showInformationMessage('No dependency checks in an empty workspace!');
     return Promise.resolve([]);
   }
 
@@ -103,12 +95,12 @@ export class UnusedExportsProvider
   }
 
   private filesWithUnusedExports(): Thenable<TDependency[]> {
-    const packageJsonPath = path.join(this.workspaceRoot, "package.json");
+    const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
     if (this.pathExists(packageJsonPath)) {
       return Promise.resolve(this.getFilesWithUnusedExports());
     }
 
-    this.showInformationMessage("Workspace has no package.json");
+    this.showInformationMessage('Workspace has no package.json');
     return Promise.resolve([]);
   }
 
@@ -135,8 +127,8 @@ export class UnusedExportsProvider
       notUsedExports,
       vscode.TreeItemCollapsibleState.Collapsed,
       {
-        command: "unusedExports.openFile",
-        title: "Open",
+        command: 'unusedExports.openFile',
+        title: 'Open',
         arguments: [filePath],
       },
       node
@@ -151,17 +143,11 @@ export class UnusedExportsProvider
   private mapUnusedExport2Dependency(node: TDependency) {
     const filePath: string = node.label;
     return (notUsedExport: string): TDependency => {
-      return new TDependency(
-        notUsedExport,
-        false,
-        undefined,
-        vscode.TreeItemCollapsibleState.None,
-        {
-          command: "unusedExports.findUnusedExportInFile",
-          title: "Find unused export in file",
-          arguments: [filePath, notUsedExport],
-        }
-      );
+      return new TDependency(notUsedExport, false, undefined, vscode.TreeItemCollapsibleState.None, {
+        command: 'unusedExports.findUnusedExportInFile',
+        title: 'Find unused export in file',
+        arguments: [filePath, notUsedExport],
+      });
     };
   }
 
@@ -190,26 +176,26 @@ export class TDependency extends vscode.TreeItem {
     public readonly notUsedObj?: TNotUsed
   ) {
     super(label, collapsibleState);
+
+    this.description = this.isCompletelyUnused ? 'not used' : '';
+    this.iconPath = this.getIconPath();
+    this.contextValue = this.getContextValue();
   }
 
-  get description(): string {
-    return this.isCompletelyUnused ? "not used" : "";
+  private getIconPath() {
+    const icon = this.isFile() ? 'dependency.svg' : 'export.svg';
+    return {
+      light: path.join(__filename, '..', '..', 'resources', 'light', icon),
+      dark: path.join(__filename, '..', '..', 'resources', 'dark', icon),
+    };
   }
 
-  get contextValue(): string {
+  private getContextValue(): string {
     if (this.isFile()) {
-      return this.isCompletelyUnused ? "fileNotUsed" : "file";
+      return this.isCompletelyUnused ? 'fileNotUsed' : 'file';
     }
 
-    return "notUsedExport";
-  }
-
-  get iconPath() {
-    const icon = this.isFile() ? "dependency.svg" : "export.svg";
-    return {
-      light: path.join(__filename, "..", "..", "resources", "light", icon),
-      dark: path.join(__filename, "..", "..", "resources", "dark", icon),
-    };
+    return 'notUsedExport';
   }
 
   private isFile(): boolean {
@@ -226,7 +212,7 @@ vscode.commands.executeCommand(
 */
 
 const NoUnusedExports: TDependency = new TDependency(
-  "No unused exports",
+  'No unused exports',
   false,
   undefined,
   vscode.TreeItemCollapsibleState.None

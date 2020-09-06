@@ -21,3 +21,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.0.1 (2020-09-06)
+
+### Added
+
+- Detect export interface
+
+### Changed
+
+- Update packages
+
+### Removed
+
+- Nothing
