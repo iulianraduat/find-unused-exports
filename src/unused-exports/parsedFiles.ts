@@ -76,7 +76,7 @@ const defaultRe = `default`;
 
 const exportRegexps = [
   new RegExp(`${exportRe}(${defaultRe})\\s`, 'gi'),
-  new RegExp(`${exportRe}(?:class|const|enum|type|interface)\\s+(${varNameRe})`, 'gi'),
+  new RegExp(`${exportRe}(?:class|const|enum|type|interface|function)\\s+(${varNameRe})`, 'gi'),
   /* 
   // It catches export const as exportRe nameRe
     new RegExp(
