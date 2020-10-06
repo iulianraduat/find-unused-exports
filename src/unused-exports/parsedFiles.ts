@@ -1,5 +1,5 @@
-import { TTsFile } from './sourceFiles';
 import { readFile } from './fsUtils';
+import { TTsFile } from './sourceFiles';
 
 export interface TTsParsed extends TTsFile {
   exports: TTsExport[];
@@ -47,10 +47,13 @@ const importRegexps = [
 ];
 
 const defaultImportRegexps = [new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'gi')];
+
+const reAsImport = new RegExp(`\\s+as\\s+${varNameRe}`, 'gi');
+
 const getImports = (content: string): TTsImport[] => {
   const res: TTsImport[] = [];
 
-  const matches1 = getMatches(importRegexps, content);
+  const matches1 = getMatches(importRegexps, content, reAsImport);
   matches1?.forEach((match) => {
     const [importedNames, fromPath] = match;
     res.push({
@@ -59,7 +62,7 @@ const getImports = (content: string): TTsImport[] => {
     });
   });
 
-  const matches2 = getMatches(defaultImportRegexps, content);
+  const matches2 = getMatches(defaultImportRegexps, content, reAsImport);
   matches2?.forEach((match) => {
     const [fromPath] = match;
     res.push({
@@ -71,23 +74,20 @@ const getImports = (content: string): TTsImport[] => {
   return res;
 };
 
-const exportRe = `export\\s+(?:type\\s+)?`;
+const exportRe = `export\\s+`;
 const defaultRe = `default`;
 
 const exportRegexps = [
   new RegExp(`${exportRe}(${defaultRe})\\s`, 'gi'),
   new RegExp(`${exportRe}(?:class|const|enum|type|interface|function)\\s+(${varNameRe})`, 'gi'),
-  /* 
-  // It catches export const as exportRe nameRe
-    new RegExp(
-    `${exportRe}((?:${nameRe}|${namesRe}|${listSeparatorRe})+)\\s`,
-    'gi'
-  ),
- */
-  new RegExp(`${exportRe}(\\*\\s+as)\\s+(${varNameRe})\\s${fromFileNameRe}`, 'gi'),
+  new RegExp(`${exportRe}(${namesRe})`, 'gi'),
+  new RegExp(`${exportRe}(?:\\*\\s+as)\\s+(${varNameRe})\\s${fromFileNameRe}`, 'gi'),
 ];
+
+const reAsExport = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
+
 const getExports = (content: string): TTsExport[] => {
-  const matches = getMatches(exportRegexps, content);
+  const matches = getMatches(exportRegexps, content, reAsExport);
   const res: TTsExport[] = [];
   matches?.forEach((match) => {
     const [exportedName, fromPath] = match;
@@ -99,20 +99,26 @@ const getExports = (content: string): TTsExport[] => {
   return res;
 };
 
-const getMatches = (regexps: RegExp[], content: string): string[][] | undefined => {
+const getMatches = (regexps: RegExp[], content: string, fixRe?: RegExp): string[][] | undefined => {
   const arr: string[][] = [];
   regexps.forEach((regexp) => {
     let res: RegExpExecArray | null;
     while ((res = regexp.exec(content)) !== null) {
       res.shift();
-      const match = res.map(removeSpaces);
+      const match = res.map((r) => {
+        if (fixRe) {
+          r = r.replace(fixRe, '');
+        }
+        return removeSpaces(r);
+      });
       arr.push(match);
     }
   });
   return arr.length === 0 ? undefined : arr;
 };
 
-const removeSpaces = (txt: string) => txt.replace(/\s+/g, '');
+const reSpaces = /\s+/g;
+const removeSpaces = (txt: string) => txt.replace(reSpaces, '');
 
 // const reStringComment = /"(?:\\.|\\\n|\\\r|[^"])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^"])*"|'(?:\\.|\\\n|\\\r|[^'])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^'])*'|`(?:\\.|\\\n|\\\r|[^`])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^`])*`|\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
 const reComment = /\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;

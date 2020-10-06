@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -105,7 +105,7 @@
     "pretest": "yarn run compile && yarn run lint",
     "test": "echo node ./out/test/runTest.js",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.0.1.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.0.3.vsix",
     "publish": "vsce publish"
   },
   "dependencies": {
@@ -115,10 +115,10 @@
     "@types/vscode": "^1.46.0",
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.3",
-    "@types/node": "^14.11.1",
-    "eslint": "^7.9.0",
-    "@typescript-eslint/parser": "^4.1.1",
-    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@types/node": "^14.11.5",
+    "eslint": "^7.10.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
     "mocha": "^8.1.3",
     "typescript": "^4.0.3",
     "vscode-test": "^1.4.0"

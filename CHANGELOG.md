@@ -49,3 +49,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.0.3 (2020-10-06)
+
+### Added
+
+- Detect aliased imports and exports
+
+### Changed
+
+- Update packages
+- Fixed the detection of "export \* as"
+
+### Removed
+
+- Nothing
