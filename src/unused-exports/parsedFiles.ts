@@ -1,4 +1,5 @@
 import { readFile } from './fsUtils';
+import { log } from './log';
 import { TTsFile } from './sourceFiles';
 
 export interface TTsParsed extends TTsFile {
@@ -19,11 +20,14 @@ export interface TTsImport {
 export const getParsedFiles = (files: TTsFile[]): TTsParsed[] => files.map(parseFile);
 
 const parseFile = (file: TTsFile): TTsParsed => {
+  log('Parse file', file.path);
   const content = readFile(file.path);
   /* we want to ignore any import/export present in a comment */
   const fixedContent = fixContent(content);
   const imports = getImports(fixedContent);
+  log('Found imports', imports.length);
   const exports = getExports(fixedContent);
+  log('Found exports', exports.length);
   return {
     ...file,
     exports,

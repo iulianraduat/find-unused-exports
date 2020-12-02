@@ -64,3 +64,19 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.1.0 (2020-12-02)
+
+### Added
+
+- Added support for logging in VS Code all discovery steps
+- Added support for ignoring not used exports via comments
+- Added the possibility to remove a file or export only from the list of results
+
+### Changed
+
+- Update packages
+
+### Removed
+
+- Nothing
