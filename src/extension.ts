@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { TDependency, UnusedExportsProvider } from './unusedExports';
 
+// find-unused-exports:ignore-next-line-exports
 export const activate = (context: vscode.ExtensionContext) => {
   if (!vscode.workspace.rootPath) {
     return;

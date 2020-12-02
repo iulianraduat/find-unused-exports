@@ -69,9 +69,13 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 
 ### Added
 
-- Added support for logging in VS Code all discovery steps
-- Added support for ignoring not used exports via comments
-- Added the possibility to remove a file or export only from the list of results
+- Added support for logging in an output window all executed steps (default false - no logging in the output window)
+- Added support for ignoring not used exports via comments (default false - obey the comment in the code)
+  ```javascript
+  // find-unused-exports:ignore-next-line-exports
+  export default MyClass;
+  ```
+- Added the possibility to remove a file or export from the list of results
 
 ### Changed
 

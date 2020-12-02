@@ -110,12 +110,18 @@
     },
     "configuration": [
       {
-        "title": "Find unsed exports",
+        "title": "Find unused exports",
         "properties": {
           "findUnusedExports.debug": {
             "type": "boolean",
             "default": false,
             "description": "Find unused exports: log all actions in an output window",
+            "scope": "resource"
+          },
+          "findUnusedExports.showIgnoredExports": {
+            "type": "boolean",
+            "default": false,
+            "description": "Find unused exports: show all unused exports, even if they are marked as ignored",
             "scope": "resource"
           }
         }

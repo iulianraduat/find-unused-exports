@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { readFile } from './fsUtils';
 import { log } from './log';
 import { TTsFile } from './sourceFiles';
@@ -124,10 +125,21 @@ const getMatches = (regexps: RegExp[], content: string, fixRe?: RegExp): string[
 const reSpaces = /\s+/g;
 const removeSpaces = (txt: string) => txt.replace(reSpaces, '');
 
-// const reStringComment = /"(?:\\.|\\\n|\\\r|[^"])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^"])*"|'(?:\\.|\\\n|\\\r|[^'])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^'])*'|`(?:\\.|\\\n|\\\r|[^`])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^`])*`|\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
-const reComment = /\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
-const fixContent = (content: string): string => content.replace(reComment, '');
+function isShowIgnoredExportsEnabled(): boolean {
+  return vscode.workspace.getConfiguration().get('findUnusedExports.showIgnoredExports', false);
+}
 
+const reCommentExport = /\/\/\s*find-unused-exports:ignore-next-line-exports\b.*\r?\nexport\b.*/gm;
+const reComment = /\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
+const fixContent = (content: string): string => {
+  if (isShowIgnoredExportsEnabled()) {
+    return content.replace(reComment, '');
+  }
+
+  return content.replace(reCommentExport, '').replace(reComment, '');
+};
+
+// const reStringComment = /"(?:\\.|\\\n|\\\r|[^"])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^"])*"|'(?:\\.|\\\n|\\\r|[^'])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^'])*'|`(?:\\.|\\\n|\\\r|[^`])*(?:import\s|export\s)(?:\\.|\\\n|\\\r|[^`])*`|\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
 /*
 const getReStringChars = (char: string): string =>
   `(?:\\\\.|\\\\\\n|\\\\\\r|[^${char}])*`;
