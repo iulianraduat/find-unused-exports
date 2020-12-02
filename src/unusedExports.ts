@@ -1,12 +1,12 @@
-import { TNotUsed } from './unused-exports/notUsed';
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { app } from './unused-exports/app';
-import { log } from './unused-exports/log';
+import { TNotUsed } from './unused-exports/notUsed';
 
 const cacheFiles: Record<string, TNotUsed[]> = {};
 const cacheHidden: Record<string, string[]> = {};
+const keyNoUnusedExports = '-';
 
 function addToCacheHidden(workspaceRoot: string, node: TDependency) {
   if (cacheHidden[workspaceRoot] === undefined) {
@@ -232,7 +232,7 @@ export class TDependency extends vscode.TreeItem {
       return this.isCompletelyUnused ? 'fileNotUsed' : 'file';
     }
 
-    return 'notUsedExport';
+    return this.key === keyNoUnusedExports ? 'noUnusedExports' : 'notUsedExport';
   }
 
   private isFile(): boolean {
@@ -241,7 +241,7 @@ export class TDependency extends vscode.TreeItem {
 }
 
 const NoUnusedExports: TDependency = new TDependency(
-  '-',
+  keyNoUnusedExports,
   'No unused exports',
   false,
   undefined,

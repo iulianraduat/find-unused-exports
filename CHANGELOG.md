@@ -84,3 +84,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.1.1 (2020-12-02)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Removed the hide action icon when no unused export is found
+
+### Removed
+
+- Nothing

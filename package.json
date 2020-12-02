@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -103,7 +103,7 @@
         },
         {
           "command": "unusedExports.hideFileOrExport",
-          "when": "view == unusedExports",
+          "when": "view == unusedExports && viewItem != noUnusedExports",
           "group": "inline"
         }
       ]
