@@ -3,6 +3,25 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { app } from './unused-exports/app';
+import { log } from './unused-exports/log';
+
+const cacheFiles: Record<string, TNotUsed[]> = {};
+const cacheHidden: Record<string, string[]> = {};
+
+function addToCacheHidden(workspaceRoot: string, node: TDependency) {
+  if (cacheHidden[workspaceRoot] === undefined) {
+    cacheHidden[workspaceRoot] = [];
+  }
+  cacheHidden[workspaceRoot].push(node.key);
+}
+
+function isInCacheHidden(workspaceRoot: string, node: TDependency): boolean {
+  if (cacheHidden[workspaceRoot] === undefined) {
+    return false;
+  }
+
+  return cacheHidden[workspaceRoot].includes(node.key);
+}
 
 export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependency> {
   private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> = new vscode.EventEmitter<
@@ -10,12 +29,11 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   >();
   public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
 
-  private cache: Record<string, TNotUsed[]> = {};
-
   constructor(private workspaceRoot: string) {}
 
   public refresh(): void {
-    delete this.cache[this.workspaceRoot];
+    delete cacheFiles[this.workspaceRoot];
+    delete cacheHidden[this.workspaceRoot];
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -60,13 +78,19 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
       }
 
       /* we want to hide it in TreeView without doing any refresh */
-      if (node.notUsedObj) {
-        node.notUsedObj.isDeleted = true;
-      }
+      addToCacheHidden(this.workspaceRoot, node);
 
       /* as a file has nothing as parent we need to provide null to fire() */
       this._onDidChangeTreeData.fire(undefined);
     });
+  }
+
+  public hide(node: TDependency): void {
+    /* we want to hide it in TreeView without doing any refresh */
+    addToCacheHidden(this.workspaceRoot, node);
+
+    /* as a file has nothing as parent we need to provide null to fire() */
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   public getTreeItem(element: TDependency): vscode.TreeItem {
@@ -105,23 +129,20 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   private getFilesWithUnusedExports(): TDependency[] {
-    const files = this.cache[this.workspaceRoot] || app(this.workspaceRoot);
-    this.cache[this.workspaceRoot] = files;
+    const files = cacheFiles[this.workspaceRoot] || app(this.workspaceRoot);
+    cacheFiles[this.workspaceRoot] = files;
 
     if (files.length === 0) {
       return [NoUnusedExports];
     }
 
-    return files.filter(this.isNotDeleted).map(this.mapFile2Dependency);
-  }
-
-  private isNotDeleted(node: TNotUsed): boolean {
-    return node.isDeleted !== true;
+    return files.map(this.mapFile2Dependency).filter(this.isNotDeleted);
   }
 
   private mapFile2Dependency(node: TNotUsed): TDependency {
     const { filePath, isCompletelyUnused, notUsedExports } = node;
     return new TDependency(
+      filePath,
       filePath,
       isCompletelyUnused,
       notUsedExports,
@@ -137,19 +158,30 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
 
   private getUnusedExports(node: TDependency): TDependency[] {
     const mapFn = this.mapUnusedExport2Dependency(node);
-    return node.notUsedExports?.map(mapFn) ?? [];
+    return node.notUsedExports?.map(mapFn).filter(this.isNotDeleted) ?? [];
   }
 
   private mapUnusedExport2Dependency(node: TDependency) {
     const filePath: string = node.label;
     return (notUsedExport: string): TDependency => {
-      return new TDependency(notUsedExport, false, undefined, vscode.TreeItemCollapsibleState.None, {
-        command: 'unusedExports.findUnusedExportInFile',
-        title: 'Find unused export in file',
-        arguments: [filePath, notUsedExport],
-      });
+      return new TDependency(
+        `${filePath}::${notUsedExport}`,
+        notUsedExport,
+        false,
+        undefined,
+        vscode.TreeItemCollapsibleState.None,
+        {
+          command: 'unusedExports.findUnusedExportInFile',
+          title: 'Find unused export in file',
+          arguments: [filePath, notUsedExport],
+        }
+      );
     };
   }
+
+  private isNotDeleted = (node: TDependency): boolean => {
+    return isInCacheHidden(this.workspaceRoot, node) === false;
+  };
 
   private pathExists(p: string): boolean {
     try {
@@ -164,10 +196,15 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   private showInformationMessage(msg: string) {
     vscode.window.showInformationMessage(msg);
   }
+
+  private isNotUsedExportNode(node: TDependency): boolean {
+    return node.contextValue === 'notUsedExport';
+  }
 }
 
 export class TDependency extends vscode.TreeItem {
   constructor(
+    public readonly key: string,
     public readonly label: string,
     private isCompletelyUnused: boolean,
     public readonly notUsedExports: string[] | undefined,
@@ -203,15 +240,8 @@ export class TDependency extends vscode.TreeItem {
   }
 }
 
-/*
-this.editor = vscode.window.activeTextEditor;
-vscode.commands.executeCommand(
-  'workbench.action.quickOpen',
-  this.trimPathSeparator(newWord !== null ? newWord : word) 	// trim / and \ from both ends of file string
-);
-*/
-
 const NoUnusedExports: TDependency = new TDependency(
+  '-',
   'No unused exports',
   false,
   undefined,

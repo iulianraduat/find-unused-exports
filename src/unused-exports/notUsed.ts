@@ -1,4 +1,4 @@
-import { TRelation } from "./relations";
+import { TRelation } from './relations';
 
 export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
   const nodes: TNotUsed[] = [];
@@ -27,12 +27,10 @@ export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
   return nodes;
 };
 
-export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number =>
-  a.filePath.localeCompare(b.filePath);
+export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath);
 
 export interface TNotUsed {
   filePath: string;
   isCompletelyUnused: boolean;
-  isDeleted?: boolean;
   notUsedExports?: string[];
 }

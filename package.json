@@ -18,8 +18,7 @@
     "url": "https://github.com/iulian-radu-at/find-unused-exports/issues"
   },
   "categories": [
-    "Linters",
-    "Other"
+    "Linters"
   ],
   "activationEvents": [
     "onView:unusedExports",
@@ -64,6 +63,14 @@
         }
       },
       {
+        "command": "unusedExports.hideFileOrExport",
+        "title": "Hide file or export",
+        "icon": {
+          "light": "resources/light/hide.svg",
+          "dark": "resources/dark/hide.svg"
+        }
+      },
+      {
         "command": "unusedExports.deleteFile",
         "title": "Delete file with unused exports",
         "icon": {
@@ -92,6 +99,11 @@
         {
           "command": "unusedExports.deleteFile",
           "when": "view == unusedExports && viewItem == fileNotUsed",
+          "group": "inline"
+        },
+        {
+          "command": "unusedExports.hideFileOrExport",
+          "when": "view == unusedExports",
           "group": "inline"
         }
       ]
