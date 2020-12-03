@@ -19,7 +19,7 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
   return [...res1, ...res2];
 };
 
-const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.?(ts|js)?(x)' : '**/*.ts?(x)');
+const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.@(ts|js)?(x)' : '**/*.ts?(x)');
 
 const getGlobIgnore = (exclude?: string[]): string[] => (exclude ? ['**/*.d.ts', ...exclude] : ['**/*.d.ts']);
 

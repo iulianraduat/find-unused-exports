@@ -5,11 +5,12 @@ import { isDirectory, isFile } from './fsUtils';
 import { TTsImport, TTsParsed } from './parsedFiles';
 
 export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[]): TTsParsed[] => {
-  const { baseUrl } = context;
+  const { allowJs, baseUrl } = context;
 
   parsedFiles.forEach((tsParsed) => {
     const { path: filePath, imports } = tsParsed;
-    tsParsed.imports = imports.map(makeImportAbs(baseUrl, path.dirname(filePath))).filter(importValid);
+    const mapFn = makeImportAbs(baseUrl, path.dirname(filePath), allowJs);
+    tsParsed.imports = imports.map(mapFn).filter(importValid);
   });
 
   return parsedFiles;
@@ -17,11 +18,13 @@ export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[
 
 const importValid = (anImport: TTsImport): boolean => anImport.path !== undefined;
 
-const makeImportAbs = (baseUrl: string | undefined, filePath: string) => (anImport: TTsImport): TTsImport => {
+const makeImportAbs = (baseUrl: string | undefined, filePath: string, allowJs?: boolean) => (
+  anImport: TTsImport
+): TTsImport => {
   const { path: relPath } = anImport;
 
   const absPath = path.resolve(filePath, relPath);
-  const exactPath = resolveFilePath(absPath);
+  const exactPath = resolveFilePath(absPath, allowJs);
   if (exactPath) {
     return {
       ...anImport,
@@ -31,7 +34,7 @@ const makeImportAbs = (baseUrl: string | undefined, filePath: string) => (anImpo
 
   if (baseUrl) {
     const absPath = path.resolve(baseUrl, relPath);
-    const exactPath = resolveFilePath(absPath);
+    const exactPath = resolveFilePath(absPath, allowJs);
     if (exactPath) {
       return {
         ...anImport,
@@ -77,6 +80,7 @@ const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefine
 };
 
 const getDirGlobRegexp = (path: string, allowJs?: boolean): string =>
-  allowJs ? `${path}/index.(ts|js)?(x)` : `${path}/index.ts?(x)`;
+  allowJs ? `${path}/index.@(ts|js)?(x)` : `${path}/index.ts?(x)`;
 
-const getGlobRegexp = (path: string, allowJs?: boolean): string => (allowJs ? `${path}.(ts|js)?(x)` : `${path}.ts?(x)`);
+const getGlobRegexp = (path: string, allowJs?: boolean): string =>
+  allowJs ? `${path}.@(ts|js)?(x)` : `${path}.ts?(x)`;

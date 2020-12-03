@@ -10,7 +10,7 @@ export interface TTsParsed extends TTsFile {
 
 export interface TTsExport {
   name: 'default' | string;
-  path?: string;
+  path: string;
 }
 
 export interface TTsImport {

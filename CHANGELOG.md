@@ -108,6 +108,7 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Changed
 
 - Corrected the analyse of the js projects
+- Corrected the analyse of the ts projects with allowJs enabled in tsconfig.json
 
 ### Removed
 

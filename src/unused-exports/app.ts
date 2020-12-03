@@ -42,7 +42,7 @@ export const app = (absPathToPrj: string): TNotUsed[] => {
   log('Total exports', exports.length);
   const relations = buildRelations(imports, exports);
   makePathRelativeToProject(relations, absPathToPrj);
-  log('Found relations', relations.length);
+  log('Analysed files', relations.length);
   const notUsed = getNotUsed(relations);
   const finalList = notUsed.sort(sortNotUsedFn);
   log('Not used exports', finalList.length);
