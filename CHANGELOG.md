@@ -98,3 +98,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.1.2 (2020-12-03)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Corrected the analyse of the js projects
+
+### Removed
+
+- Nothing

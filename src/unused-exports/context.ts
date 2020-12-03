@@ -19,7 +19,8 @@ export const makeContext = (pathToPrj: string): TContext => {
   const tsconfig = readJsonFile(pathToTsconfig) || {};
 
   const { compilerOptions, exclude, files, include } = tsconfig;
-  const { allowJs, baseUrl, outDir } = compilerOptions || {};
+  const jsConfig = { allowJs: true };
+  const { allowJs, baseUrl, outDir } = compilerOptions || jsConfig;
 
   const res = {
     allowJs,
@@ -32,10 +33,7 @@ export const makeContext = (pathToPrj: string): TContext => {
   return res;
 };
 
-const getExclude = (
-  exclude?: string[],
-  outDir?: string
-): string[] | undefined => {
+const getExclude = (exclude?: string[], outDir?: string): string[] | undefined => {
   if (exclude) {
     return exclude;
   }
