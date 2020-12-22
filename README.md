@@ -37,7 +37,13 @@ There are no special requirements.
 
 ## Extension Settings
 
-There are no custom settings used by this extension.
+- findUnusedExports.debug:
+
+  - Find unused exports: log all actions in an output window
+
+- findUnusedExports.showIgnoredExports
+
+  - Find unused exports: show all unused exports, even if they are marked as ignored
 
 ## Known Issues
 

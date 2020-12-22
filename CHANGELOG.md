@@ -113,3 +113,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.2.0 (2020-12-22)
+
+### Added
+
+- Added support for exported consts and types via object destructuring
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

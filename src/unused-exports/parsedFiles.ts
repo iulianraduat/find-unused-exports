@@ -84,7 +84,7 @@ const defaultRe = `default`;
 
 const exportRegexps = [
   new RegExp(`${exportRe}(${defaultRe})\\s`, 'gi'),
-  new RegExp(`${exportRe}(?:class|const|enum|type|interface|function)\\s+(${varNameRe})`, 'gi'),
+  new RegExp(`${exportRe}(?:class|const|enum|type|interface|function)\\s+(${varNameRe}|${namesRe})`, 'gi'),
   new RegExp(`${exportRe}(${namesRe})`, 'gi'),
   new RegExp(`${exportRe}(?:\\*\\s+as)\\s+(${varNameRe})\\s${fromFileNameRe}`, 'gi'),
 ];
