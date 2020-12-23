@@ -23,14 +23,11 @@ function isInCacheHidden(workspaceRoot: string, node: TDependency): boolean {
   return cacheHidden[workspaceRoot].includes(node.key);
 }
 
-export class UnusedExportsProvider
-  implements vscode.TreeDataProvider<TDependency> {
-  private _onDidChangeTreeData: vscode.EventEmitter<
+export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependency> {
+  private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> = new vscode.EventEmitter<
     TDependency | undefined
-  > = new vscode.EventEmitter<TDependency | undefined>();
-  public readonly onDidChangeTreeData: vscode.Event<
-    TDependency | undefined
-  > = this._onDidChangeTreeData.event;
+  >();
+  public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
 
   constructor(private workspaceRoot: string) {}
 
@@ -41,38 +38,33 @@ export class UnusedExportsProvider
   }
 
   public open(filePath: string): void {
-    vscode.workspace
-      .openTextDocument(path.resolve(this.workspaceRoot, filePath))
-      .then((doc) => {
-        vscode.window.showTextDocument(doc);
-      });
+    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
+      vscode.window.showTextDocument(doc);
+    });
   }
 
   public findUnsedExportInFile(filePath: string, unusedExport: string): void {
-    vscode.workspace
-      .openTextDocument(path.resolve(this.workspaceRoot, filePath))
-      .then((doc) => {
-        vscode.window.showTextDocument(doc).then(() => {
-          const editor: vscode.TextEditor | undefined =
-            vscode.window.activeTextEditor;
-          const document: vscode.TextDocument | undefined = editor?.document;
-          if (editor === undefined || document === undefined) {
-            return;
-          }
+    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
+      vscode.window.showTextDocument(doc).then(() => {
+        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+        const document: vscode.TextDocument | undefined = editor?.document;
+        if (editor === undefined || document === undefined) {
+          return;
+        }
 
-          const num = document.lineCount;
-          for (let i = 0; i < num; i++) {
-            const line = document.lineAt(i);
-            if (line.text.includes(unusedExport)) {
-              const start = line.text.indexOf(unusedExport);
-              const end = start + unusedExport.length;
-              editor.selection = new vscode.Selection(i, start, i, end);
-              break;
-            }
+        const num = document.lineCount;
+        for (let i = 0; i < num; i++) {
+          const line = document.lineAt(i);
+          if (line.text.includes(unusedExport)) {
+            const start = line.text.indexOf(unusedExport);
+            const end = start + unusedExport.length;
+            editor.selection = new vscode.Selection(i, start, i, end);
+            break;
           }
-          vscode.commands.executeCommand('actions.find');
-        });
+        }
+        vscode.commands.executeCommand('actions.find');
       });
+    });
   }
 
   public delete(node: TDependency): void {
@@ -150,17 +142,12 @@ export class UnusedExportsProvider
   }
 
   private mapFile2Dependency(node: TNotUsed): TDependency {
-    const {
-      filePath,
-      isCompletelyUnused,
-      notUsedExports,
-      circularImports,
-    } = node;
+    const { filePath, isCompletelyUnused, notUsedExports, circularImports } = node;
     return new TDependency(
       filePath,
       DEPENDENCY_TYPE.FILE,
       filePath,
-      isCompletelyUnused || node.filePath === 'src/common/analytics.ts',
+      isCompletelyUnused,
       notUsedExports,
       circularImports,
       vscode.TreeItemCollapsibleState.Collapsed,
@@ -319,9 +306,7 @@ export class TDependency extends vscode.TreeItem {
   }
 
   private isFile(): boolean {
-    return (
-      this.notUsedExports !== undefined || this.circularImports !== undefined
-    );
+    return this.notUsedExports !== undefined || this.circularImports !== undefined;
   }
 }
 
