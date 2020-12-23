@@ -220,7 +220,7 @@ export class UnusedExportsProvider
         {
           command: 'unusedExports.openFile',
           title: 'Open',
-          arguments: [filePath],
+          arguments: [circularImport],
         }
       );
     };

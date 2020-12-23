@@ -141,3 +141,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.3.1 (2020-12-23)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Clicking on a circular dependency in panel will open it in editor
+
+### Removed
+
+- Nothing
