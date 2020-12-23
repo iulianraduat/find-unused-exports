@@ -127,3 +127,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.3.0 (2020-12-23)
+
+### Added
+
+- Added support for detection of circular imports/dependences, which produce undefined variables by import
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

@@ -16,6 +16,7 @@ Automatically find all exports in typescript and javascript files which are not 
 - If tsconfig.json defines baseUrl, it will resolve all imports using paths relative to baseUrl
 - A file having all exports not used will be marked as "not used" and a delete button will be available
 - If there are no unused exports, then the panel will display an entry saying this
+- Can detect circular imports, which produce undefined variables by import
 
 ## Usage
 
@@ -40,10 +41,17 @@ There are no special requirements.
 - findUnusedExports.debug:
 
   - Find unused exports: log all actions in an output window
+  - default false
 
 - findUnusedExports.showIgnoredExports
 
   - Find unused exports: show all unused exports, even if they are marked as ignored
+  - default false
+
+- findUnusedExports.detectCircularImports
+
+  - Find unused exports: detect circular imports
+  - default true
 
 ## Known Issues
 

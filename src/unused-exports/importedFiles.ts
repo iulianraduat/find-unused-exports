@@ -4,23 +4,29 @@ import { TContext } from './context';
 import { isDirectory, isFile } from './fsUtils';
 import { TTsImport, TTsParsed } from './parsedFiles';
 
-export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[]): TTsParsed[] => {
+export const getOnlyProjectImports = (
+  context: TContext,
+  parsedFiles: TTsParsed[]
+): TTsParsed[] => {
   const { allowJs, baseUrl } = context;
 
   parsedFiles.forEach((tsParsed) => {
     const { path: filePath, imports } = tsParsed;
     const mapFn = makeImportAbs(baseUrl, path.dirname(filePath), allowJs);
-    tsParsed.imports = imports.map(mapFn).filter(importValid);
+    tsParsed.imports = imports.map(mapFn).filter(importValid) as TTsImport[];
   });
 
   return parsedFiles;
 };
 
-const importValid = (anImport: TTsImport): boolean => anImport.path !== undefined;
+const importValid = (anImport: TTsImport | undefined): boolean =>
+  anImport !== undefined;
 
-const makeImportAbs = (baseUrl: string | undefined, filePath: string, allowJs?: boolean) => (
-  anImport: TTsImport
-): TTsImport => {
+const makeImportAbs = (
+  baseUrl: string | undefined,
+  filePath: string,
+  allowJs?: boolean
+) => (anImport: TTsImport): TTsImport | undefined => {
   const { path: relPath } = anImport;
 
   const absPath = path.resolve(filePath, relPath);
@@ -43,13 +49,13 @@ const makeImportAbs = (baseUrl: string | undefined, filePath: string, allowJs?: 
     }
   }
 
-  return {
-    ...anImport,
-    path: relPath,
-  };
+  return undefined;
 };
 
-const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefined => {
+const resolveFilePath = (
+  filePath: string,
+  allowJs?: boolean
+): string | undefined => {
   if (isFile(filePath)) {
     return filePath;
   }

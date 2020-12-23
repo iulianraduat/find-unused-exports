@@ -23,11 +23,14 @@ function isInCacheHidden(workspaceRoot: string, node: TDependency): boolean {
   return cacheHidden[workspaceRoot].includes(node.key);
 }
 
-export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependency> {
-  private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> = new vscode.EventEmitter<
+export class UnusedExportsProvider
+  implements vscode.TreeDataProvider<TDependency> {
+  private _onDidChangeTreeData: vscode.EventEmitter<
     TDependency | undefined
-  >();
-  public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
+  > = new vscode.EventEmitter<TDependency | undefined>();
+  public readonly onDidChangeTreeData: vscode.Event<
+    TDependency | undefined
+  > = this._onDidChangeTreeData.event;
 
   constructor(private workspaceRoot: string) {}
 
@@ -38,33 +41,38 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   public open(filePath: string): void {
-    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
-      vscode.window.showTextDocument(doc);
-    });
+    vscode.workspace
+      .openTextDocument(path.resolve(this.workspaceRoot, filePath))
+      .then((doc) => {
+        vscode.window.showTextDocument(doc);
+      });
   }
 
   public findUnsedExportInFile(filePath: string, unusedExport: string): void {
-    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
-      vscode.window.showTextDocument(doc).then(() => {
-        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
-        const document: vscode.TextDocument | undefined = editor?.document;
-        if (editor === undefined || document === undefined) {
-          return;
-        }
-
-        const num = document.lineCount;
-        for (let i = 0; i < num; i++) {
-          const line = document.lineAt(i);
-          if (line.text.includes(unusedExport)) {
-            const start = line.text.indexOf(unusedExport);
-            const end = start + unusedExport.length;
-            editor.selection = new vscode.Selection(i, start, i, end);
-            break;
+    vscode.workspace
+      .openTextDocument(path.resolve(this.workspaceRoot, filePath))
+      .then((doc) => {
+        vscode.window.showTextDocument(doc).then(() => {
+          const editor: vscode.TextEditor | undefined =
+            vscode.window.activeTextEditor;
+          const document: vscode.TextDocument | undefined = editor?.document;
+          if (editor === undefined || document === undefined) {
+            return;
           }
-        }
-        vscode.commands.executeCommand('actions.find');
+
+          const num = document.lineCount;
+          for (let i = 0; i < num; i++) {
+            const line = document.lineAt(i);
+            if (line.text.includes(unusedExport)) {
+              const start = line.text.indexOf(unusedExport);
+              const end = start + unusedExport.length;
+              editor.selection = new vscode.Selection(i, start, i, end);
+              break;
+            }
+          }
+          vscode.commands.executeCommand('actions.find');
+        });
       });
-    });
   }
 
   public delete(node: TDependency): void {
@@ -115,7 +123,9 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   private unusedExportsInFile(element: TDependency): Thenable<TDependency[]> {
-    return Promise.resolve(this.getUnusedExports(element));
+    const unusedExports = this.getUnusedExports(element);
+    const circularImports = this.getCircularImports(element);
+    return Promise.resolve([...unusedExports, ...circularImports]);
   }
 
   private filesWithUnusedExports(): Thenable<TDependency[]> {
@@ -140,19 +150,25 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   private mapFile2Dependency(node: TNotUsed): TDependency {
-    const { filePath, isCompletelyUnused, notUsedExports } = node;
-    return new TDependency(
-      filePath,
+    const {
       filePath,
       isCompletelyUnused,
       notUsedExports,
+      circularImports,
+    } = node;
+    return new TDependency(
+      filePath,
+      DEPENDENCY_TYPE.FILE,
+      filePath,
+      isCompletelyUnused || node.filePath === 'src/common/analytics.ts',
+      notUsedExports,
+      circularImports,
       vscode.TreeItemCollapsibleState.Collapsed,
       {
         command: 'unusedExports.openFile',
         title: 'Open',
         arguments: [filePath],
-      },
-      node
+      }
     );
   }
 
@@ -166,8 +182,10 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
     return (notUsedExport: string): TDependency => {
       return new TDependency(
         `${filePath}::${notUsedExport}`,
+        DEPENDENCY_TYPE.UNUSED_EXPORT,
         notUsedExport,
         false,
+        undefined,
         undefined,
         vscode.TreeItemCollapsibleState.None,
         {
@@ -182,6 +200,31 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   private isNotDeleted = (node: TDependency): boolean => {
     return isInCacheHidden(this.workspaceRoot, node) === false;
   };
+
+  private getCircularImports(node: TDependency): TDependency[] {
+    const mapFn = this.mapCircularImport2Dependency(node);
+    return node.circularImports?.map(mapFn) ?? [];
+  }
+
+  private mapCircularImport2Dependency(node: TDependency) {
+    const filePath: string = node.label;
+    return (circularImport: string): TDependency => {
+      return new TDependency(
+        `${filePath}::${circularImport}`,
+        DEPENDENCY_TYPE.CIRCULAR_IMPORT,
+        circularImport,
+        false,
+        undefined,
+        undefined,
+        vscode.TreeItemCollapsibleState.None,
+        {
+          command: 'unusedExports.openFile',
+          title: 'Open',
+          arguments: [filePath],
+        }
+      );
+    };
+  }
 
   private pathExists(p: string): boolean {
     try {
@@ -202,48 +245,92 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 }
 
+enum DEPENDENCY_TYPE {
+  FILE,
+  UNUSED_EXPORT,
+  CIRCULAR_IMPORT,
+  EMPTY,
+}
+
 export class TDependency extends vscode.TreeItem {
   constructor(
     public readonly key: string,
+    private readonly type: DEPENDENCY_TYPE,
     public readonly label: string,
     private isCompletelyUnused: boolean,
     public readonly notUsedExports: string[] | undefined,
+    public readonly circularImports: string[] | undefined,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly command?: vscode.Command,
-    public readonly notUsedObj?: TNotUsed
+    public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
 
     this.description = this.isCompletelyUnused ? 'not used' : '';
-    this.iconPath = this.getIconPath();
+    this.tooltip = this.getTooltip(type);
+    this.iconPath = this.getIconPath(type);
     this.contextValue = this.getContextValue();
   }
 
-  private getIconPath() {
-    const icon = this.isFile() ? 'dependency.svg' : 'export.svg';
+  private getIconPath(type: DEPENDENCY_TYPE) {
+    const icon: string = this.getIconName(type);
     return {
       light: path.join(__filename, '..', '..', 'resources', 'light', icon),
       dark: path.join(__filename, '..', '..', 'resources', 'dark', icon),
     };
   }
 
-  private getContextValue(): string {
-    if (this.isFile()) {
-      return this.isCompletelyUnused ? 'fileNotUsed' : 'file';
+  private getIconName(type: DEPENDENCY_TYPE) {
+    switch (type) {
+      case DEPENDENCY_TYPE.FILE:
+        return 'dependency.svg';
+      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+        return 'export.svg';
+      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+        return 'circle.svg';
+      case DEPENDENCY_TYPE.EMPTY:
+        return 'dependency.svg';
     }
+  }
 
-    return this.key === keyNoUnusedExports ? 'noUnusedExports' : 'notUsedExport';
+  private getTooltip(type: DEPENDENCY_TYPE) {
+    switch (type) {
+      case DEPENDENCY_TYPE.FILE:
+        return undefined;
+      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+        return 'not used export';
+      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+        return 'circular dependency';
+      case DEPENDENCY_TYPE.EMPTY:
+        return '';
+    }
+  }
+
+  private getContextValue(): string {
+    switch (this.type) {
+      case DEPENDENCY_TYPE.FILE:
+        return this.isCompletelyUnused ? 'fileNotUsed' : 'file';
+      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+        return 'notUsedExport';
+      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+        return 'circularImport';
+      case DEPENDENCY_TYPE.EMPTY:
+        return 'noUnusedExports';
+    }
   }
 
   private isFile(): boolean {
-    return this.notUsedExports !== undefined;
+    return (
+      this.notUsedExports !== undefined || this.circularImports !== undefined
+    );
   }
 }
 
 const NoUnusedExports: TDependency = new TDependency(
   keyNoUnusedExports,
+  DEPENDENCY_TYPE.EMPTY,
   'No unused exports',
   false,
+  undefined,
   undefined,
   vscode.TreeItemCollapsibleState.None
 );

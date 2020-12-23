@@ -88,7 +88,7 @@ interface TRelationExport {
   used?: string[];
 }
 
-interface TRelationImport {
+export interface TRelationImport {
   names: string[];
   path: string;
 }

@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
 import { getExports } from './exports';
 import { getOnlyProjectImports } from './importedFiles';
@@ -10,9 +11,13 @@ import { buildRelations, TRelation } from './relations';
 import { getSourceFiles } from './sourceFiles';
 import { getOnlyUsefullFiles } from './usefullFiles';
 
-const fixPath = (path: string, prefixLen: number): string => path.substr(prefixLen).replace(/\\/g, '/');
+const fixPath = (path: string, prefixLen: number): string =>
+  path.substr(prefixLen).replace(/\\/g, '/');
 
-const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string): void => {
+const makePathRelativeToProject = (
+  relations: TRelation[],
+  absPathToPrj: string
+): void => {
   const pathDelim = path.delimiter;
   const len = absPathToPrj.length + pathDelim.length;
   relations.forEach((r) => {
@@ -44,8 +49,12 @@ export const app = (absPathToPrj: string): TNotUsed[] => {
   makePathRelativeToProject(relations, absPathToPrj);
   log('Analysed files', relations.length);
   const notUsed = getNotUsed(relations);
-  const finalList = notUsed.sort(sortNotUsedFn);
+  let finalList = notUsed.sort(sortNotUsedFn);
   log('Not used exports', finalList.length);
-  log('------------------------------------------------------------------------');
+
+  finalList = detectCircularImports(relations, finalList);
+  log(
+    '------------------------------------------------------------------------'
+  );
   return finalList;
 };

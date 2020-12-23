@@ -27,10 +27,12 @@ export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
   return nodes;
 };
 
-export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath);
+export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number =>
+  a.filePath.localeCompare(b.filePath);
 
 export interface TNotUsed {
   filePath: string;
   isCompletelyUnused: boolean;
   notUsedExports?: string[];
+  circularImports?: string[];
 }
