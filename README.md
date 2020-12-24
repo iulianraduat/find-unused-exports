@@ -51,7 +51,7 @@ There are no special requirements.
 - findUnusedExports.detectCircularImports
 
   - Find unused exports: detect circular imports
-  - default true
+  - default false
 
 ## Known Issues
 

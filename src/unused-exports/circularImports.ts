@@ -8,10 +8,7 @@ interface TImport {
   imports?: string[];
 }
 
-export function detectCircularImports(
-  relations: TRelation[],
-  nodes: TNotUsed[]
-): TNotUsed[] {
+export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[]): TNotUsed[] {
   if (isCircularImportsEnabled() === false) {
     return nodes;
   }
@@ -37,9 +34,7 @@ export function detectCircularImports(
 }
 
 function isCircularImportsEnabled(): boolean {
-  return vscode.workspace
-    .getConfiguration()
-    .get('findUnusedExports.detectCircularImports', true);
+  return vscode.workspace.getConfiguration().get('findUnusedExports.detectCircularImports', false);
 }
 
 function parseForImports(relations: TRelation[]): TImport[] {
@@ -65,11 +60,7 @@ function hasImports(anImport: TImport): boolean {
   return anImport.imports !== undefined && anImport.imports.length > 0;
 }
 
-function checkForCircularImport(
-  nodes: TNotUsed[],
-  path: string,
-  mapImports: Record<string, string[]>
-) {
+function checkForCircularImport(nodes: TNotUsed[], path: string, mapImports: Record<string, string[]>) {
   const circularImportsPath = hasCircularImport([], path, mapImports, path);
   if (circularImportsPath === undefined) {
     return false;

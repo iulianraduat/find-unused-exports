@@ -169,3 +169,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Debug code
+
+## 1.3.3 (2020-12-24)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Made the check for circular dependencies by default to be disabled
+
+### Removed
+
+- Nothing
