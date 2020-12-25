@@ -13,10 +13,19 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[])
     return nodes;
   }
 
+  let prevRelations = relations;
+  while (true) {
+    const newRelations = optimizeRelations(prevRelations);
+    if (newRelations.length === prevRelations.length) {
+      break;
+    }
+    prevRelations = newRelations;
+  }
+
   let countCircularImports = 0;
 
   const mapImports: Record<string, string[]> = {};
-  const onlyImports = parseForImports(relations).filter(hasImports);
+  const onlyImports = parseForImports(prevRelations);
   onlyImports.forEach((anImport) => {
     const { path, imports } = anImport;
     mapImports[path] = imports!;
@@ -31,6 +40,39 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[])
 
   log('Found circular imports', countCircularImports);
   return nodes;
+}
+
+function optimizeRelations(relations: TRelation[]): TRelation[] {
+  return relations
+    .map((rel) => hasRelationImports(rel, relations))
+    .filter((rel) => rel !== undefined && hasRelationExports(rel)) as TRelation[];
+}
+
+function hasRelationImports(relation: TRelation, relations: TRelation[]): TRelation | undefined {
+  const { imports } = relation;
+  if (imports === undefined || imports.length === 0) {
+    return undefined;
+  }
+
+  relation.imports = imports.filter((imp) => stillExists(imp.path, relations));
+  if (relation.imports.length === 0) {
+    return undefined;
+  }
+
+  return relation;
+}
+
+function hasRelationExports(relation: TRelation): boolean {
+  const { exports } = relation;
+  if (exports === undefined || exports.used === undefined || exports.used.length === 0) {
+    return false;
+  }
+
+  return true;
+}
+
+function stillExists(path: string, relations: TRelation[]): boolean {
+  return relations.findIndex((rel) => rel.path === path) >= 0;
 }
 
 function isCircularImportsEnabled(): boolean {
@@ -54,10 +96,6 @@ function hasPath(relImport: TRelationImport): boolean {
 
 function getPath(relImport: TRelationImport): string {
   return relImport.path;
-}
-
-function hasImports(anImport: TImport): boolean {
-  return anImport.imports !== undefined && anImport.imports.length > 0;
 }
 
 function checkForCircularImport(nodes: TNotUsed[], path: string, mapImports: Record<string, string[]>) {

@@ -17,6 +17,7 @@ Automatically find all exports in typescript and javascript files which are not 
 - A file having all exports not used will be marked as "not used" and a delete button will be available
 - If there are no unused exports, then the panel will display an entry saying this
 - Can detect circular imports, which produce undefined variables by import
+  - Only the first set of circular imports for a file is displayed in panel (for clarity of the circular path)
 
 ## Usage
 

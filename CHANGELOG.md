@@ -183,3 +183,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.3.4 (2020-12-24)
+
+### Added
+
+- Log of the ellapsed time used to analyse the project
+- Remove the comments from tsconfig.json before validating it as JSON
+
+### Changed
+
+- Improved the performance of circular dependecies
+
+### Removed
+
+- Nothing

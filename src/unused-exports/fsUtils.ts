@@ -1,16 +1,19 @@
-import * as fs from "fs";
+import * as fs from 'fs';
+import { log } from './log';
 
-export const readJsonFile = (
-  path: string
-): { [kes: string]: any } | undefined => {
+const reComment = /\/\*(:?\\.|.|\r|\n)*?\*\/|\/\/.*/g;
+
+export const readJsonFile = (path: string): { [kes: string]: any } | undefined => {
   try {
-    return JSON.parse(fs.readFileSync(path, "utf8"));
-  } catch {
+    let content = fs.readFileSync(path, 'utf8');
+    content = content.replace(reComment, '');
+    return JSON.parse(content);
+  } catch (e) {
     return undefined;
   }
 };
 
-export const readFile = (path: string): string => fs.readFileSync(path, "utf8");
+export const readFile = (path: string): string => fs.readFileSync(path, 'utf8');
 
 export const isDirectory = (path: string): boolean => {
   try {

@@ -11,13 +11,9 @@ import { buildRelations, TRelation } from './relations';
 import { getSourceFiles } from './sourceFiles';
 import { getOnlyUsefullFiles } from './usefullFiles';
 
-const fixPath = (path: string, prefixLen: number): string =>
-  path.substr(prefixLen).replace(/\\/g, '/');
+const fixPath = (path: string, prefixLen: number): string => path.substr(prefixLen).replace(/\\/g, '/');
 
-const makePathRelativeToProject = (
-  relations: TRelation[],
-  absPathToPrj: string
-): void => {
+const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string): void => {
   const pathDelim = path.delimiter;
   const len = absPathToPrj.length + pathDelim.length;
   relations.forEach((r) => {
@@ -32,6 +28,8 @@ const makePathRelativeToProject = (
 };
 
 export const app = (absPathToPrj: string): TNotUsed[] => {
+  const startTime = new Date();
+
   log('Path to project', absPathToPrj);
   const context = makeContext(absPathToPrj);
   const sourceFiles = getSourceFiles(absPathToPrj, context);
@@ -53,8 +51,10 @@ export const app = (absPathToPrj: string): TNotUsed[] => {
   log('Not used exports', finalList.length);
 
   finalList = detectCircularImports(relations, finalList);
-  log(
-    '------------------------------------------------------------------------'
-  );
+
+  const endTime = new Date();
+  const timeDiffMs: number = endTime.getTime() - startTime.getTime();
+  log('Ellapsed time (ms)', timeDiffMs);
+  log('------------------------------------------------------------------------');
   return finalList;
 };

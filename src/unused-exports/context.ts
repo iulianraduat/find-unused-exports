@@ -35,7 +35,13 @@ export const makeContext = (pathToPrj: string): TContext => {
 
 const getExclude = (exclude?: string[], outDir?: string): string[] | undefined => {
   if (exclude) {
-    return exclude;
+    const excludeDirs = exclude.map((dir) => `${dir}/**`);
+
+    if (outDir) {
+      excludeDirs.push(`${outDir}/**`);
+    }
+
+    return excludeDirs;
   }
 
   const dirs = ['node_modules/**', 'bower_components/**', 'jspm_packages/**'];

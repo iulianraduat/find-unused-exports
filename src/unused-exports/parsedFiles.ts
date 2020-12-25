@@ -36,7 +36,7 @@ const parseFile = (file: TTsFile): TTsParsed => {
   };
 };
 
-export const varNameRe = `[_\\$a-z0-9]+`;
+export const varNameRe = `[_\\$a-zA-Z0-9]+`;
 const fileNameRe = `["']([^"']+)["']`;
 const fromFileNameRe = `\\s*from\\s*${fileNameRe}`;
 const listSeparatorRe = `\\s*,\\s*`;
@@ -47,13 +47,13 @@ const importRe = `import\\s*`;
 const importNamesRe = `(?:${nameRe}|${namesRe}|${listSeparatorRe})+`;
 
 const importRegexps = [
-  new RegExp(`${importRe}(${importNamesRe})${fromFileNameRe}`, 'gi'),
-  new RegExp(`${importRe}(\\*\\s*as)\\s+(${varNameRe})${fromFileNameRe}`, 'gi'),
+  new RegExp(`${importRe}(${importNamesRe})${fromFileNameRe}`, 'g'),
+  new RegExp(`${importRe}(\\*\\s*as)\\s+(${varNameRe})${fromFileNameRe}`, 'g'),
 ];
 
-const defaultImportRegexps = [new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'gi')];
+const defaultImportRegexps = [new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g')];
 
-const reAsImport = new RegExp(`\\s+as\\s+${varNameRe}`, 'gi');
+const reAsImport = new RegExp(`\\s+as\\s+${varNameRe}`, 'g');
 
 const getImports = (content: string): TTsImport[] => {
   const res: TTsImport[] = [];
@@ -83,10 +83,10 @@ const exportRe = `export\\s+`;
 const defaultRe = `default`;
 
 const exportRegexps = [
-  new RegExp(`${exportRe}(${defaultRe})\\s`, 'gi'),
-  new RegExp(`${exportRe}(?:class|const|enum|type|interface|function)\\s+(${varNameRe}|${namesRe})`, 'gi'),
-  new RegExp(`${exportRe}(${namesRe})`, 'gi'),
-  new RegExp(`${exportRe}(?:\\*\\s+as)\\s+(${varNameRe})\\s${fromFileNameRe}`, 'gi'),
+  new RegExp(`${exportRe}(${defaultRe})\\s`, 'g'),
+  new RegExp(`${exportRe}(?:class|const|enum|type|interface|function)\\s+(${varNameRe}|${namesRe})`, 'g'),
+  new RegExp(`${exportRe}(${namesRe})`, 'g'),
+  new RegExp(`${exportRe}(?:\\*\\s+as)\\s+(${varNameRe})\\s${fromFileNameRe}`, 'g'),
 ];
 
 const reAsExport = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
