@@ -151,6 +151,10 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
 
   private mapFile2Dependency(node: TNotUsed): TDependency {
     const { filePath, isCompletelyUnused, notUsedExports, circularImports } = node;
+    const collapsibleState = isResultExpanded()
+      ? vscode.TreeItemCollapsibleState.Expanded
+      : vscode.TreeItemCollapsibleState.Collapsed;
+
     return new TDependency(
       filePath,
       DEPENDENCY_TYPE.FILE,
@@ -158,7 +162,7 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
       isCompletelyUnused,
       notUsedExports,
       circularImports,
-      vscode.TreeItemCollapsibleState.Collapsed,
+      collapsibleState,
       {
         command: 'unusedExports.openFile',
         title: 'Open',
@@ -340,3 +344,7 @@ const NoUnusedExports: TDependency = new TDependency(
   undefined,
   vscode.TreeItemCollapsibleState.None
 );
+
+function isResultExpanded(): boolean {
+  return vscode.workspace.getConfiguration().get('findUnusedExports.defaultResultExpanded', false);
+}

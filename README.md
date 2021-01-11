@@ -12,7 +12,7 @@ Automatically find all exports in typescript and javascript files which are not 
 - Automatically find all exports and imports in .ts and .tsx files
 - Automatically find all exports and imports in .js and .jsx files, if tsconfig.json allows for .js files in project
 - All imports from node modules are ignored
-- The test files are ignored, hence the exports used only by unit tests will be displayed as not used
+- Configurable display of results as expanded or collapsed
 - If tsconfig.json defines baseUrl, it will resolve all imports using paths relative to baseUrl
 - A file having all exports not used will be marked as "not used" and a delete button will be available
 - If there are no unused exports, then the panel will display an entry saying this
@@ -38,6 +38,11 @@ Bellow you can see the list of unused exports found in the currently opened proj
 There are no special requirements.
 
 ## Extension Settings
+
+- findUnusedExports.defaultResultExpanded:
+
+  - Find unused exports: show all found results initially expanded (otherwise collapsed)
+  - default false
 
 - findUnusedExports.debug:
 

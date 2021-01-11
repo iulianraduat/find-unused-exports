@@ -112,6 +112,12 @@
       {
         "title": "Find unused exports",
         "properties": {
+          "findUnusedExports.defaultResultExpanded": {
+            "type": "boolean",
+            "default": false,
+            "description": "Find unused exports: show all found results initially expanded (otherwise collapsed)",
+            "scope": "resource"
+          },
           "findUnusedExports.debug": {
             "type": "boolean",
             "default": false,
