@@ -213,11 +213,12 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 
 - Removed the detection of circular dependencies because of the poor performance
 
-## 1.3.6 (2021-01-11)
+## 1.4.0 (2021-01-11)
 
 ### Added
 
 - Added the detection of circular dependencies using a new algorithm
+- Added the possibility to display the results initially expanded (instead of collapsed)
 
 ### Changed
 
