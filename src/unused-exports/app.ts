@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
 import { getExports } from './exports';
 import { getOnlyProjectImports } from './importedFiles';
@@ -46,8 +47,10 @@ export const app = (absPathToPrj: string): TNotUsed[] => {
   makePathRelativeToProject(relations, absPathToPrj);
   log('Analysed files', relations.length);
   const notUsed = getNotUsed(relations);
-  const finalList = notUsed.sort(sortNotUsedFn);
+  let finalList = notUsed.sort(sortNotUsedFn);
   log('Not used exports', finalList.length);
+
+  finalList = detectCircularImports(relations, finalList);
 
   const endTime = new Date();
   const timeDiffMs: number = endTime.getTime() - startTime.getTime();
