@@ -154,6 +154,17 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
     const collapsibleState = isResultExpanded()
       ? vscode.TreeItemCollapsibleState.Expanded
       : vscode.TreeItemCollapsibleState.Collapsed;
+    const cmd = node.circularImports
+      ? {
+          command: 'unusedExports.findUnusedExportInFile',
+          title: 'Find the circular import in file',
+          arguments: [filePath, getFileBaseName(node.circularImports[0])],
+        }
+      : {
+          command: 'unusedExports.openFile',
+          title: 'Open',
+          arguments: [filePath],
+        };
 
     return new TDependency(
       filePath,
@@ -163,11 +174,7 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
       notUsedExports,
       circularImports,
       collapsibleState,
-      {
-        command: 'unusedExports.openFile',
-        title: 'Open',
-        arguments: [filePath],
-      }
+      cmd
     );
   }
 
@@ -227,7 +234,6 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
     };
   }
 
-  private regNextImport = /([^\/\\]+)(?:\.[^.]+)$/;
   private getNextImport(firstPathname: string, circularImports: string[] | undefined, index: number): string {
     if (circularImports === undefined) {
       return '';
@@ -235,7 +241,7 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
 
     index++;
     const pathname = index < circularImports.length ? circularImports[index] : firstPathname;
-    return this.regNextImport.exec(pathname)![1] ?? '';
+    return getFileBaseName(pathname);
   }
 
   private pathExists(p: string): boolean {
@@ -347,4 +353,9 @@ const NoUnusedExports: TDependency = new TDependency(
 
 function isResultExpanded(): boolean {
   return vscode.workspace.getConfiguration().get('findUnusedExports.defaultResultExpanded', false);
+}
+
+const regNextImport = /([^\/\\]+)(?:\.[^.]+)$/;
+function getFileBaseName(pathname: string): string {
+  return regNextImport.exec(pathname)![1] ?? '';
 }

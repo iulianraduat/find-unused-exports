@@ -227,3 +227,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.4.1 (2021-01-12)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Clicking on a file name will search for the name of the first circular dependency (if any)
+
+### Removed
+
+- Nothing
