@@ -4,10 +4,7 @@ import { TContext } from './context';
 import { isDirectory, isFile } from './fsUtils';
 import { TTsImport, TTsParsed } from './parsedFiles';
 
-export const getOnlyProjectImports = (
-  context: TContext,
-  parsedFiles: TTsParsed[]
-): TTsParsed[] => {
+export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[]): TTsParsed[] => {
   const { allowJs, baseUrl } = context;
 
   parsedFiles.forEach((tsParsed) => {
@@ -19,14 +16,11 @@ export const getOnlyProjectImports = (
   return parsedFiles;
 };
 
-const importValid = (anImport: TTsImport | undefined): boolean =>
-  anImport !== undefined;
+const importValid = (anImport: TTsImport | undefined): boolean => anImport !== undefined;
 
-const makeImportAbs = (
-  baseUrl: string | undefined,
-  filePath: string,
-  allowJs?: boolean
-) => (anImport: TTsImport): TTsImport | undefined => {
+const makeImportAbs = (baseUrl: string | undefined, filePath: string, allowJs?: boolean) => (
+  anImport: TTsImport
+): TTsImport | undefined => {
   const { path: relPath } = anImport;
 
   const absPath = path.resolve(filePath, relPath);
@@ -52,10 +46,7 @@ const makeImportAbs = (
   return undefined;
 };
 
-const resolveFilePath = (
-  filePath: string,
-  allowJs?: boolean
-): string | undefined => {
+const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefined => {
   if (isFile(filePath)) {
     return filePath;
   }
@@ -64,7 +55,7 @@ const resolveFilePath = (
   const globReFile = getGlobRegexp(filePath, allowJs);
   const resFile = glob.sync(globReFile, {
     cwd: '.',
-    nodir: false,
+    nodir: true,
     nosort: true,
   });
   if (resFile?.length === 1) {
@@ -79,7 +70,7 @@ const resolveFilePath = (
   const globReDir = getDirGlobRegexp(filePath, allowJs);
   const resDir = glob.sync(globReDir, {
     cwd: '.',
-    nodir: false,
+    nodir: true,
     nosort: true,
   });
   return resDir?.length === 1 ? path.resolve(resDir[0]) : undefined;

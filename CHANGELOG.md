@@ -241,3 +241,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.4.2 (2021-02-15)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed the crash on folders having .js or .ts as extension
+- Updated packages
+
+### Removed
+
+- Nothing

@@ -53,7 +53,7 @@ const globFile = (pathToFile: string, globRegexp: string, globIgnore: string[] |
     .sync(globRegexp, {
       cwd: pathToFile,
       ignore: globIgnore,
-      nodir: false,
+      nodir: true,
       nosort: true,
     })
     .filter((f: any) => {
