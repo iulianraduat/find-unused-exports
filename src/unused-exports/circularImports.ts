@@ -18,6 +18,7 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[])
   const cycles = findCirculars(mapRelations);
   addCyclesToNodes(cycles, nodes);
 
+  log('dump', JSON.stringify(cycles, null, 2));
   log('Found circular imports', cycles.length);
   return nodes;
 }
@@ -75,7 +76,7 @@ function stillExists(path: string, relations: TRelation[]): boolean {
 function array2map4relations(relations: TRelation[]): Record<string, string[]> {
   const map: Record<string, string[]> = {};
   relations.forEach((rel) => {
-    map[rel.path] = rel.imports!.map((imp) => imp.path);
+    map[rel.path] = rel.imports?.map((imp) => imp.path) || [];
   });
   return map;
 }

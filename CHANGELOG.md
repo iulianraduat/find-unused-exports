@@ -256,3 +256,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.4.3 (2021-02-28)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Updated packages
+
+### Removed
+
+- Nothing
