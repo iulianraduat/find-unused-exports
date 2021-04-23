@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { app } from './unused-exports/app';
-import { log } from './unused-exports/log';
 import { TNotUsed } from './unused-exports/notUsed';
 
 const cacheFiles: Record<string, TNotUsed[]> = {};

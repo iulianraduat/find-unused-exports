@@ -270,3 +270,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.4.4 (2021-04-23)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Avoiding reporting empty paths as circular paths
+
+### Removed
+
+- Nothing

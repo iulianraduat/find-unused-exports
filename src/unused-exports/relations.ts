@@ -3,10 +3,8 @@ import { TImport } from './imports';
 
 export const buildRelations = (imports: TImport[], exports: TExport[]): TRelation[] => {
   const arr: TRelation[] = [];
-
   imports.forEach(addImport(arr));
   exports.forEach(addExport(arr));
-
   return arr;
 };
 

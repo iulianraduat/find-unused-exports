@@ -18,7 +18,6 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[])
   const cycles = findCirculars(mapRelations);
   addCyclesToNodes(cycles, nodes);
 
-  log('dump', JSON.stringify(cycles, null, 2));
   log('Found circular imports', cycles.length);
   return nodes;
 }
@@ -89,7 +88,11 @@ function findCirculars(tree: Record<string, string[]>): string[][] {
   function visit(id: string, used: string[]): void {
     const index = used.indexOf(id);
     if (index > -1) {
-      circulars.push(index === 0 ? used : used.slice(index));
+      const circularPath = index === 0 ? used : used.slice(index);
+      /* we avoid pushing an array which will be empty in final */
+      if (circularPath.length > 1) {
+        circulars.push(circularPath);
+      }
       return;
     }
 
