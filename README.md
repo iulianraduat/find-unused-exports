@@ -27,6 +27,8 @@ Open the panel and the extension will start the scan of the project. If you made
 
 If there are no unused exports, the panel will display a single entry saying this.
 
+By default, all files from node_modules/ or having the extension .d.ts are ignored.
+
 ### Screenshot
 
 Bellow you can see the list of unused exports found in the currently opened project as are they displayed by this extension:

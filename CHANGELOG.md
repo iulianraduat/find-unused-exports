@@ -284,3 +284,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.5.0 (2021-05-21)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Corrected the rules used to find the files containing code
+- Corrected the rule for removing the comments from .json files
+
+### Removed
+
+- Nothing

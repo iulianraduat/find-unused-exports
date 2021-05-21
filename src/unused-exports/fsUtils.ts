@@ -1,14 +1,14 @@
 import * as fs from 'fs';
 import { log } from './log';
 
-const reComment = /\/\*(:?\\.|.|\r|\n)*?\*\/|\/\/.*/g;
-
 export const readJsonFile = (path: string): { [kes: string]: any } | undefined => {
   try {
     let content = fs.readFileSync(path, 'utf8');
-    content = content.replace(reComment, '');
+    /* we remove the comments from it */
+    content = content.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m));
     return JSON.parse(content);
   } catch (e) {
+    log(`Error parsing "${path}"`, e.message ?? e);
     return undefined;
   }
 };
@@ -30,17 +30,3 @@ export const isFile = (path: string): boolean => {
     return false;
   }
 };
-
-/*
-export const writeFile = (path: string, content: string) =>
-  fs.writeFileSync(path, content, "utf8");
-
-export const writeJsonFile = (path: string, obj: object) =>
-  writeFile(path, JSON.stringify(obj, undefined, 2));
-
-export const appendFile = (path: string, content: string) =>
-  fs.appendFileSync(path, content, "utf8");
-
-export const appendJsonFile = (path: string, obj: object) =>
-  fs.appendFileSync(path, JSON.stringify(obj, undefined, 2), "utf8");
-*/

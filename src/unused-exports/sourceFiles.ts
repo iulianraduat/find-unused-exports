@@ -11,57 +11,58 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
   const { allowJs, exclude, include, files } = context;
 
   const globRegexp = getGlobRegexp(allowJs);
-  const globIgnore = getGlobIgnore(exclude);
-  const globRoots = getGlobRoots(pathToPrj, files, include);
+  const globExclude = getGlobIgnore(exclude);
+  const explicitFiles = getRoots(pathToPrj, files);
+  const globInclude = getRoots(pathToPrj, include);
 
-  const res1 = globFiles(files, globRegexp, undefined);
-  const res2 = globFiles(globRoots, globRegexp, globIgnore);
-  return [...res1, ...res2];
+  if (files === undefined && include === undefined) {
+    const res: TTsFile[] = [];
+    globFile(res, pathToPrj, globRegexp, globExclude);
+    return res;
+  }
+
+  const res: TTsFile[] = [];
+  if (files !== undefined) {
+    globFiles(res, pathToPrj, explicitFiles);
+  }
+  if (include !== undefined) {
+    globFiles(res, pathToPrj, globInclude, globExclude);
+  }
+  return res;
 };
 
 const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.@(ts|js)?(x)' : '**/*.ts?(x)');
 
-const getGlobIgnore = (exclude?: string[]): string[] => (exclude ? ['**/*.d.ts', ...exclude] : ['**/*.d.ts']);
+const getGlobIgnore = (exclude: string[] = []): string[] => ['**/*.d.ts', 'node_modules/**/*', ...exclude];
 
-const getGlobRoots = (pathToPrj: string, files?: string[], include?: string[]): string[] => {
-  const pathFiles: string[] | undefined = files?.map((f) => path.resolve(pathToPrj, f));
-
-  const pathInclude: string[] | undefined = include?.map((f) => path.resolve(pathToPrj, f));
-
-  if (!pathFiles && !pathInclude) {
+function getRoots(pathToPrj: string, files?: string[]): string[] {
+  if (files === undefined) {
     return [pathToPrj];
   }
 
-  return [...(pathFiles ?? []), ...(pathInclude ?? [])];
-};
+  const pathFiles = files.map((f) => path.resolve(pathToPrj, f));
+  return pathFiles;
+}
 
-const globFiles = (paths: string[] | undefined, globRegexp: string, globIgnore: string[] | undefined): TTsFile[] => {
-  if (!paths) {
-    return [];
-  }
+function globFiles(res: TTsFile[], pathToPrj: string, globRegexp: string[], globIgnore?: string[]) {
+  globRegexp.forEach((gre) => globFile(res, pathToPrj, gre, globIgnore));
+}
 
-  const res: TTsFile[][] = paths.map((f) => globFile(f, globRegexp, globIgnore));
-
-  let flattedRes: TTsFile[] = [];
-  res.forEach((r) => (flattedRes = flattedRes.concat(r)));
-  return flattedRes;
-};
-
-const globFile = (pathToFile: string, globRegexp: string, globIgnore: string[] | undefined): TTsFile[] => {
-  const res: TTsFile[] = [];
+function globFile(res: TTsFile[], pathToFolder: string, globRegexp: string, globIgnore?: string[]) {
+  log('Using glob rule', path.resolve(pathToFolder, globRegexp));
+  globIgnore && log('And glob ignore rules', globIgnore);
   glob
     .sync(globRegexp, {
-      cwd: pathToFile,
+      cwd: pathToFolder,
       ignore: globIgnore,
       nodir: true,
       nosort: true,
     })
-    .filter((f: any) => {
-      const source = path.resolve(pathToFile, f);
+    .filter((f: string) => {
+      const source = path.resolve(pathToFolder, f);
       log('Found source file', source);
       res.push({
         path: source,
       });
     });
-  return res;
-};
+}
