@@ -1,4 +1,4 @@
-import { TTsImport, TTsParsed, varNameRe } from "./parsedFiles";
+import { TTsImport, TTsParsed, varNameRe } from './parsedFiles';
 
 export const getImports = (parsedFiles: TTsParsed[]): TImport[] => {
   const arr: TImport[] = [];
@@ -6,14 +6,14 @@ export const getImports = (parsedFiles: TTsParsed[]): TImport[] => {
   return arr;
 };
 
-const parseImport = (arr: TImport[]) => (parsedFile: TTsParsed): void => {
-  const { path, imports } = parsedFile;
-  imports.forEach(addParsedImports(arr, path));
-};
+const parseImport =
+  (arr: TImport[]) =>
+  (parsedFile: TTsParsed): void => {
+    const { path, imports } = parsedFile;
+    imports.forEach(addParsedImports(arr, path));
+  };
 
-const addParsedImports = (arr: TImport[], path: string) => (
-  anImport: TTsImport
-) => {
+const addParsedImports = (arr: TImport[], path: string) => (anImport: TTsImport) => {
   const { name, path: fromPath } = anImport;
   const names = getImportedNames(name);
   names.forEach((name) =>
@@ -25,18 +25,22 @@ const addParsedImports = (arr: TImport[], path: string) => (
   );
 };
 
-const defaultOrGroupRe = new RegExp(`${varNameRe}|,|\\{[^\\}]*\\}`, "gi");
-const varNameInGroupRe = new RegExp(`${varNameRe}|,}`, "gi");
+const defaultOrGroupRe = new RegExp(`${varNameRe}|\\*|,|\\{[^\\}]*\\}`, 'gi');
+const varNameInGroupRe = new RegExp(`${varNameRe}|,}`, 'gi');
 
 const getImportedNames = (name: string): string[] => {
-  const re = new RegExp(defaultOrGroupRe, "gi");
+  const re = new RegExp(defaultOrGroupRe, 'gi');
   const arr = [];
   let res1: string[] | null;
   while ((res1 = re.exec(name)) !== null) {
     const foundName1 = res1[0];
     const ch1 = foundName1[0];
-    if (ch1 !== "{") {
-      arr.push("default");
+    if (foundName1 === '*') {
+      arr.push('*');
+      continue;
+    }
+    if (ch1 !== '{') {
+      arr.push('default');
       continue;
     }
 
@@ -44,7 +48,7 @@ const getImportedNames = (name: string): string[] => {
     let res2: string[] | null;
     while ((res2 = varNameInGroupRe.exec(varNameInGroup)) !== null) {
       const foundName2 = res2[0];
-      if (foundName2 !== ",") {
+      if (foundName2 !== ',') {
         arr.push(foundName2);
       }
     }

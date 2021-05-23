@@ -7,10 +7,12 @@ export const getExports = (parsedFiles: TTsParsed[], imports: TImport[]): TExpor
   return arr;
 };
 
-const parseExport = (arr: TExport[], imports: TImport[]) => (parsedFile: TTsParsed): void => {
-  const { path, exports } = parsedFile;
-  exports.forEach(addParsedExports(arr, imports, path));
-};
+const parseExport =
+  (arr: TExport[], imports: TImport[]) =>
+  (parsedFile: TTsParsed): void => {
+    const { path, exports } = parsedFile;
+    exports.forEach(addParsedExports(arr, imports, path));
+  };
 
 const addParsedExports = (arr: TExport[], imports: TImport[], path: string) => (anExport: TTsExport) => {
   const { name, path: fromPath } = anExport;
@@ -55,7 +57,8 @@ const getExportedNames = (name: string): string[] => {
 };
 
 const itIsUsed = (path: string, name: string, imports: TImport[]): boolean =>
-  imports.find((anImport) => anImport.fromPath === path && anImport.name === name) !== undefined;
+  imports.find((anImport) => anImport.fromPath === path && (anImport.name === name || anImport.name === '*')) !==
+  undefined;
 
 export interface TExport {
   inPath: string;

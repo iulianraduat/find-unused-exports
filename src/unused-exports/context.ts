@@ -35,7 +35,7 @@ export const makeContext = (pathToPrj: string): TContext => {
 
 const getExclude = (exclude?: string[], outDir?: string): string[] | undefined => {
   if (exclude) {
-    const excludeDirs = exclude.map((dir) => `${dir}/**`);
+    const excludeDirs = exclude.map((dir) => (dir.indexOf('*') < 0 ? `${dir}/**` : dir));
 
     if (outDir) {
       excludeDirs.push(`${outDir}/**`);

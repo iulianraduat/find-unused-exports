@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { log } from './log';
 import { TNotUsed } from './notUsed';
-import { TRelation, TRelationImport } from './relations';
+import { TRelation } from './relations';
 
 export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[]): TNotUsed[] {
   if (isCircularImportsEnabled() === false) {

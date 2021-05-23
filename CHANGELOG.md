@@ -299,3 +299,20 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.6.0 (2021-05-21)
+
+### Added
+
+- Added support for "export let" and "export var"
+- Added support for "import type"
+- Added support for "import \* as"
+- Added a test-project for improving the testing
+
+### Changed
+
+- The algorithm for detecting the not used exports
+
+### Removed
+
+- Nothing

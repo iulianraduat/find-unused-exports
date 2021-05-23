@@ -27,7 +27,9 @@ Open the panel and the extension will start the scan of the project. If you made
 
 If there are no unused exports, the panel will display a single entry saying this.
 
-By default, all files from node_modules/ or having the extension .d.ts are ignored.
+By default, all files from any node_modules folder or having the extension .d.ts are ignored.
+
+An "import \* as" will assume that all imported exports are used.
 
 ### Screenshot
 
