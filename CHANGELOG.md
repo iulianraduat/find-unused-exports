@@ -330,3 +330,19 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.7.1 (2021-05-25)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed bug introduced with 1.7.0: "import as name" no longer mark export as being used
+- Any folder in tsconfig.json's "include" whithout glob characters will be assumed to mean all files in all subfolders of that folder
+- Improved the test projects
+
+### Removed
+
+- Nothing

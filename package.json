@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -25,7 +25,7 @@
     "pretest": "yarn run compile && yarn run lint",
     "test": "echo node ./out/test/runTest.js",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.7.0.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.7.1.vsix",
     "publish": "vsce publish"
   },
   "dependencies": {

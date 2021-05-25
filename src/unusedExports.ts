@@ -316,7 +316,7 @@ export class TDependency extends vscode.TreeItem {
       case DEPENDENCY_TYPE.UNUSED_EXPORT:
         return 'not used export';
       case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
-        return undefined;
+        return 'circular import';
       case DEPENDENCY_TYPE.EMPTY:
         return '';
     }

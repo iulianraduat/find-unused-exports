@@ -52,10 +52,11 @@ const importRegexps = [
 ];
 
 const importRequireRegexps = [new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g')];
+const reAsImport = new RegExp(`\\s+as\\s+${varNameRe}`, 'g');
 
 function getImports(content: string): TTsImport[] {
   const res: TTsImport[] = [];
-  const matches1 = getMatches(importRegexps, content);
+  const matches1 = getMatches(importRegexps, content, reAsImport);
   matches1?.forEach((match) => {
     const [importedNames, fromPath] = match;
     res.push({
@@ -64,7 +65,7 @@ function getImports(content: string): TTsImport[] {
     });
   });
 
-  const matches2 = getMatches(importRequireRegexps, content);
+  const matches2 = getMatches(importRequireRegexps, content, reAsImport);
   matches2?.forEach((match) => {
     const [fromPath] = match;
     res.push({

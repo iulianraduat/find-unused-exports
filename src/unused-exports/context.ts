@@ -26,26 +26,26 @@ export const makeContext = (pathToPrj: string): TContext => {
   const res = {
     allowJs,
     baseUrl: baseUrl ? path.resolve(pathToPrj, baseUrl) : undefined,
-    exclude: getExclude(exclude, outDir),
+    exclude: getExclude(pathToPrj, exclude, outDir),
     files,
-    include: getInclude(include),
+    include: getInclude(pathToPrj, include),
     pathToPrj,
   };
   return res;
 };
 
-function getInclude(include?: string[]): string[] | undefined {
+function getInclude(pathToPrj: string, include?: string[]): string[] | undefined {
   if (include === undefined) {
     return;
   }
 
-  const includeDirs = include.map(getGlobDir);
+  const includeDirs = include.map((dir) => getGlobDir(pathToPrj, dir));
   return includeDirs;
 }
 
-function getExclude(exclude?: string[], outDir?: string): string[] | undefined {
+function getExclude(pathToPrj: string, exclude?: string[], outDir?: string): string[] | undefined {
   if (exclude) {
-    const excludeDirs = exclude.map(getGlobDir);
+    const excludeDirs = exclude.map((dir) => getGlobDir(pathToPrj, dir));
 
     if (outDir) {
       excludeDirs.push(`${outDir}/**/*`);
@@ -61,6 +61,7 @@ function getExclude(exclude?: string[], outDir?: string): string[] | undefined {
   return dirs;
 }
 
-function getGlobDir(dir: string): string {
-  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory() ? `${dir}/**/*` : dir;
+function getGlobDir(pathToPrj: string, fsPath: string): string {
+  const dir = path.resolve(pathToPrj, fsPath);
+  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory() ? `${fsPath}/**/*` : fsPath;
 }
