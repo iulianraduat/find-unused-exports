@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import { readJsonFile } from './fsUtils';
 
@@ -16,7 +17,7 @@ export interface TContext {
  */
 export const makeContext = (pathToPrj: string): TContext => {
   const pathToTsconfig = path.resolve(pathToPrj, 'tsconfig.json');
-  const tsconfig = readJsonFile(pathToTsconfig) || {};
+  const tsconfig = readJsonFile(pathToTsconfig) ?? {};
 
   const { compilerOptions, exclude, files, include } = tsconfig;
   const jsConfig = { allowJs: true };
@@ -27,15 +28,24 @@ export const makeContext = (pathToPrj: string): TContext => {
     baseUrl: baseUrl ? path.resolve(pathToPrj, baseUrl) : undefined,
     exclude: getExclude(exclude, outDir),
     files,
-    include,
+    include: getInclude(include),
     pathToPrj,
   };
   return res;
 };
 
-const getExclude = (exclude?: string[], outDir?: string): string[] | undefined => {
+function getInclude(include?: string[]): string[] | undefined {
+  if (include === undefined) {
+    return;
+  }
+
+  const includeDirs = include.map(getGlobDir);
+  return includeDirs;
+}
+
+function getExclude(exclude?: string[], outDir?: string): string[] | undefined {
   if (exclude) {
-    const excludeDirs = exclude.map((dir) => (dir.indexOf('*') < 0 ? `${dir}/**` : dir));
+    const excludeDirs = exclude.map(getGlobDir);
 
     if (outDir) {
       excludeDirs.push(`${outDir}/**`);
@@ -44,9 +54,13 @@ const getExclude = (exclude?: string[], outDir?: string): string[] | undefined =
     return excludeDirs;
   }
 
-  const dirs = ['node_modules/**', 'bower_components/**', 'jspm_packages/**'];
+  const dirs = ['node_modules/**/*', 'bower_components/**/*', 'jspm_packages/**/*'];
   if (outDir) {
-    dirs.push(`${outDir}/**`);
+    dirs.push(`${outDir}/**/*`);
   }
   return dirs;
-};
+}
+
+function getGlobDir(dir: string): string {
+  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory() ? `${dir}/**/*` : dir;
+}

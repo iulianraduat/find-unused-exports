@@ -2,6 +2,10 @@ import * as fs from 'fs';
 import { log } from './log';
 
 export const readJsonFile = (path: string): { [kes: string]: any } | undefined => {
+  if (fs.existsSync(path) === false) {
+    return undefined;
+  }
+
   try {
     let content = fs.readFileSync(path, 'utf8');
     /* we remove the comments from it */

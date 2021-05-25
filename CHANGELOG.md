@@ -316,3 +316,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.7.0 (2021-05-25)
+
+### Added
+
+- Added a test-project for js for improving the testing
+
+### Changed
+
+- The algorithm for detecting the use of exports imported through "import" or "required"
+
+### Removed
+
+- Nothing
