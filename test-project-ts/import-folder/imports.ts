@@ -8,7 +8,8 @@ import { name21 as alias21, name22 as alias22 } from '../export-folder/exports';
 import { name31, name32 as alias32 } from '../export-folder/exports';
 import { name41 as alias41, name42 } from '../export-folder/exports';
 import { name51 /**/, name52 /**/, name61 /**/, name62 /**/ } from '../export-folder/exports';
-import { name71, name72, name81, name82 } from '../export-folder/exports';
+/* these imports should be "catch" by "import * as" */
+// import { name71, name72, name81, name82 } from '../export-folder/exports';
 
 import type { StringArray } from '../export-folder/exports';
 /* these imports should be "catch" by "import * as" */
@@ -25,7 +26,7 @@ console.log(alias21, alias22);
 console.log(name31, alias32);
 console.log(alias41, name42);
 console.log(name51, name52, name61, name62);
-console.log(name71, name72, name81, name82);
+console.log(allExports.name71, allExports.name72, allExports.name81, allExports.name82);
 console.log(allExports.functionName, allExports.ClassName, allExports.EnumName);
 console.log(defaultMember1);
 console.log(name99);
