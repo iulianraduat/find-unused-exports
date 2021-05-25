@@ -48,7 +48,7 @@ function getExclude(exclude?: string[], outDir?: string): string[] | undefined {
     const excludeDirs = exclude.map(getGlobDir);
 
     if (outDir) {
-      excludeDirs.push(`${outDir}/**`);
+      excludeDirs.push(`${outDir}/**/*`);
     }
 
     return excludeDirs;

@@ -20,7 +20,7 @@ export interface TTsImport {
 
 export const getParsedFiles = (files: TTsFile[]): TTsParsed[] => files.map(parseFile);
 
-const parseFile = (file: TTsFile): TTsParsed => {
+function parseFile(file: TTsFile): TTsParsed {
   log('Parse file', file.path);
   const content = readFile(file.path);
   /* we want to ignore any import/export present in a comment */
@@ -34,7 +34,7 @@ const parseFile = (file: TTsFile): TTsParsed => {
     exports,
     imports,
   };
-};
+}
 
 export const varNameRe = `[_\\$a-zA-Z0-9]+`;
 const fileNameRe = `["']([^"']+)["']`;
@@ -51,20 +51,29 @@ const importRegexps = [
   new RegExp(`${importRe}(\\*)\\s*as\\s+${varNameRe}${fromFileNameRe}`, 'g'),
 ];
 
-const reAsImport = new RegExp(`\\s+as\\s+${varNameRe}`, 'g');
+const importRequireRegexps = [new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g')];
 
-const getImports = (content: string): TTsImport[] => {
+function getImports(content: string): TTsImport[] {
   const res: TTsImport[] = [];
-  const matches = getMatches(importRegexps, content, reAsImport);
-  matches?.forEach((match) => {
+  const matches1 = getMatches(importRegexps, content);
+  matches1?.forEach((match) => {
     const [importedNames, fromPath] = match;
     res.push({
       name: importedNames,
       path: fromPath,
     });
   });
+
+  const matches2 = getMatches(importRequireRegexps, content);
+  matches2?.forEach((match) => {
+    const [fromPath] = match;
+    res.push({
+      name: '*',
+      path: fromPath,
+    });
+  });
   return res;
-};
+}
 
 const exportRe = `export\\s+`;
 const defaultRe = `default`;
@@ -78,7 +87,7 @@ const exportRegexps = [
 
 const reAsExport = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
 
-const getExports = (content: string): TTsExport[] => {
+function getExports(content: string): TTsExport[] {
   const matches = getMatches(exportRegexps, content, reAsExport);
   const res: TTsExport[] = [];
   matches?.forEach((match) => {
@@ -89,9 +98,9 @@ const getExports = (content: string): TTsExport[] => {
     });
   });
   return res;
-};
+}
 
-const getMatches = (regexps: RegExp[], content: string, fixRe?: RegExp): string[][] | undefined => {
+function getMatches(regexps: RegExp[], content: string, fixRe?: RegExp): string[][] | undefined {
   const arr: string[][] = [];
   regexps.forEach((regexp) => {
     let res: RegExpExecArray | null;
@@ -107,7 +116,7 @@ const getMatches = (regexps: RegExp[], content: string, fixRe?: RegExp): string[
     }
   });
   return arr.length === 0 ? undefined : arr;
-};
+}
 
 const reSpaces = /\s+/g;
 const removeSpaces = (txt: string) => txt.replace(reSpaces, '');
@@ -118,10 +127,10 @@ function isShowIgnoredExportsEnabled(): boolean {
 
 const reCommentExport = /\/\/\s*find-unused-exports:ignore-next-line-exports\b.*\r?\nexport\b.*/gm;
 const reComment = /\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
-const fixContent = (content: string): string => {
+function fixContent(content: string): string {
   if (isShowIgnoredExportsEnabled()) {
     return content.replace(reComment, '');
   }
 
   return content.replace(reCommentExport, '').replace(reComment, '');
-};
+}

@@ -26,7 +26,7 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
     globFiles(res, pathToPrj, explicitFiles, globExclude);
   }
   if (include !== undefined) {
-    const includes = globInclude.map((gi) => applyGlob(gi,globRegexp));
+    const includes = globInclude.map((gi) => applyGlob(gi, globRegexp));
     globFiles(res, pathToPrj, includes, globExclude);
   }
   return res;
@@ -35,7 +35,7 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
 const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.@(ts|js)?(x)' : '**/*.ts?(x)');
 
 const getGlobExclude = (pathToPrj: string, exclude: string[] = []): string[] => {
-  let list = ['**/*.d.ts', 'node_modules/**', '**/node_modules/**', ...exclude];
+  let list = ['**/*.d.ts', 'node_modules/**/*', '**/node_modules/**/*', ...exclude];
   const fsSep = path.sep;
   if (fsSep !== '/') {
     list = list.map((f) => f.replace(/\//g, fsSep));
