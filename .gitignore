@@ -4,3 +4,4 @@ node_modules
 *.vsix
 .history
 test-project/.history
+**/find-unused-exports.log

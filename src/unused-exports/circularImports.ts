@@ -3,14 +3,14 @@ import { log } from './log';
 import { TNotUsed } from './notUsed';
 import { TRelation } from './relations';
 
-export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[]): TNotUsed[] {
+export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[], ts?: number): TNotUsed[] {
   if (isCircularImportsEnabled() === false) {
     return nodes;
   }
 
   const optimizedRelations = getOptimizedRelations(relations);
   if (optimizedRelations.length === 0) {
-    log('Found circular imports', 0);
+    log('Found circular imports', 0, ts);
     return nodes;
   }
 
@@ -18,7 +18,7 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[])
   const cycles = findCirculars(mapRelations);
   addCyclesToNodes(cycles, nodes);
 
-  log('Found circular imports', cycles.length);
+  log('Found circular imports', cycles.length, ts);
   return nodes;
 }
 
@@ -41,11 +41,11 @@ function getOptimizedRelations(relations: TRelation[]): TRelation[] {
 
 function optimizeRelations(relations: TRelation[]): TRelation[] {
   return relations
-    .map((rel) => hasRelationImports(rel, relations))
+    .map((rel) => toRelationImports(rel, relations))
     .filter((rel) => rel !== undefined && hasRelationExports(rel)) as TRelation[];
 }
 
-function hasRelationImports(relation: TRelation, relations: TRelation[]): TRelation | undefined {
+function toRelationImports(relation: TRelation, relations: TRelation[]): TRelation | undefined {
   const { imports } = relation;
   if (imports === undefined || imports.length === 0) {
     return undefined;

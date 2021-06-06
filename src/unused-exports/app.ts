@@ -32,31 +32,33 @@ export const app = (absPathToPrj: string): TNotUsed[] => {
 
   resetLog();
   log(startTime.toISOString());
-  log('Path to project', absPathToPrj);
+  let ts = log('Path to project', absPathToPrj);
   const context = makeContext(absPathToPrj);
   const sourceFiles = getSourceFiles(absPathToPrj, context);
+  ts = log('Finding the sources took', undefined, ts);
   const parsedFiles = getParsedFiles(sourceFiles);
+  ts = log('Parsing the files took', undefined, ts);
   const projectFiles = getOnlyProjectImports(context, parsedFiles);
-  log('Processed files', projectFiles.length);
+  ts = log('Processed files', projectFiles.length, ts);
   const usefullFiles = getOnlyUsefullFiles(projectFiles);
-  log('Files having imports|exports', usefullFiles.length);
+  ts = log('Files having imports|exports', usefullFiles.length, ts);
 
   const imports = getImports(usefullFiles);
-  log('Total imports', imports.length);
+  ts = log('Total imports', imports.length, ts);
   const exports = getExports(usefullFiles, imports);
-  log('Total exports', exports.length);
+  ts = log('Total exports', exports.length, ts);
   const relations = buildRelations(imports, exports);
   makePathRelativeToProject(relations, absPathToPrj);
-  log('Analysed files', relations.length);
+  ts = log('Analysed files', relations.length, ts);
   const notUsed = getNotUsed(relations);
   let finalList = notUsed.sort(sortNotUsedFn);
-  log('Not used exports', finalList.length);
+  ts = log('Not used exports', finalList.length, ts);
 
-  finalList = detectCircularImports(relations, finalList);
+  finalList = detectCircularImports(relations, finalList, ts);
 
   const endTime = new Date();
   const timeDiffMs: number = endTime.getTime() - startTime.getTime();
-  log('Ellapsed time (ms)', timeDiffMs);
+  log('Total ellapsed time (ms)', timeDiffMs);
   log('------------------------------------------------------------------------');
   return finalList;
 };

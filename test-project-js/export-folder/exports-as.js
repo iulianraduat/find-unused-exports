@@ -1,18 +1,15 @@
 // Exporting individual features
 export const name11 = '',
   name12 = 0;
-export let name21: any, name22: any;
+export let name21, name22;
 export let name31 = '',
   name32 = '';
-export var name41: any, name42: any;
+export var name41, name42;
 export var name51 = '',
   name52 = 0;
 
 export function functionName() {}
 export class ClassName {}
-export enum EnumName {}
-export type StringArray = String[];
-export interface Interface {}
 
 // Export list
 const name61 = '';

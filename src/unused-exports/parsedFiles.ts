@@ -21,14 +21,15 @@ export interface TTsImport {
 export const getParsedFiles = (files: TTsFile[]): TTsParsed[] => files.map(parseFile);
 
 function parseFile(file: TTsFile): TTsParsed {
-  log('Parse file', file.path);
+  let ts = log('Parse file', file.path);
   const content = readFile(file.path);
   /* we want to ignore any import/export present in a comment */
   const fixedContent = fixContent(content);
+  ts = log('Normalizing the content took', undefined, ts);
   const imports = getImports(fixedContent);
-  log('Found imports', imports.length);
+  ts = log('Found imports', imports.length, ts);
   const exports = getExports(fixedContent);
-  log('Found exports', exports.length);
+  log('Found exports', exports.length, ts);
   return {
     ...file,
     exports,
@@ -38,12 +39,12 @@ function parseFile(file: TTsFile): TTsParsed {
 
 export const varNameRe = `[_\\$a-zA-Z0-9]+`;
 const fileNameRe = `["']([^"']+)["']`;
-const fromFileNameRe = `\\s*from\\s*${fileNameRe}`;
+const fromFileNameRe = `\\s+from\\s*${fileNameRe}`;
 const listSeparatorRe = `\\s*,\\s*`;
 const nameRe = `${varNameRe}(?:\\s+as\\s+${varNameRe})?`;
 const namesRe = `\\{\\s*(?:${nameRe}|${listSeparatorRe})+\\s*\\}`;
 
-const importRe = `import(?:\\s+type)?\\s*`;
+const importRe = `import(?:\\s+type)?\\s+`;
 const importNamesRe = `(?:${nameRe}|${namesRe}|${listSeparatorRe})+`;
 
 const importRegexps = [
@@ -104,8 +105,15 @@ function getExports(content: string): TTsExport[] {
 function getMatches(regexps: RegExp[], content: string, fixRe?: RegExp): string[][] | undefined {
   const arr: string[][] = [];
   regexps.forEach((regexp) => {
+    regexp.lastIndex = 0;
     let res: RegExpExecArray | null;
     while ((res = regexp.exec(content)) !== null) {
+      /* Prevent browsers from getting stuck in an infinite loop */
+      if (res.index === regexp.lastIndex) {
+        regexp.lastIndex++;
+        log('Detected RegExp infinite loop', regexp.source);
+      }
+
       res.shift();
       const match = res.map((r) => {
         if (fixRe) {
@@ -127,11 +135,13 @@ function isShowIgnoredExportsEnabled(): boolean {
 }
 
 const reCommentExport = /\/\/\s*find-unused-exports:ignore-next-line-exports\b.*\r?\nexport\b.*/gm;
-const reComment = /\/\*(?:.|\n|\r)*?\*\/|\/\/.*/g;
+const reCommentMultiline = /\/\*.*?\*\//gs;
+const reCommentSingleline = /\/\/.*/g;
 function fixContent(content: string): string {
-  if (isShowIgnoredExportsEnabled()) {
-    return content.replace(reComment, '');
+  let newContent = content;
+  if (isShowIgnoredExportsEnabled() === false) {
+    newContent = newContent.replace(reCommentExport, '');
   }
 
-  return content.replace(reCommentExport, '').replace(reComment, '');
+  return newContent.replace(reCommentMultiline, '').replace(reCommentSingleline, '');
 }

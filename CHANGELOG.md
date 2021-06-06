@@ -352,10 +352,11 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Added
 
 - The logging can also be saved in a file (.vscode/find-unused-exports.log)
+- Logging for almost all steps of the algorithm, so that detection of bottlenecks to be easier
 
 ### Changed
 
-- Nothing
+- The regular expression for detecting the imports
 
 ### Removed
 
