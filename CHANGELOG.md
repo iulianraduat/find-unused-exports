@@ -346,3 +346,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.8.0 (2021-06-06)
+
+### Added
+
+- The logging can also be saved in a file (.vscode/find-unused-exports.log)
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

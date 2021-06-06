@@ -4,7 +4,7 @@ import { makeContext } from './context';
 import { getExports } from './exports';
 import { getOnlyProjectImports } from './importedFiles';
 import { getImports } from './imports';
-import { log } from './log';
+import { log, resetLog } from './log';
 import { getNotUsed, sortNotUsedFn, TNotUsed } from './notUsed';
 import { getParsedFiles } from './parsedFiles';
 import { buildRelations, TRelation } from './relations';
@@ -30,6 +30,8 @@ const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string)
 export const app = (absPathToPrj: string): TNotUsed[] => {
   const startTime = new Date();
 
+  resetLog();
+  log(startTime.toISOString());
   log('Path to project', absPathToPrj);
   const context = makeContext(absPathToPrj);
   const sourceFiles = getSourceFiles(absPathToPrj, context);

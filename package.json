@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -25,7 +25,7 @@
     "pretest": "yarn run compile && yarn run lint",
     "test": "echo node ./out/test/runTest.js",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.7.1.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.8.0.vsix",
     "publish": "vsce publish"
   },
   "dependencies": {
@@ -148,6 +148,18 @@
             "type": "boolean",
             "default": false,
             "description": "Find unused exports: log all actions in an output window",
+            "scope": "resource"
+          },
+          "findUnusedExports.logInFile": {
+            "type": "boolean",
+            "default": false,
+            "description": "Find unused exports: log also in a file (.vscode/find-unused-exports.log)",
+            "scope": "resource"
+          },
+          "findUnusedExports.logOnlyLastRun": {
+            "type": "boolean",
+            "default": true,
+            "description": "Find unused exports: log in the file only the last run",
             "scope": "resource"
           },
           "findUnusedExports.showIgnoredExports": {

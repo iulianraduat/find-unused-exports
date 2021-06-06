@@ -53,6 +53,14 @@ There are no special requirements.
   - Find unused exports: log all actions in an output window
   - default false
 
+- findUnusedExports.logInFile
+
+  - Save the log in a file (.vscode/find-unused-exports.log)
+
+- findUnusedExports.logOnlyLastRun
+
+  - Save only the log for the last run/check
+
 - findUnusedExports.showIgnoredExports
 
   - Find unused exports: show all unused exports, even if they are marked as ignored
