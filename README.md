@@ -13,9 +13,11 @@ Automatically find all exports in typescript and javascript files which are not 
 - Automatically find all exports and imports in .js and .jsx files, if tsconfig.json allows for .js files in project
 - All imports from node modules are ignored
 - Configurable display of results as expanded or collapsed
-- If tsconfig.json defines baseUrl, it will resolve all imports using paths relative to baseUrl
-- A file having all exports not used will be marked as "not used" and a delete button will be available
+- If tsconfig.json/jsconfig.json defines baseUrl, all imports will be resolved using paths relative to baseUrl
+- A file having only not used exports will be marked as "not used" and a delete button will be available
 - If there are no unused exports, then the panel will display an entry saying this
+- A not use export can be marked as being ignored using the following comment in its previous line
+  - // find-unused-exports:ignore-next-line-exports
 - Can detect circular imports, which produce undefined variables by import
   - Only the first set of circular imports for a file is displayed in panel (for clarity of the circular path)
 
@@ -73,9 +75,25 @@ There are no special requirements.
 
 ## Known Issues
 
-For the moment there are no known issues.
+If you are using a workspace, then the extension is looking for the package.json only in the first folder of the workspace.
+If it is not found, then it reports that and stops.
 
 Note: If the main/entry file has exports then this extension marks it as "not used" and allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.
+
+## FAQ
+
+- Why it is a component reported as not being used when it is?
+
+Please check if you do not export a component by both, name and default. In this case maybe you import it only by one of them and so correctly the other is reported as not being used.
+
+```javascript#
+# exporting-file.ts
+export const MyComponent = () => {...} // <- this is not used as export only
+export default MyComponent; // <- this is the only used export
+
+#importing-file.ts
+import MyComponent from './exporting-file';
+```
 
 ## Change Log
 

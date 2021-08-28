@@ -2,6 +2,7 @@ import * as glob from 'glob';
 import * as path from 'path';
 import { TContext } from './context';
 import { isDirectory, isFile } from './fsUtils';
+import { log } from './log';
 import { TTsImport, TTsParsed } from './parsedFiles';
 
 export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[]): TTsParsed[] => {
@@ -18,22 +19,12 @@ export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[
 
 const importValid = (anImport: TTsImport | undefined): boolean => anImport !== undefined;
 
-const makeImportAbs = (baseUrl: string | undefined, filePath: string, allowJs?: boolean) => (
-  anImport: TTsImport
-): TTsImport | undefined => {
-  const { path: relPath } = anImport;
+const makeImportAbs =
+  (baseUrl: string | undefined, filePath: string, allowJs?: boolean) =>
+  (anImport: TTsImport): TTsImport | undefined => {
+    const { path: relPath } = anImport;
 
-  const absPath = path.resolve(filePath, relPath);
-  const exactPath = resolveFilePath(absPath, allowJs);
-  if (exactPath) {
-    return {
-      ...anImport,
-      path: exactPath,
-    };
-  }
-
-  if (baseUrl) {
-    const absPath = path.resolve(baseUrl, relPath);
+    const absPath = path.resolve(filePath, relPath);
     const exactPath = resolveFilePath(absPath, allowJs);
     if (exactPath) {
       return {
@@ -41,10 +32,26 @@ const makeImportAbs = (baseUrl: string | undefined, filePath: string, allowJs?: 
         path: exactPath,
       };
     }
-  }
 
-  return undefined;
-};
+    if (baseUrl) {
+      const absPath = path.resolve(baseUrl, relPath);
+      const exactPath = resolveFilePath(absPath, allowJs);
+      if (exactPath) {
+        return {
+          ...anImport,
+          path: exactPath,
+        };
+      }
+    }
+
+    return undefined;
+  };
+
+const getGlobRegexp = (path: string, allowJs?: boolean): string =>
+  allowJs ? `${path}.@(ts|js)?(x)` : `${path}.ts?(x)`;
+
+const getDirGlobRegexp = (rootPath: string, allowJs?: boolean): string =>
+  path.resolve(rootPath, allowJs ? `index.@(ts|js)?(x)` : `index.ts?(x)`);
 
 const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefined => {
   if (isFile(filePath)) {
@@ -73,11 +80,11 @@ const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefine
     nodir: true,
     nosort: true,
   });
-  return resDir?.length === 1 ? path.resolve(resDir[0]) : undefined;
+
+  if (resDir?.length === 1) {
+    return path.resolve(resDir[0]);
+  }
+
+  // log(`Cannot resolve path to '${filePath}'. Tried`, [filePath, globReFile, globReDir]);
+  return undefined;
 };
-
-const getDirGlobRegexp = (path: string, allowJs?: boolean): string =>
-  allowJs ? `${path}/index.@(ts|js)?(x)` : `${path}/index.ts?(x)`;
-
-const getGlobRegexp = (path: string, allowJs?: boolean): string =>
-  allowJs ? `${path}.@(ts|js)?(x)` : `${path}.ts?(x)`;

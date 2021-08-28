@@ -17,9 +17,21 @@ export interface TContext {
  */
 export const makeContext = (pathToPrj: string): TContext => {
   const pathToTsconfig = path.resolve(pathToPrj, 'tsconfig.json');
-  const tsconfig = readJsonFile(pathToTsconfig) ?? {};
+  const pathToJsconfig = path.resolve(pathToPrj, 'jsconfig.json');
+  let tsconfig = readJsonFile(pathToTsconfig);
+  if (tsconfig === undefined) {
+    tsconfig = readJsonFile(pathToJsconfig);
+    if (tsconfig) {
+      const { compilerOptions = {} } = tsconfig;
+      tsconfig.compilerOptions = {
+        ...compilerOptions,
+        /* we want to find all .js and .jsx files for a javascript project */
+        allowJs: true,
+      };
+    }
+  }
 
-  const { compilerOptions, exclude, files, include } = tsconfig;
+  const { compilerOptions, exclude, files, include } = tsconfig || {};
   const jsConfig = { allowJs: true };
   const { allowJs, baseUrl, outDir } = compilerOptions || jsConfig;
 

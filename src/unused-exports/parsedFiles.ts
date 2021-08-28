@@ -10,7 +10,7 @@ export interface TTsParsed extends TTsFile {
 
 export interface TTsExport {
   name: 'default' | string;
-  path: string;
+  path?: string;
 }
 
 export interface TTsImport {
@@ -37,68 +37,121 @@ function parseFile(file: TTsFile): TTsParsed {
   };
 }
 
-export const varNameRe = `[_\\$a-zA-Z0-9]+`;
-const fileNameRe = `["']([^"']+)["']`;
-const fromFileNameRe = `\\s+from\\s*${fileNameRe}`;
-const listSeparatorRe = `\\s*,\\s*`;
-const nameRe = `${varNameRe}(?:\\s+as\\s+${varNameRe})?`;
-const namesRe = `\\{\\s*(?:${nameRe}|${listSeparatorRe})+\\s*\\}`;
+const fileNameRe = `("[^"]+"|'[^']+'|\`[^\`]+\`)`;
+/* we need to remove the above start and end quotes */
+const fixPath = (path: string) => (path.length >= 3 ? path.substring(1, path.length - 1) : '');
 
-const importRe = `import(?:\\s+type)?\\s+`;
-const importNamesRe = `(?:${nameRe}|${namesRe}|${listSeparatorRe})+`;
-
-const importRegexps = [
-  new RegExp(`${importRe}(${importNamesRe})${fromFileNameRe}`, 'g'),
-  new RegExp(`${importRe}(\\*)\\s*as\\s+${varNameRe}${fromFileNameRe}`, 'g'),
+const validIECharsRe = `(?:\\b[*_$a-zA-Z0-9{,}\\s\r\n]+?)`;
+const importExportFromRegex = [
+  new RegExp(`import(?:\\s+type)?\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
+  new RegExp(`export\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
 ];
 
-const importRequireRegexps = [new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g')];
-const reAsImport = new RegExp(`\\s+as\\s+${varNameRe}`, 'g');
+export const varNameRe = `[_$a-zA-Z0-9]+`;
+const asVarNameRe = new RegExp(`\\s+as\\s+${varNameRe}`, 'g');
+const listNamesRe = `\\{(?:${varNameRe}|,|\\s+)+\\}`;
+const allValidNamesRe = `(?:\\*|${varNameRe}|${listNamesRe}|,)+`;
+const exactAllValidNamesRe = new RegExp(`^${allValidNamesRe}$`);
+
+const spacesRe = new RegExp(`\\s+|\r|\n`, 'g');
+const removeSpaces = (txt: string) => txt.replace(spacesRe, '');
+
+const importRequireRegexps = [
+  new RegExp(`(?:import|require)\\s*${fileNameRe}`, 'g'),
+  new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g'),
+];
 
 function getImports(content: string): TTsImport[] {
   const res: TTsImport[] = [];
-  const matches1 = getMatches(importRegexps, content, reAsImport);
+
+  /* find all `import|export ... from "module-name"` ; remove `as ...` */
+  const matches1 = getMatches(importExportFromRegex, content, asVarNameRe);
   matches1?.forEach((match) => {
     const [importedNames, fromPath] = match;
-    res.push({
-      name: importedNames,
-      path: fromPath,
-    });
+    const importedNamesWithoutSpaces = removeSpaces(importedNames);
+    if (exactAllValidNamesRe.test(importedNamesWithoutSpaces)) {
+      res.push({
+        name: importedNamesWithoutSpaces,
+        path: fixPath(fromPath),
+      });
+    }
   });
 
-  const matches2 = getMatches(importRequireRegexps, content, reAsImport);
+  /* find all `import|require("module-name")` */
+  const matches2 = getMatches(importRequireRegexps, content);
   matches2?.forEach((match) => {
     const [fromPath] = match;
     res.push({
       name: '*',
-      path: fromPath,
+      path: fixPath(fromPath),
     });
   });
+
   return res;
 }
 
-const exportRe = `export\\s+`;
-const defaultRe = `default`;
-
-const exportRegexps = [
-  new RegExp(`${exportRe}(${defaultRe})\\s`, 'g'),
-  new RegExp(`${exportRe}(?:class|const|let|var|enum|type|interface|function)\\s+(${varNameRe}|${namesRe})`, 'g'),
-  new RegExp(`${exportRe}(${namesRe})`, 'g'),
-  new RegExp(`${exportRe}(?:\\*\\s+as)\\s+(${varNameRe})\\s${fromFileNameRe}`, 'g'),
+const individualExportRegexps = [
+  new RegExp(`export\\s+(default)\\s`, 'g'),
+  new RegExp(`export\\s+(?:class|const|let|var|enum|type|interface|function\\*?)\\s+(${varNameRe})`, 'g'),
 ];
 
-const reAsExport = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
+const destructuredExportsRegexps = [new RegExp(`export\\s+(?:const|let|var)\\s+\\{\\s*([^}]+)\\s*\\}`, 'g')];
+const varNameColonRe = new RegExp(`${varNameRe}\\s*:\\s*`, 'gi');
+
+const exportListRegexps = [new RegExp(`export\\s*(\\{\\s*[^}]+\\s*\\})`, 'g')];
+const varNameAsRe = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
+
+const aggregatedExportsRegexps = [
+  new RegExp(`export\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+)?)\\s*from\\s*${fileNameRe}`, 'g'),
+];
+const starAsRe = new RegExp(`\\*\\s*as\\s+`, 'gi');
 
 function getExports(content: string): TTsExport[] {
-  const matches = getMatches(exportRegexps, content, reAsExport);
   const res: TTsExport[] = [];
-  matches?.forEach((match) => {
-    const [exportedName, fromPath] = match;
+
+  /* find all `export default|class|const|let|var|enum|type|interface|function|function*` */
+  const matches1 = getMatches(individualExportRegexps, content);
+  matches1?.forEach((match) => {
+    const [exportedName] = match;
     res.push({
       name: exportedName,
-      path: fromPath,
+      path: undefined,
     });
   });
+
+  /* find all `export const|let|var {name1, name2: bar}` */
+  const matches2 = getMatches(destructuredExportsRegexps, content);
+  matches2?.forEach((match) => {
+    const [exportedNames] = match;
+    const exportedNamesWithoutColon = removeSpaces(exportedNames.replace(varNameColonRe, ''));
+    res.push({
+      name: exportedNamesWithoutColon,
+      path: undefined,
+    });
+  });
+
+  /* find all `export {variable1 as name1, variable2 as default, variable3} from "module-name"` */
+  const matches3 = getMatches(exportListRegexps, content);
+  matches3?.forEach((match) => {
+    const [exportedNames] = match;
+    const exportedNamesWithoutAs = removeSpaces(exportedNames.replace(varNameAsRe, ''));
+    res.push({
+      name: exportedNamesWithoutAs,
+      path: undefined,
+    });
+  });
+
+  /* find all `export * as name from "module-name"` */
+  const matches4 = getMatches(aggregatedExportsRegexps, content);
+  matches4?.forEach((match) => {
+    const [exportedName, fromPath] = match;
+    const exportedNameWithoutAs = removeSpaces(exportedName.replace(starAsRe, ''));
+    res.push({
+      name: exportedNameWithoutAs,
+      path: exportedNameWithoutAs === '*' ? fromPath : undefined,
+    });
+  });
+
   return res;
 }
 
@@ -116,19 +169,17 @@ function getMatches(regexps: RegExp[], content: string, fixRe?: RegExp): string[
 
       res.shift();
       const match = res.map((r) => {
-        if (fixRe) {
+        if (r && fixRe) {
           r = r.replace(fixRe, '');
         }
-        return removeSpaces(r);
+
+        return r;
       });
       arr.push(match);
     }
   });
   return arr.length === 0 ? undefined : arr;
 }
-
-const reSpaces = /\s+/g;
-const removeSpaces = (txt: string) => txt.replace(reSpaces, '');
 
 function isShowIgnoredExportsEnabled(): boolean {
   return vscode.workspace.getConfiguration().get('findUnusedExports.showIgnoredExports', false);

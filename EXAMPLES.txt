@@ -1,0 +1,46 @@
+import defaultExport from "module-name";
+import * as name from "module-name";
+import { export1 } from "module-name";
+import { export1 as alias1 } from "module-name";
+import { export1 , export2 } from "module-name";
+import { export1 , export2 as alias2 , [...] } from "module-name";
+import defaultExport, { export1 [ , [...] ] } from "module-name";
+import defaultExport, * as name from "module-name";
+import type x from "module-name";
+
+import * from "module-name";
+import "module-name";
+var promise = import("module-name");
+var promise = require("module-name");
+
+
+
+// Aggregating modules
+export * from "module-name"; // does not set the default export
+export * as name1 from "module-name"; // Draft ECMAScript® 2O21
+export { name1, name2, …, nameN } from "module-name";
+export { import1 as name1, import2 as name2, …, nameN } from "module-name";
+export { default, … } from "module-name";
+
+
+
+// Exporting individual features
+export let name1, name2, …, nameN; // also var, const
+export let name1 = …, name2 = …, …, nameN; // also var, const
+export function functionName(){...}
+export class ClassName {...}
+
+// Export list
+export { name1, name2, …, nameN };
+
+// Renaming exports
+export { variable1 as name1, variable2 as name2, …, nameN };
+
+// Exporting destructured assignments with renaming
+export const { name1, name2: bar } = o;
+
+// Default exports
+export default expression;
+export default function (…) { … } // also class, function*
+export default function name1(…) { … } // also class, function*
+export { name1 as default, … };

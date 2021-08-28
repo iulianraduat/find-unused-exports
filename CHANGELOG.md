@@ -361,3 +361,20 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.9.0 (2021-08-29)
+
+### Added
+
+- Detect imports/exports of generator functions
+- Detect exports of destructured assignments
+- Try to read the configuration from jsconfig.json if tsconfig.json is missing
+
+### Changed
+
+- Consider an export from a file as both an import and an export, which fixes the problem of reporting re-exported entities as not being used
+- Quicker scan of the files for imports and exports definitions
+
+### Removed
+
+- Nothing

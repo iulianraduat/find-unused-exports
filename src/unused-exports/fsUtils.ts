@@ -11,7 +11,7 @@ export const readJsonFile = (path: string): { [kes: string]: any } | undefined =
     /* we remove the comments from it */
     content = content.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m));
     return JSON.parse(content);
-  } catch (e) {
+  } catch (e: any) {
     log(`Error parsing "${path}"`, e.message ?? e);
     return undefined;
   }

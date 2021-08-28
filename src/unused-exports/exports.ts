@@ -20,7 +20,7 @@ const addParsedExports = (arr: TExport[], imports: TImport[], path: string) => (
 
   const names = getExportedNames(name);
   names.forEach((name) => {
-    const isUsed = itIsUsed(path, name, imports);
+    const isUsed = isItUsed(path, name, imports);
     arr.push({
       inPath: path,
       name,
@@ -30,8 +30,8 @@ const addParsedExports = (arr: TExport[], imports: TImport[], path: string) => (
   });
 };
 
-const groupRe = new RegExp(`${varNameRe}|,|\\{[^\\}]*\\}`, 'gi');
-const varNameInGroupRe = new RegExp(`${varNameRe}|,}`, 'gi');
+const groupRe = new RegExp(`${varNameRe}|\\{[^}]+\\}`, 'g');
+const varNameInGroupRe = new RegExp(varNameRe, 'g');
 
 const getExportedNames = (name: string): string[] => {
   groupRe.lastIndex = 0;
@@ -45,34 +45,25 @@ const getExportedNames = (name: string): string[] => {
       log('Detected RegExp infinite loop (str)', name);
     }
 
-    const foundName1 = res1[0];
-    const ch1 = foundName1[0];
+    /* It is either a var name or a list of var names */
+    const foundName = res1[0];
+    const ch1 = foundName[0];
     if (ch1 !== '{') {
-      arr.push(foundName1);
+      arr.push(foundName);
       continue;
     }
 
     varNameInGroupRe.lastIndex = 0;
-    const varNameInGroup = foundName1.substring(0, foundName1.length - 1);
     let res2: RegExpExecArray | null;
-    while ((res2 = varNameInGroupRe.exec(varNameInGroup)) !== null) {
-      /* Prevent browsers from getting stuck in an infinite loop */
-      if (res2.index === varNameInGroupRe.lastIndex) {
-        varNameInGroupRe.lastIndex++;
-        log('Detected RegExp infinite loop (re)', varNameInGroupRe.source);
-        log('Detected RegExp infinite loop (str)', varNameInGroup);
-      }
-
-      const foundName2 = res2[0];
-      if (foundName2 !== ',') {
-        arr.push(foundName2);
-      }
+    while ((res2 = varNameInGroupRe.exec(foundName)) !== null) {
+      const foundName = res2[0];
+      arr.push(foundName);
     }
   }
   return arr;
 };
 
-const itIsUsed = (path: string, name: string, imports: TImport[]): boolean =>
+const isItUsed = (path: string, name: string, imports: TImport[]): boolean =>
   imports.find((anImport) => anImport.fromPath === path && (anImport.name === name || anImport.name === '*')) !==
   undefined;
 
