@@ -378,3 +378,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.10.0 (2021-09-04)
+
+### Added
+
+- Added support to skip additional files via a declaration in package.json or .findUnusedExports.json
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

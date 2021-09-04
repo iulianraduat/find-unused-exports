@@ -35,16 +35,47 @@ export const makeContext = (pathToPrj: string): TContext => {
   const jsConfig = { allowJs: true };
   const { allowJs, baseUrl, outDir } = compilerOptions || jsConfig;
 
+  /* We are looking for custom exclude rules in package.json and .findUnusedExports.json */
+  const pathToPackageJson = path.resolve(pathToPrj, 'package.json');
+  const packageJson = readJsonFile(pathToPackageJson);
+  const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
+
+  const pathToFindUnusedExportsConfig = path.resolve(pathToPrj, '.findUnusedExports.json');
+  const findUnusedExportsConfig = readJsonFile(pathToFindUnusedExportsConfig);
+  const excludeFindUnusedExports2 = findUnusedExportsConfig?.exclude;
+
+  const excludeFindUnusedExports = mixExcludeArrays(excludeFindUnusedExports1, excludeFindUnusedExports2);
+
   const res = {
     allowJs,
     baseUrl: baseUrl ? path.resolve(pathToPrj, baseUrl) : undefined,
-    exclude: getExclude(pathToPrj, exclude, outDir),
+    exclude: getExclude(pathToPrj, mixExcludeArrays(exclude, excludeFindUnusedExports), outDir),
     files,
     include: getInclude(pathToPrj, include),
     pathToPrj,
   };
   return res;
 };
+
+function mixExcludeArrays(a?: unknown, b?: unknown): string[] | undefined {
+  if (a === undefined && b === undefined) {
+    return undefined;
+  }
+
+  if (Array.isArray(a) === false && Array.isArray(b) === false) {
+    return undefined;
+  }
+
+  if (Array.isArray(a) === false) {
+    return b as string[];
+  }
+
+  if (Array.isArray(b) === false) {
+    return a as string[];
+  }
+
+  return [...(a as string[]), ...(b as string[])];
+}
 
 function getInclude(pathToPrj: string, include?: string[]): string[] | undefined {
   if (include === undefined) {

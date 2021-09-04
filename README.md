@@ -25,13 +25,41 @@ Automatically find all exports in typescript and javascript files which are not 
 
 This extension has its own panel. The symbol of this panel is a ban sign with two arrows (see bellow).
 
-Open the panel and the extension will start the scan of the project. If you made changes to the files, the extension will not detect these to avoid unnecessary scans. You can force a rescan using the reload button found at top right of the panel.
+Open the panel and the extension will start the scan of the project.
+If you made changes to the files, the extension will not detect these to avoid unnecessary scans.
+You can force a rescan using the reload button found at top right of the panel.
 
 If there are no unused exports, the panel will display a single entry saying this.
 
+An "import \* as" will assume that all imported exports are used from that file.
+
+### Excluded files
+
 By default, all files from any node_modules folder or having the extension .d.ts are ignored.
 
-An "import \* as" will assume that all imported exports are used.
+If you want to exclude some files (like storybook's .stories.ts files), you can:
+
+- add a section called findUnusedExports in package.json
+
+```json
+# package.json
+{
+  "findUnusedExports": {
+    "exclude": [ "./src/**/*.stories.@(js|jsx|ts|tsx)" ]
+  }
+}
+```
+
+- create a file called .findUnusedExports.json in the same folder with package.json
+
+```json
+# .findUnusedExports.json
+{
+  "exclude": [ "./storybook/**/*.stories.@(js|jsx|ts|tsx)" ]
+}
+```
+
+If both are used then the excluded rules from both of them will be used.
 
 ### Screenshot
 
