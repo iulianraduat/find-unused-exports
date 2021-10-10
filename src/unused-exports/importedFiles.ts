@@ -48,41 +48,50 @@ const makeImportAbs =
   };
 
 const getGlobRegexp = (path: string, allowJs?: boolean): string =>
-  allowJs ? `${path}.@(ts|js)?(x)` : `${path}.ts?(x)`;
+  allowJs ? `${path}.@(ts|tsx|js|jsx)` : `${path}.@(ts|tsx)`;
 
 const getDirGlobRegexp = (rootPath: string, allowJs?: boolean): string =>
-  path.resolve(rootPath, allowJs ? `index.@(ts|js)?(x)` : `index.ts?(x)`);
+  path.resolve(rootPath, allowJs ? `index.@(ts|tsx|js|jsx)` : `index.@(ts|tsx)`);
 
 const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefined => {
   if (isFile(filePath)) {
     return filePath;
   }
 
-  /* try it as file */
-  const globReFile = getGlobRegexp(filePath, allowJs);
-  const resFile = glob.sync(globReFile, {
-    cwd: '.',
-    nodir: true,
-    nosort: true,
-  });
-  if (resFile?.length === 1) {
-    return path.resolve(resFile[0]);
+  try {
+    /* try it as file */
+    const globReFile = getGlobRegexp(filePath, allowJs);
+    const resFile = glob.sync(globReFile, {
+      cwd: '.',
+      nodir: true,
+      nosort: true,
+    });
+    if (resFile?.length === 1) {
+      return path.resolve(resFile[0]);
+    }
+  } catch (err: any) {
+    log(`Exception glob: cannot resolve path to '${filePath}'. Tried file`, err?.message || err);
+    return;
   }
 
   if (isDirectory(filePath) === false) {
     return;
   }
 
-  /* try it as directory */
-  const globReDir = getDirGlobRegexp(filePath, allowJs);
-  const resDir = glob.sync(globReDir, {
-    cwd: '.',
-    nodir: true,
-    nosort: true,
-  });
-
-  if (resDir?.length === 1) {
-    return path.resolve(resDir[0]);
+  try {
+    /* try it as directory */
+    const globReDir = getDirGlobRegexp(filePath, allowJs);
+    const resDir = glob.sync(globReDir, {
+      cwd: '.',
+      nodir: true,
+      nosort: true,
+    });
+    if (resDir?.length === 1) {
+      return path.resolve(resDir[0]);
+    }
+  } catch (err: any) {
+    log(`Exception glob: cannot resolve path to '${filePath}'. Tried folder`, err?.message || err);
+    return;
   }
 
   // log(`Cannot resolve path to '${filePath}'. Tried`, [filePath, globReFile, globReDir]);
