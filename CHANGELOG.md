@@ -392,3 +392,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.10.1 (2021-10-10)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Added a protection to catch the crash on "TypeError: Cannot read property 'charAt' of undefined"
+
+### Removed
+
+- Nothing
