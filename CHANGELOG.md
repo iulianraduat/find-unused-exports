@@ -406,3 +406,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.10.2 (2021-10-10)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Repackaged the extension
+
+### Removed
+
+- Nothing
