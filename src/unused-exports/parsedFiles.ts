@@ -54,7 +54,9 @@ const allValidNamesRe = `(?:\\*|${varNameRe}|${listNamesRe}|,)+`;
 const exactAllValidNamesRe = new RegExp(`^${allValidNamesRe}$`);
 
 const spacesRe = new RegExp(`\\s+|\r|\n`, 'g');
+const typeSpacesRe = new RegExp(`\\btype(?:\\s+|\r|\n)`, 'g');
 const removeSpaces = (txt: string) => txt.replace(spacesRe, '');
+const removeTypeSpaces = (txt: string) => removeSpaces(txt.replace(typeSpacesRe, ''));
 
 const importRequireRegexps = [
   new RegExp(`(?:import|require)\\s*${fileNameRe}`, 'g'),
@@ -68,7 +70,7 @@ function getImports(content: string): TTsImport[] {
   const matches1 = getMatches(importExportFromRegex, content, asVarNameRe);
   matches1?.forEach((match) => {
     const [importedNames, fromPath] = match;
-    const importedNamesWithoutSpaces = removeSpaces(importedNames);
+    const importedNamesWithoutSpaces = removeTypeSpaces(importedNames);
     if (exactAllValidNamesRe.test(importedNamesWithoutSpaces)) {
       res.push({
         name: importedNamesWithoutSpaces,

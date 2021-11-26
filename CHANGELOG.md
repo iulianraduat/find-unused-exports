@@ -434,3 +434,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.11.0 (2021-11-26)
+
+### Added
+
+- Support for `import { type BaseType } from ...` from typescript 4.5
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing
