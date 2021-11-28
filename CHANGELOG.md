@@ -448,3 +448,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.11.1 (2021-11-28)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Correctly ignoring specified files on windows
+
+### Removed
+
+- Nothing

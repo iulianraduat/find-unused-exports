@@ -65,6 +65,7 @@ const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefine
       cwd: '.',
       nodir: true,
       nosort: true,
+      realpath: true,
     });
     if (resFile?.length === 1) {
       return path.resolve(resFile[0]);
@@ -85,6 +86,7 @@ const resolveFilePath = (filePath: string, allowJs?: boolean): string | undefine
       cwd: '.',
       nodir: true,
       nosort: true,
+      realpath: true,
     });
     if (resDir?.length === 1) {
       return path.resolve(resDir[0]);

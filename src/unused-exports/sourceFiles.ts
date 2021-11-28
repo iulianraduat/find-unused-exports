@@ -79,6 +79,7 @@ function globFile(res: TTsFile[], pathToFolder: string, globRegexp: string, glob
       ignore: globIgnore,
       nodir: true,
       nosort: true,
+      realpath: true,
     })
     .filter((f: string) => {
       const source = path.resolve(pathToFolder, f);
