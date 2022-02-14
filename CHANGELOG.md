@@ -491,3 +491,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.12.1 (2022-02-14)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Corrected the numbers displayed for "Not used exports" and "Found circular imports" in OVERVIEW
+
+### Removed
+
+- Nothing

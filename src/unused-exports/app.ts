@@ -53,9 +53,10 @@ export function app(absPathToPrj: string, overviewProvider: OverviewProvider): T
   ts = log('Analysed files', relations.length, ts);
   const notUsed = getNotUsed(relations);
   const finalList = notUsed.sort(sortNotUsedFn);
-  ts = log('Not used exports', finalList.length, ts);
+  const numNotUsedExports = finalList.length;
+  ts = log('Not used exports', numNotUsedExports, ts);
 
-  const unusedExportsAndCircularImportsList = detectCircularImports(relations, finalList, ts);
+  const [unusedExportsAndCircularImportsList, numCircularImports] = detectCircularImports(relations, finalList, ts);
 
   const endTime = new Date();
   const timeDiffMs: number = endTime.getTime() - startTime.getTime();
@@ -64,8 +65,8 @@ export function app(absPathToPrj: string, overviewProvider: OverviewProvider): T
 
   overviewProvider.update({
     filesHavingImportsOrExports: usefullFiles.length,
-    foundCircularImports: unusedExportsAndCircularImportsList.length - finalList.length,
-    notUsedExports: finalList.length,
+    foundCircularImports: numCircularImports,
+    notUsedExports: numNotUsedExports,
     processedFiles: projectFiles.length,
     totalEllapsedTime: timeDiffMs,
     totalExports: exports.length,

@@ -4,15 +4,15 @@ import { TNotUsed } from './notUsed';
 import { TRelation } from './relations';
 import { isResultExpanded } from './settings';
 
-export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[], ts?: number): TNotUsed[] {
+export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[], ts?: number): [TNotUsed[], number] {
   if (isCircularImportsEnabled() === false) {
-    return nodes;
+    return [nodes, 0];
   }
 
   const optimizedRelations = getOptimizedRelations(relations);
   if (optimizedRelations.length === 0) {
     log('Found circular imports', 0, ts);
-    return nodes;
+    return [nodes, 0];
   }
 
   const mapRelations: Record<string, string[]> = array2map4relations(optimizedRelations);
@@ -20,7 +20,7 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[],
   addCyclesToNodes(cycles, nodes);
 
   log('Found circular imports', cycles.length, ts);
-  return nodes;
+  return [nodes, cycles.length];
 }
 
 function isCircularImportsEnabled(): boolean {
