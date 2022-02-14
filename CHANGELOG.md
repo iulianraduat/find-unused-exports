@@ -519,3 +519,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.13.0 (2022-02-14)
+
+### Added
+
+- Any error trying to parse a JSON file is reported in OVERVIEW
+- All include and exclude globs are displayed in OVERVIEW
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

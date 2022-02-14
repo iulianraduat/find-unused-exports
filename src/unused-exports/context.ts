@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { OverviewProvider } from '../overview';
 import { readJsonFile } from './fsUtils';
 
 export interface TContext {
@@ -15,12 +16,12 @@ export interface TContext {
  * We read the tsconfig.json to find which files will be included and if they can be imported relative to baseUrl
  * @param path is the location of the project's root
  */
-export const makeContext = (pathToPrj: string): TContext => {
+export const makeContext = (pathToPrj: string, overviewProvider: OverviewProvider): TContext => {
   const pathToTsconfig = path.resolve(pathToPrj, 'tsconfig.json');
   const pathToJsconfig = path.resolve(pathToPrj, 'jsconfig.json');
-  let tsconfig = readJsonFile(pathToTsconfig);
+  let tsconfig = readJsonFile(pathToTsconfig, overviewProvider);
   if (tsconfig === undefined) {
-    tsconfig = readJsonFile(pathToJsconfig);
+    tsconfig = readJsonFile(pathToJsconfig, overviewProvider);
     if (tsconfig) {
       const { compilerOptions = {} } = tsconfig;
       tsconfig.compilerOptions = {
@@ -37,12 +38,12 @@ export const makeContext = (pathToPrj: string): TContext => {
 
   /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
   const pathToPackageJson = path.resolve(pathToPrj, 'package.json');
-  const packageJson = readJsonFile(pathToPackageJson);
+  const packageJson = readJsonFile(pathToPackageJson, overviewProvider);
   const includeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
   const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
 
   const pathToFindUnusedExportsConfig = path.resolve(pathToPrj, '.findUnusedExports.json');
-  const findUnusedExportsConfig = readJsonFile(pathToFindUnusedExportsConfig);
+  const findUnusedExportsConfig = readJsonFile(pathToFindUnusedExportsConfig, overviewProvider);
   const includeFindUnusedExports2 = findUnusedExportsConfig?.include;
   const excludeFindUnusedExports2 = findUnusedExportsConfig?.exclude;
 
@@ -57,6 +58,7 @@ export const makeContext = (pathToPrj: string): TContext => {
     include: getInclude(pathToPrj, mixArrays(include, includeFindUnusedExports)),
     pathToPrj,
   };
+  overviewProvider.updateFieldsGlob(res.include, res.exclude);
   return res;
 };
 

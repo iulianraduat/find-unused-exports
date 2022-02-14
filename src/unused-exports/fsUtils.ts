@@ -1,7 +1,8 @@
 import * as fs from 'fs';
+import { OverviewProvider } from '../overview';
 import { log } from './log';
 
-export const readJsonFile = (path: string): { [kes: string]: any } | undefined => {
+export const readJsonFile = (path: string, overviewProvider: OverviewProvider): { [kes: string]: any } | undefined => {
   if (fs.existsSync(path) === false) {
     return undefined;
   }
@@ -13,6 +14,7 @@ export const readJsonFile = (path: string): { [kes: string]: any } | undefined =
     return JSON.parse(content);
   } catch (e: any) {
     log(`Error parsing "${path}"`, e.message ?? e);
+    overviewProvider.updateFieldError(`Error parsing "${path}": ${e.message ?? e}`);
     return undefined;
   }
 };

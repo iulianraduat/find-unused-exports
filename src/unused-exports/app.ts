@@ -34,7 +34,7 @@ export function app(absPathToPrj: string, overviewProvider: OverviewProvider): T
   resetLog();
   log(startTime.toISOString());
   let ts = log('Path to project', absPathToPrj);
-  const context = makeContext(absPathToPrj);
+  const context = makeContext(absPathToPrj, overviewProvider);
   const sourceFiles = getSourceFiles(absPathToPrj, context);
   ts = log('Finding the sources took', undefined, ts);
   const parsedFiles = getParsedFiles(sourceFiles);
