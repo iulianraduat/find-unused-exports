@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { OverviewProvider } from '../overview';
 import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
 import { getExports } from './exports';
@@ -27,7 +28,7 @@ const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string)
   });
 };
 
-export const app = (absPathToPrj: string): TNotUsed[] => {
+export function app(absPathToPrj: string, overviewProvider: OverviewProvider): TNotUsed[] {
   const startTime = new Date();
 
   resetLog();
@@ -51,14 +52,25 @@ export const app = (absPathToPrj: string): TNotUsed[] => {
   makePathRelativeToProject(relations, absPathToPrj);
   ts = log('Analysed files', relations.length, ts);
   const notUsed = getNotUsed(relations);
-  let finalList = notUsed.sort(sortNotUsedFn);
+  const finalList = notUsed.sort(sortNotUsedFn);
   ts = log('Not used exports', finalList.length, ts);
 
-  finalList = detectCircularImports(relations, finalList, ts);
+  const unusedExportsAndCircularImportsList = detectCircularImports(relations, finalList, ts);
 
   const endTime = new Date();
   const timeDiffMs: number = endTime.getTime() - startTime.getTime();
   log('Total ellapsed time (ms)', timeDiffMs);
   log('------------------------------------------------------------------------');
-  return finalList;
-};
+
+  overviewProvider.update({
+    filesHavingImportsOrExports: usefullFiles.length,
+    foundCircularImports: unusedExportsAndCircularImportsList.length - finalList.length,
+    notUsedExports: finalList.length,
+    processedFiles: projectFiles.length,
+    totalEllapsedTime: timeDiffMs,
+    totalExports: exports.length,
+    totalImports: imports.length,
+  });
+
+  return unusedExportsAndCircularImportsList;
+}

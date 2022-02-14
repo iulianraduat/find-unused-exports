@@ -476,3 +476,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.12.0 (2022-02-14)
+
+### Added
+
+- Support including additional globs via .findUnusedExports.json
+
+### Changed
+
+- Using the production icons from VS Code
+- Using three panels for Overview, Unused exports and Circular imports
+
+### Removed
+
+- Nothing

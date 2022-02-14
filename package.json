@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.11.2",
+  "version": "1.12.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -23,7 +23,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.11.2.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.12.0.vsix",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
@@ -39,10 +39,10 @@
     "@types/glob": "7.2.0",
     "@types/node": "16.11.10",
     "@types/vscode": "1.59.0",
-    "@typescript-eslint/eslint-plugin": "5.10.2",
-    "@typescript-eslint/parser": "5.10.2",
-    "esbuild": "0.14.18",
-    "eslint": "8.8.0",
+    "@typescript-eslint/eslint-plugin": "5.11.0",
+    "@typescript-eslint/parser": "5.11.0",
+    "esbuild": "0.14.21",
+    "eslint": "8.9.0",
     "rimraf": "3.0.2",
     "typescript": "4.5.5",
     "vscode-test": "1.6.1"
@@ -69,59 +69,137 @@
     "views": {
       "unusedExports": [
         {
+          "id": "overview",
+          "name": "Overview"
+        },
+        {
           "id": "unusedExports",
           "name": "Unused exports"
+        },
+        {
+          "id": "circularImports",
+          "name": "Circular imports"
         }
       ]
     },
     "commands": [
       {
         "command": "unusedExports.refresh",
-        "title": "Refresh list of unused exports",
-        "icon": {
-          "light": "resources/light/refresh.svg",
-          "dark": "resources/dark/refresh.svg"
-        }
+        "title": "Refresh list of unused exports (and circular imports)",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "unusedExports.showOutput",
+        "title": "Show the output window",
+        "icon": "$(debug)"
+      },
+      {
+        "command": "unusedExports.expandAllUnusedExports",
+        "title": "Expand all rows",
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "unusedExports.collapseAllUnusedExports",
+        "title": "Collapse all rows",
+        "icon": "$(collapse-all)"
+      },
+      {
+        "command": "unusedExports.expandAllCircularImports",
+        "title": "Expand all rows",
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "unusedExports.collapseAllCircularImports",
+        "title": "Collapse all rows",
+        "icon": "$(collapse-all)"
+      },
+      {
+        "command": "unusedExports.enableCircularImports",
+        "title": "Enable detection of circular imports",
+        "icon": "$(circle-large-outline)"
+      },
+      {
+        "command": "unusedExports.disableCircularImports",
+        "title": "Disable detection of circular imports",
+        "icon": "$(circle-large-filled)"
       },
       {
         "command": "unusedExports.openFile",
         "title": "Open file with unused exports",
-        "icon": {
-          "light": "resources/light/open.svg",
-          "dark": "resources/dark/open.svg"
-        }
+        "icon": "$(symbol-file)"
       },
       {
         "command": "unusedExports.hideFileOrExport",
         "title": "Hide file or export",
-        "icon": {
-          "light": "resources/light/hide.svg",
-          "dark": "resources/dark/hide.svg"
-        }
+        "icon": "$(close)"
+      },
+      {
+        "command": "unusedExports.hideFile",
+        "title": "Hide file",
+        "icon": "$(close)"
       },
       {
         "command": "unusedExports.deleteFile",
         "title": "Delete file with unused exports",
-        "icon": {
-          "light": "resources/light/delete.svg",
-          "dark": "resources/dark/delete.svg"
-        }
+        "icon": "$(trash)"
       },
       {
-        "command": "unusedExports.findUnusedExportInFile",
-        "title": "Find an unused export in a file",
-        "icon": {
-          "light": "resources/light/find.svg",
-          "dark": "resources/dark/find.svg"
-        }
+        "command": "unusedExports.findInFile",
+        "title": "Find an unused export or circular import in a file",
+        "icon": "$(diff)"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "unusedExports.refresh",
+          "when": "view == overview",
+          "group": "navigation@1"
+        },
+        {
+          "command": "unusedExports.showOutput",
+          "when": "view == overview && config.findUnusedExports.debug",
+          "group": "navigation@2"
+        },
+        {
+          "command": "unusedExports.expandAllUnusedExports",
           "when": "view == unusedExports",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "unusedExports.collapseAllUnusedExports",
+          "when": "view == unusedExports",
+          "group": "navigation@2"
+        },
+        {
+          "command": "unusedExports.refresh",
+          "when": "view == unusedExports",
+          "group": "navigation@3"
+        },
+        {
+          "command": "unusedExports.enableCircularImports",
+          "when": "view == circularImports && !config.findUnusedExports.detectCircularImports",
+          "group": "navigation@1"
+        },
+        {
+          "command": "unusedExports.disableCircularImports",
+          "when": "view == circularImports && config.findUnusedExports.detectCircularImports",
+          "group": "navigation@1"
+        },
+        {
+          "command": "unusedExports.expandAllCircularImports",
+          "when": "view == circularImports",
+          "group": "navigation@2"
+        },
+        {
+          "command": "unusedExports.collapseAllCircularImports",
+          "when": "view == circularImports",
+          "group": "navigation@3"
+        },
+        {
+          "command": "unusedExports.refresh",
+          "when": "view == circularImports",
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [
@@ -133,6 +211,11 @@
         {
           "command": "unusedExports.hideFileOrExport",
           "when": "view == unusedExports && viewItem != noUnusedExports && viewItem != circularImport",
+          "group": "inline"
+        },
+        {
+          "command": "unusedExports.hideFile",
+          "when": "view == circularImports && (viewItem == fileNotUsed' || viewItem == 'file')",
           "group": "inline"
         }
       ]

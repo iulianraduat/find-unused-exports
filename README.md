@@ -45,6 +45,7 @@ If you want to exclude some files (like storybook's .stories.ts files), you can:
 # package.json
 {
   "findUnusedExports": {
+    "include": [ "./src/**/*.d.ts", "src/**/*.svelte" ],
     "exclude": [ "./src/**/*.stories.@(js|jsx|ts|tsx)" ]
   }
 }
@@ -55,6 +56,7 @@ If you want to exclude some files (like storybook's .stories.ts files), you can:
 ```json
 # .findUnusedExports.json
 {
+  "include": [ "./src/**/*.d.ts", "src/**/*.svelte" ],
   "exclude": [ "./storybook/**/*.stories.@(js|jsx|ts|tsx)" ]
 }
 ```
@@ -63,9 +65,29 @@ If both are used then the excluded rules from both of them will be used.
 
 ### Screenshot
 
-Bellow you can see the list of unused exports found in the currently opened project as are they displayed by this extension:
+Bellow you can see the list of unused exports and circular imports found in the currently opened project as are they displayed by this extension:
 
 ![Find Unused Exports](images/screenshot.png)
+
+### Buttons
+
+**OVERVIEW**:
+
+- Refresh list of unused exports (and circular imports)
+- Show the output window
+
+**UNUSED EXPORTS**:
+
+- Expand all rows
+- Collapse all rows
+- Refresh list of unused exports (and circular imports)
+
+**CIRCULAR IMPORTS**:
+
+- Enable/Disable detection of circular imports
+- Expand all rows
+- Collapse all rows
+- Refresh list of unused exports (and circular imports)
 
 ## Requirements
 

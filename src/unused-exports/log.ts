@@ -42,7 +42,11 @@ function isDebugEnabled(): boolean {
 
 let ochannel: vscode.OutputChannel | undefined;
 
-const logInVSCodeOutput = (msg: string, durationMs?: number) => {
+export function showOutputWindow() {
+  ochannel?.show();
+}
+
+function logInVSCodeOutput(msg: string, durationMs?: number) {
   if (!ochannel) {
     ochannel = vscode.window.createOutputChannel('Find unused exports');
   }
@@ -65,7 +69,7 @@ const logInVSCodeOutput = (msg: string, durationMs?: number) => {
   } catch {
     return;
   }
-};
+}
 
 function isLogInFileEnabled(): boolean {
   return vscode.workspace.getConfiguration().get('findUnusedExports.logInFile', false);

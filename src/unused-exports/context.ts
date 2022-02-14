@@ -35,29 +35,32 @@ export const makeContext = (pathToPrj: string): TContext => {
   const jsConfig = { allowJs: true };
   const { allowJs, baseUrl, outDir } = compilerOptions || jsConfig;
 
-  /* We are looking for custom exclude rules in package.json and .findUnusedExports.json */
+  /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
   const pathToPackageJson = path.resolve(pathToPrj, 'package.json');
   const packageJson = readJsonFile(pathToPackageJson);
+  const includeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
   const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
 
   const pathToFindUnusedExportsConfig = path.resolve(pathToPrj, '.findUnusedExports.json');
   const findUnusedExportsConfig = readJsonFile(pathToFindUnusedExportsConfig);
+  const includeFindUnusedExports2 = findUnusedExportsConfig?.include;
   const excludeFindUnusedExports2 = findUnusedExportsConfig?.exclude;
 
-  const excludeFindUnusedExports = mixExcludeArrays(excludeFindUnusedExports1, excludeFindUnusedExports2);
+  const includeFindUnusedExports = mixArrays(includeFindUnusedExports1, includeFindUnusedExports2);
+  const excludeFindUnusedExports = mixArrays(excludeFindUnusedExports1, excludeFindUnusedExports2);
 
   const res = {
     allowJs,
     baseUrl: baseUrl ? path.resolve(pathToPrj, baseUrl) : undefined,
-    exclude: getExclude(pathToPrj, mixExcludeArrays(exclude, excludeFindUnusedExports), outDir),
+    exclude: getExclude(pathToPrj, mixArrays(exclude, excludeFindUnusedExports), outDir),
     files,
-    include: getInclude(pathToPrj, include),
+    include: getInclude(pathToPrj, mixArrays(include, includeFindUnusedExports)),
     pathToPrj,
   };
   return res;
 };
 
-function mixExcludeArrays(a?: unknown, b?: unknown): string[] | undefined {
+function mixArrays(a?: unknown, b?: unknown): string[] | undefined {
   if (a === undefined && b === undefined) {
     return undefined;
   }

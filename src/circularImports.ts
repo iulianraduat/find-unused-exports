@@ -1,20 +1,22 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import * as vscode from 'vscode';
 import { Common } from './common';
 import { DEPENDENCY_TYPE, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
 
-/* We need to have it also undefined as an empty array means that the user removed all entries */
-let cacheFiles: TDependency[] | undefined;
+let cacheFiles: TDependency[] = [];
 let cacheHidden: string[] = [];
+
+function addToCacheHidden(node: TDependency) {
+  cacheFiles = [];
+  cacheHidden.push(node.id);
+}
 
 function isNotHidden(node: TDependency): boolean {
   return cacheHidden.includes(node.id) === false;
 }
 
-export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependency> {
+export class CircularImportsProvider implements vscode.TreeDataProvider<TDependency> {
   private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> = new vscode.EventEmitter<
     TDependency | undefined
   >();
@@ -25,51 +27,20 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   public refresh(): void {
-    cacheFiles = undefined;
+    cacheFiles = [];
     cacheHidden = [];
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  public hideFileOrExport(node: TDependency): void {
-    /* Strange enough, node can also be undefined */
-    if (node === undefined || cacheFiles === undefined) {
-      return;
-    }
-
-    if (node.parent === undefined) {
-      /* We need to remove the file directly in cache to avoid a change of the expanse/collapse */
-      cacheFiles = cacheFiles.filter((file) => file.id !== node.id);
-
-      /* as a file has nothing as parent we need to provide null to fire() */
-      this._onDidChangeTreeData.fire(undefined);
-      return;
-    }
-
+  public hideFile(node: TDependency): void {
     /* we want to hide it in TreeView without doing any refresh */
-    cacheHidden.push(node.id);
+    addToCacheHidden(node);
 
-    this._onDidChangeTreeData.fire(node.parent);
-  }
-
-  public deleteFile(rootPath: string, node: TDependency): void {
-    const relFilePath = node.label;
-    const filePath: string = path.resolve(rootPath, relFilePath);
-
-    fs.unlink(filePath, (err: NodeJS.ErrnoException | null) => {
-      if (err) {
-        vscode.window.showInformationMessage(`Cannot delete ${relFilePath}`);
-        return;
-      }
-
-      this.hideFileOrExport(node);
-    });
+    /* as a file has nothing as parent we need to provide null to fire() */
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   public expandAll() {
-    if (cacheFiles === undefined) {
-      return;
-    }
-
     cacheFiles = cacheFiles.map((file) => file.clone(true));
 
     /* as a file has nothing as parent we need to provide null to fire() */
@@ -77,10 +48,6 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   public collapseAll() {
-    if (cacheFiles === undefined) {
-      return;
-    }
-
     cacheFiles = cacheFiles.map((file) => file.clone(false));
 
     /* as a file has nothing as parent we need to provide null to fire() */
@@ -89,31 +56,27 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
 
   /* TreeDataProvider specific functions */
 
-  public getParent(element: TDependency) {
-    return element.parent;
-  }
-
   public getTreeItem(element: TDependency): vscode.TreeItem {
     return element;
   }
 
   public getChildren(element?: TDependency): Thenable<TDependency[]> {
     if (element) {
-      return Promise.resolve(this.unusedExportsInFile(element));
+      return Promise.resolve(this.circularImportsInFile(element));
     }
 
     return Promise.resolve(this.getFiles());
   }
 
   private getFiles(): TDependency[] {
-    if (cacheFiles) {
+    if (cacheFiles.length > 0) {
       return cacheFiles;
     }
 
-    const files = this.common.getUnusedExports();
+    const files = this.common.getCircularImports();
 
     if (files.length === 0) {
-      return [NoUnusedExports];
+      return [NoCircularImports];
     }
 
     cacheFiles = files.map(this.mapFile2Dependency).filter(isNotHidden);
@@ -121,16 +84,16 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   }
 
   private mapFile2Dependency(node: TNotUsed): TDependency {
-    const { filePath, isCompletelyUnused, notUsedExports } = node;
+    const { filePath, isCompletelyUnused, circularImports } = node;
 
     const collapsibleState = isResultExpanded()
       ? vscode.TreeItemCollapsibleState.Expanded
       : vscode.TreeItemCollapsibleState.Collapsed;
 
     const cmd = {
-      command: 'unusedExports.openFile',
-      title: 'Open',
-      arguments: [filePath],
+      command: 'unusedExports.findInFile',
+      title: 'Find the circular import in file',
+      arguments: [filePath, getFileBaseName(node.circularImports?.[0] || '')],
     };
 
     return new TDependency(
@@ -139,47 +102,64 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
       DEPENDENCY_TYPE.FILE,
       filePath,
       isCompletelyUnused,
-      notUsedExports,
       undefined,
+      circularImports,
       collapsibleState,
       cmd
     );
   }
 
-  private unusedExportsInFile(node: TDependency): TDependency[] {
-    const mapFn = this.mapUnusedExport2Dependency(node);
-    return node.notUsedExports?.map(mapFn).filter(isNotHidden) ?? [];
+  private circularImportsInFile(node: TDependency): TDependency[] {
+    const mapFn = this.mapCircularImport2Dependency(node);
+    return node.circularImports?.map(mapFn) ?? [];
   }
 
-  private mapUnusedExport2Dependency(node: TDependency) {
+  private mapCircularImport2Dependency(node: TDependency) {
     const filePath: string = node.label;
-    return (notUsedExport: string): TDependency => {
+    return (circularImport: string, index: number): TDependency => {
+      const nextImport = this.getNextImport(node.label, node.circularImports, index);
+
       return new TDependency(
         node,
-        `${filePath}::${notUsedExport}`,
-        DEPENDENCY_TYPE.UNUSED_EXPORT,
-        notUsedExport,
+        `${filePath}::${circularImport}`,
+        DEPENDENCY_TYPE.CIRCULAR_IMPORT,
+        circularImport,
         false,
         undefined,
         undefined,
         vscode.TreeItemCollapsibleState.None,
         {
           command: 'unusedExports.findInFile',
-          title: 'Find the unused export in file',
-          arguments: [filePath, notUsedExport],
+          title: 'Find the circular import in file',
+          arguments: [circularImport, nextImport],
         }
       );
     };
   }
+
+  private getNextImport(firstPathname: string, circularImports: string[] | undefined, index: number): string {
+    if (circularImports === undefined) {
+      return '';
+    }
+
+    index++;
+    const pathname = index < circularImports.length ? circularImports[index] : firstPathname;
+    return getFileBaseName(pathname);
+  }
 }
 
-const NoUnusedExports: TDependency = new TDependency(
+const NoCircularImports: TDependency = new TDependency(
   undefined,
   '-',
   DEPENDENCY_TYPE.EMPTY,
-  'No unused exports',
+  'No circular imports',
   false,
   undefined,
   undefined,
   vscode.TreeItemCollapsibleState.None
 );
+
+const regNextImport = /([^\/\\]+)(?:\.[^.]+)$/;
+function getFileBaseName(pathname: string): string {
+  return regNextImport.exec(pathname)![1] ?? '';
+}

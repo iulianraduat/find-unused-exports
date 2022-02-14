@@ -1,4 +1,5 @@
 import { TRelation } from './relations';
+import { isResultExpanded } from './settings';
 
 export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
   const nodes: TNotUsed[] = [];
@@ -20,6 +21,7 @@ export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
     const node: TNotUsed = {
       filePath: path,
       isCompletelyUnused,
+      isExpanded: isResultExpanded(),
       notUsedExports,
     };
     nodes.push(node);
@@ -27,12 +29,12 @@ export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
   return nodes;
 };
 
-export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number =>
-  a.filePath.localeCompare(b.filePath);
+export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath);
 
 export interface TNotUsed {
+  circularImports?: string[];
   filePath: string;
   isCompletelyUnused: boolean;
+  isExpanded: boolean;
   notUsedExports?: string[];
-  circularImports?: string[];
 }

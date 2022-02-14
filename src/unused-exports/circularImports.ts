@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { log } from './log';
 import { TNotUsed } from './notUsed';
 import { TRelation } from './relations';
+import { isResultExpanded } from './settings';
 
 export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[], ts?: number): TNotUsed[] {
   if (isCircularImportsEnabled() === false) {
@@ -23,7 +24,7 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[],
 }
 
 function isCircularImportsEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.detectCircularImports', false);
+  return vscode.workspace.getConfiguration().get('findUnusedExports.detectCircularImports', true);
 }
 
 /* Relations */
@@ -137,8 +138,9 @@ function addCycleToNodes(circularImportsPath: string[], nodes: TNotUsed[]): void
   }
 
   nodes.push({
+    circularImports: circularImportsPath,
     filePath: path,
     isCompletelyUnused: false,
-    circularImports: circularImportsPath,
+    isExpanded: isResultExpanded(),
   });
 }
