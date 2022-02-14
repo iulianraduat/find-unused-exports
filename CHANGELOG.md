@@ -505,3 +505,17 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.12.2 (2022-02-14)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Re-added wrongly removed icons
+
+### Removed
+
+- Nothing
