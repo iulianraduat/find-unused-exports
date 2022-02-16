@@ -534,3 +534,18 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Removed
 
 - Nothing
+
+## 1.14.0 (2022-02-16)
+
+### Added
+
+- Display the used glob instead of the defined glob
+- Display the number of matched files for an include glob
+
+### Changed
+
+- Fixed the bug which used exclude as include from packageJson's findUnusedExports field
+
+### Removed
+
+- Nothing

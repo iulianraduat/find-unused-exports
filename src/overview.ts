@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 interface OverviewContext {
+  countGlobInclude: Record<string, number>;
   errors?: string[];
   filesHavingImportsOrExports: number;
   foundCircularImports: number;
@@ -8,6 +9,7 @@ interface OverviewContext {
   globInclude?: string[];
   lastRun: Date;
   notUsedExports: number;
+  pathToPrj: string;
   processedFiles: number;
   totalEllapsedTime: number;
   totalExports: number;
@@ -20,11 +22,13 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
   >();
   public readonly onDidChangeTreeData: vscode.Event<TOverviewEntry | undefined> = this._onDidChangeTreeData.event;
   private overviewContext: OverviewContext = {
+    countGlobInclude: {},
     errors: [],
     filesHavingImportsOrExports: 0,
     foundCircularImports: 0,
     lastRun: new Date(),
     notUsedExports: 0,
+    pathToPrj: '',
     processedFiles: 0,
     totalEllapsedTime: 0,
     totalExports: 0,
@@ -33,13 +37,20 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
 
   constructor() {}
 
-  public update(overviewContext: Omit<OverviewContext, 'errors' | 'globExclude' | 'globInclude' | 'lastRun'>): void {
+  public update(
+    overviewContext: Omit<
+      OverviewContext,
+      'countGlobInclude' | 'errors' | 'globExclude' | 'globInclude' | 'lastRun' | 'pathToPrj'
+    >
+  ): void {
     this.overviewContext = {
       ...overviewContext,
+      countGlobInclude: this.overviewContext.countGlobInclude,
       errors: this.overviewContext.errors,
       globExclude: this.overviewContext.globExclude,
       globInclude: this.overviewContext.globInclude,
       lastRun: new Date(),
+      pathToPrj: this.overviewContext.pathToPrj,
     };
     this._onDidChangeTreeData.fire(undefined);
   }
@@ -49,10 +60,22 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  public updateFieldsGlob(globInclude?: string[], globExclude?: string[]): void {
-    this.overviewContext.globInclude = globInclude;
-    this.overviewContext.globExclude = globExclude;
+  public updateFieldsGlob(pathToPrj: string, globInclude?: string[], globExclude?: string[]): void {
+    this.overviewContext.pathToPrj = pathToPrj;
+    this.overviewContext.globInclude = globInclude?.map((globPath) => this.getAdjustedPath(pathToPrj, globPath));
+    this.overviewContext.globExclude = globExclude?.map((globPath) => this.getAdjustedPath(pathToPrj, globPath));
     this._onDidChangeTreeData.fire(undefined);
+  }
+
+  public updateFieldCountGlobInclude(pathToPrj: string, globPath: string, count: number) {
+    const key = this.getAdjustedPath(pathToPrj, globPath);
+    this.overviewContext.countGlobInclude[key] = count;
+    this._onDidChangeTreeData.fire(undefined);
+  }
+
+  /* We want to have path relative to projects root */
+  private getAdjustedPath(pathToPrj: string, globPath: string) {
+    return globPath.replace(pathToPrj, '');
   }
 
   public getTreeItem(element: TOverviewEntry): vscode.TreeItem {
@@ -73,10 +96,11 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
       this.map2OverviewEntry('notUsedExports', 'Not used exports', 'info'),
       this.map2OverviewEntry('foundCircularImports', 'Found circular imports', 'info'),
       this.map2OverviewEntry('totalEllapsedTime', 'Total ellapsed time (ms)', 'watch'),
+      this.map2OverviewEntry('pathToPrj', "Project's root", 'folder-opened'),
     ];
 
     this.overviewContext.globInclude?.forEach((globInclude) =>
-      rows.push(this.map2LabelValueIcon('Include', globInclude, 'file-text'))
+      rows.push(this.map2LabelValueIcon('Include', globInclude, 'file-text', true))
     );
     this.overviewContext.globExclude?.forEach((globExclude) =>
       rows.push(this.map2LabelValueIcon('Exclude', globExclude, 'file-text'))
@@ -92,8 +116,17 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     return new TOverviewEntry(`${label}: ${dt.toISOString()}`, icon);
   }
 
-  private map2LabelValueIcon(label: string, globPath: string, icon?: string): TOverviewEntry {
-    return new TOverviewEntry(`${label}: ${globPath}`, icon);
+  private map2LabelValueIcon(
+    label: string,
+    globPath: string,
+    icon: string | undefined,
+    addCount?: boolean
+  ): TOverviewEntry {
+    return new TOverviewEntry(
+      `${label}: ${globPath}`,
+      icon,
+      addCount ? this.overviewContext.countGlobInclude[globPath] || 0 : undefined
+    );
   }
 
   private map2OverviewEntry(key: keyof OverviewContext, label: string, icon?: string): TOverviewEntry {
@@ -102,11 +135,14 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
 }
 
 class TOverviewEntry extends vscode.TreeItem {
-  constructor(label: string, icon?: string) {
+  constructor(label: string, icon?: string, description?: number) {
     super(label, vscode.TreeItemCollapsibleState.None);
 
     if (icon) {
       this.iconPath = new vscode.ThemeIcon(icon);
+    }
+    if (description !== undefined) {
+      this.description = `${description}`;
     }
   }
 }

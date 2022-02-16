@@ -15,19 +15,27 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
   const explicitFiles = getRoots(pathToPrj, files);
   const globInclude = getRoots(pathToPrj, include, globRegexp);
 
+  const fnUpdateFieldCountGlobInclude = (globPath: string, count: number) =>
+    context.overviewProvider.updateFieldCountGlobInclude(pathToPrj, globPath, count);
+
   if (files === undefined && include === undefined) {
     const res: TTsFile[] = [];
-    globFile(res, pathToPrj, globRegexp, globExclude);
+    context.overviewProvider.updateFieldsGlob(pathToPrj, [globRegexp], globExclude);
+    globFile(res, pathToPrj, globRegexp, globExclude, fnUpdateFieldCountGlobInclude);
     return res;
   }
 
+  /* We want to see the stats before doing the actions */
+  const includes = include ? globInclude.map((gi) => applyGlob(gi, globRegexp)) : [];
+  const includeGlobs: string[] = files ? [...explicitFiles, ...includes] : includes;
+  context.overviewProvider.updateFieldsGlob(pathToPrj, includeGlobs, globExclude);
+
   const res: TTsFile[] = [];
   if (files !== undefined) {
-    globFiles(res, pathToPrj, explicitFiles, globExclude);
+    globFiles(res, pathToPrj, explicitFiles, globExclude, fnUpdateFieldCountGlobInclude);
   }
   if (include !== undefined) {
-    const includes = globInclude.map((gi) => applyGlob(gi, globRegexp));
-    globFiles(res, pathToPrj, includes, globExclude);
+    globFiles(res, pathToPrj, includes, globExclude, fnUpdateFieldCountGlobInclude);
   }
   return res;
 };
@@ -66,13 +74,26 @@ function applyGlob(filePath: string, globRegexp?: string): string {
   return fixedFilePath;
 }
 
-function globFiles(res: TTsFile[], pathToPrj: string, globRegexp: string[], globIgnore?: string[]) {
-  globRegexp.forEach((gre) => globFile(res, pathToPrj, gre, globIgnore));
+function globFiles(
+  res: TTsFile[],
+  pathToPrj: string,
+  globRegexp: string[],
+  globIgnore: string[] | undefined,
+  fnUpdateFieldCountGlobInclude: (globPath: string, count: number) => void
+) {
+  globRegexp.forEach((gre) => globFile(res, pathToPrj, gre, globIgnore, fnUpdateFieldCountGlobInclude));
 }
 
-function globFile(res: TTsFile[], pathToFolder: string, globRegexp: string, globIgnore?: string[]) {
+function globFile(
+  res: TTsFile[],
+  pathToFolder: string,
+  globRegexp: string,
+  globIgnore: string[] | undefined,
+  fnUpdateFieldCountGlobInclude: (globPath: string, count: number) => void
+) {
   log('Using glob rule', path.resolve(pathToFolder, globRegexp));
   globIgnore && log('And glob ignore rules', globIgnore);
+  let count = 0;
   glob
     .sync(globRegexp, {
       cwd: pathToFolder,
@@ -87,5 +108,7 @@ function globFile(res: TTsFile[], pathToFolder: string, globRegexp: string, glob
       res.push({
         path: source,
       });
+      count++;
     });
+  fnUpdateFieldCountGlobInclude(globRegexp, count);
 }
