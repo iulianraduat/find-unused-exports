@@ -2,6 +2,14 @@
 
 All notable changes to the "Find Unused Exports" extension will be documented in this file.
 
+### Note
+
+This extension assumes a set of default exclude folders:
+
+- \*\*/\*.d.ts
+- node_modules/\*\*/\*
+- \*\*/node_modules/\*\*/\*
+
 ## 1.0.0 (2020-07-01)
 
 ### Added
@@ -545,6 +553,21 @@ All notable changes to the "Find Unused Exports" extension will be documented in
 ### Changed
 
 - Fixed the bug which used exclude as include from packageJson's findUnusedExports field
+
+### Removed
+
+- Nothing
+
+## 1.14.1 (2022-02-18)
+
+### Added
+
+- Display which exclude globs are added by this extension (marked as default)
+
+### Changed
+
+- Using the "default" exclude globs only for include globs from jsconfig.json or tsconfig.json (they end in .js(x) or .ts(x))
+  - This is a fix to be able to find imports done only in default excluded files of exports done in included files (like an import in a .d.ts file for an export done in a typescript file)
 
 ### Removed
 

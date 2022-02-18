@@ -7,11 +7,14 @@ export interface TTsFile {
   path: string;
 }
 
-export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] => {
+const defaultExclude = ['**/*.d.ts', 'node_modules/**/*', '**/node_modules/**/*'];
+
+export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] {
   const { allowJs, exclude, include, files } = context;
 
   const globRegexp = getGlobRegexp(allowJs);
-  const globExclude = getGlobExclude(pathToPrj, exclude);
+  const globExclude = getGlobs(pathToPrj, exclude);
+  const globExcludeExtended = getGlobs(pathToPrj, [...defaultExclude, ...(exclude || [])]);
   const explicitFiles = getRoots(pathToPrj, files);
   const globInclude = getRoots(pathToPrj, include, globRegexp);
 
@@ -28,7 +31,7 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
   /* We want to see the stats before doing the actions */
   const includes = include ? globInclude.map((gi) => applyGlob(gi, globRegexp)) : [];
   const includeGlobs: string[] = files ? [...explicitFiles, ...includes] : includes;
-  context.overviewProvider.updateFieldsGlob(pathToPrj, includeGlobs, globExclude);
+  context.overviewProvider.updateFieldsGlob(pathToPrj, includeGlobs, globExcludeExtended, defaultExclude.length);
 
   const res: TTsFile[] = [];
   if (files !== undefined) {
@@ -38,19 +41,18 @@ export const getSourceFiles = (pathToPrj: string, context: TContext): TTsFile[] 
     globFiles(res, pathToPrj, includes, globExclude, fnUpdateFieldCountGlobInclude);
   }
   return res;
-};
+}
 
 const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.@(ts|js)?(x)' : '**/*.ts?(x)');
 
-const getGlobExclude = (pathToPrj: string, exclude: string[] = []): string[] => {
-  let list = ['**/*.d.ts', 'node_modules/**/*', '**/node_modules/**/*', ...exclude];
+function getGlobs(pathToPrj: string, paths: string[] = []): string[] {
+  return paths.map(fixPath).map((f) => path.resolve(pathToPrj, f));
+}
+
+function fixPath(f: string) {
   const fsSep = path.sep;
-  if (fsSep !== '/') {
-    list = list.map((f) => f.replace(/\//g, fsSep));
-  }
-  list = list.map((f) => path.resolve(pathToPrj, f));
-  return list;
-};
+  return fsSep !== '/' ? f.replace(/\//g, fsSep) : f;
+}
 
 function getRoots(pathToPrj: string, files?: string[], globRegexp?: string): string[] {
   if (files === undefined) {

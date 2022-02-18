@@ -9,6 +9,7 @@ interface OverviewContext {
   globInclude?: string[];
   lastRun: Date;
   notUsedExports: number;
+  numDefaultExclude?: number;
   pathToPrj: string;
   processedFiles: number;
   totalEllapsedTime: number;
@@ -40,7 +41,7 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
   public update(
     overviewContext: Omit<
       OverviewContext,
-      'countGlobInclude' | 'errors' | 'globExclude' | 'globInclude' | 'lastRun' | 'pathToPrj'
+      'countGlobInclude' | 'errors' | 'globExclude' | 'globInclude' | 'lastRun' | 'numDefaultExclude' | 'pathToPrj'
     >
   ): void {
     this.overviewContext = {
@@ -50,6 +51,7 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
       globExclude: this.overviewContext.globExclude,
       globInclude: this.overviewContext.globInclude,
       lastRun: new Date(),
+      numDefaultExclude: this.overviewContext.numDefaultExclude,
       pathToPrj: this.overviewContext.pathToPrj,
     };
     this._onDidChangeTreeData.fire(undefined);
@@ -60,10 +62,16 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  public updateFieldsGlob(pathToPrj: string, globInclude?: string[], globExclude?: string[]): void {
+  public updateFieldsGlob(
+    pathToPrj: string,
+    globInclude?: string[],
+    globExclude?: string[],
+    numDefaultExclude?: number
+  ): void {
     this.overviewContext.pathToPrj = pathToPrj;
     this.overviewContext.globInclude = globInclude?.map((globPath) => this.getAdjustedPath(pathToPrj, globPath));
     this.overviewContext.globExclude = globExclude?.map((globPath) => this.getAdjustedPath(pathToPrj, globPath));
+    this.overviewContext.numDefaultExclude = numDefaultExclude;
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -100,10 +108,26 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     ];
 
     this.overviewContext.globInclude?.forEach((globInclude) =>
-      rows.push(this.map2LabelValueIcon('Include', globInclude, 'file-text', true))
+      rows.push(
+        this.map2LabelValueIcon(
+          'Include',
+          globInclude,
+          'file-text',
+          this.overviewContext.countGlobInclude[globInclude] || 0
+        )
+      )
     );
-    this.overviewContext.globExclude?.forEach((globExclude) =>
-      rows.push(this.map2LabelValueIcon('Exclude', globExclude, 'file-text'))
+    this.overviewContext.globExclude?.forEach((globExclude, index) =>
+      rows.push(
+        this.map2LabelValueIcon(
+          'Exclude',
+          globExclude,
+          'file-text',
+          this.overviewContext.numDefaultExclude && index < this.overviewContext.numDefaultExclude
+            ? 'default'
+            : undefined
+        )
+      )
     );
 
     this.overviewContext.errors?.forEach((error) => rows.push(this.map2LabelValueIcon('Warning', error, 'alert')));
@@ -120,13 +144,9 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     label: string,
     globPath: string,
     icon: string | undefined,
-    addCount?: boolean
+    description?: string | number
   ): TOverviewEntry {
-    return new TOverviewEntry(
-      `${label}: ${globPath}`,
-      icon,
-      addCount ? this.overviewContext.countGlobInclude[globPath] || 0 : undefined
-    );
+    return new TOverviewEntry(`${label}: ${globPath}`, icon, description);
   }
 
   private map2OverviewEntry(key: keyof OverviewContext, label: string, icon?: string): TOverviewEntry {
@@ -135,7 +155,7 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
 }
 
 class TOverviewEntry extends vscode.TreeItem {
-  constructor(label: string, icon?: string, description?: number) {
+  constructor(label: string, icon?: string, description?: string | number) {
     super(label, vscode.TreeItemCollapsibleState.None);
 
     if (icon) {
