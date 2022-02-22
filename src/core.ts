@@ -1,15 +1,31 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { OverviewProvider } from './overview';
 import { app } from './unused-exports/app';
 import { TNotUsed } from './unused-exports/notUsed';
 
 const cacheFiles: Record<string, TNotUsed[]> = {};
-const listeners: Record<string, Array<() => void>> = {};
+const listeners: Record<string, Array<(updatedCore: Core) => void>> = {};
 
-export class Common {
-  constructor(private workspaceRoot: string, private overviewProvider: OverviewProvider) {
+export class Core {
+  private overviewContext: OverviewContext = {
+    countGlobInclude: {},
+    errors: [],
+    filesHavingImportsOrExports: 0,
+    foundCircularImports: 0,
+    lastRun: new Date(),
+    notUsedExports: 0,
+    pathToPrj: '',
+    processedFiles: 0,
+    totalEllapsedTime: 0,
+    totalExports: 0,
+    totalImports: 0,
+    workspaceName: '',
+  };
+
+  constructor(workspaceName: string, private workspaceRoot: string) {
+    this.overviewContext.workspaceName = workspaceName;
+    this.overviewContext.pathToPrj = workspaceRoot;
     this.doAnalyse();
   }
 
@@ -17,7 +33,7 @@ export class Common {
     new Promise(async (resolve) => {
       const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
       if (this.pathExists(packageJsonPath) === false) {
-        vscode.window.showInformationMessage('No package.json found in workspace');
+        this.overviewContext.info = 'No package.json found in workspace';
         return;
       }
 
@@ -26,14 +42,14 @@ export class Common {
         return;
       }
 
-      const files = app(this.workspaceRoot, this.overviewProvider);
+      const files = app(this.workspaceRoot, this.overviewContext);
       cacheFiles[this.workspaceRoot] = files;
 
       resolve(undefined);
     });
   }
 
-  public registerListener(listener: () => void) {
+  public registerListener(listener: (core: Core) => void) {
     if (listeners[this.workspaceRoot] === undefined) {
       listeners[this.workspaceRoot] = [];
     }
@@ -43,7 +59,11 @@ export class Common {
   public async refresh() {
     delete cacheFiles[this.workspaceRoot];
     await this.doAnalyse();
-    listeners[this.workspaceRoot].forEach((listener) => listener());
+    listeners[this.workspaceRoot].forEach((listener) => listener(this));
+  }
+
+  public getOverviewContext() {
+    return this.overviewContext;
   }
 
   public getUnusedExports(): TNotUsed[] {
@@ -99,4 +119,23 @@ export class Common {
 
     return true;
   }
+}
+
+export interface OverviewContext {
+  countGlobInclude: Record<string, number>;
+  errors?: string[];
+  filesHavingImportsOrExports: number;
+  foundCircularImports: number;
+  globExclude?: string[];
+  globInclude?: string[];
+  info?: string;
+  lastRun: Date;
+  notUsedExports: number;
+  numDefaultExclude?: number;
+  pathToPrj: string;
+  processedFiles: number;
+  totalEllapsedTime: number;
+  totalExports: number;
+  totalImports: number;
+  workspaceName: string;
 }

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { Common } from './common';
+import { Core } from './core';
 import { DEPENDENCY_TYPE, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
@@ -20,7 +20,7 @@ export class UnusedExportsProvider implements vscode.TreeDataProvider<TDependenc
   >();
   public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
 
-  constructor(private common: Common) {
+  constructor(private common: Core) {
     common.registerListener(this.refresh.bind(this));
   }
 

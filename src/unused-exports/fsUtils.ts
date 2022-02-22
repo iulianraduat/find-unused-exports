@@ -1,8 +1,8 @@
 import * as fs from 'fs';
-import { OverviewProvider } from '../overview';
+import { OverviewContext } from '../core';
 import { log } from './log';
 
-export const readJsonFile = (path: string, overviewProvider: OverviewProvider): { [kes: string]: any } | undefined => {
+export const readJsonFile = (path: string, overviewContext: OverviewContext): { [kes: string]: any } | undefined => {
   if (fs.existsSync(path) === false) {
     return undefined;
   }
@@ -14,7 +14,7 @@ export const readJsonFile = (path: string, overviewProvider: OverviewProvider): 
     return JSON.parse(content);
   } catch (e: any) {
     log(`Error parsing "${path}"`, e.message ?? e);
-    overviewProvider.updateFieldError(`Error parsing "${path}": ${e.message ?? e}`);
+    overviewContext.errors?.push(`Error parsing "${path}": ${e.message ?? e}`);
     return undefined;
   }
 };
@@ -36,3 +36,7 @@ export const isFile = (path: string): boolean => {
     return false;
   }
 };
+
+export function getAdjustedPath(pathToPrj: string, globPath: string) {
+  return globPath.replace(pathToPrj, '');
+}

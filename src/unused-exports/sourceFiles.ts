@@ -1,6 +1,7 @@
 import * as glob from 'glob';
 import * as path from 'path';
 import { TContext } from './context';
+import { getAdjustedPath } from './fsUtils';
 import { log } from './log';
 
 export interface TTsFile {
@@ -18,12 +19,17 @@ export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] 
   const explicitFiles = getRoots(pathToPrj, files);
   const globInclude = getRoots(pathToPrj, include, globRegexp);
 
-  const fnUpdateFieldCountGlobInclude = (globPath: string, count: number) =>
-    context.overviewProvider.updateFieldCountGlobInclude(pathToPrj, globPath, count);
+  const fnUpdateFieldCountGlobInclude = (globPath: string, count: number) => {
+    const key = getAdjustedPath(pathToPrj, globPath);
+    context.overviewContext.countGlobInclude[key] = count;
+  };
+  context.overviewContext.pathToPrj = pathToPrj;
 
   if (files === undefined && include === undefined) {
     const res: TTsFile[] = [];
-    context.overviewProvider.updateFieldsGlob(pathToPrj, [globRegexp], globExclude);
+    context.overviewContext.globInclude = [getAdjustedPath(pathToPrj, globRegexp)];
+    context.overviewContext.globExclude = globExclude.map((globPath) => getAdjustedPath(pathToPrj, globPath));
+    context.overviewContext.numDefaultExclude = undefined;
     globFile(res, pathToPrj, globRegexp, globExclude, fnUpdateFieldCountGlobInclude);
     return res;
   }
@@ -31,7 +37,9 @@ export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] 
   /* We want to see the stats before doing the actions */
   const includes = include ? globInclude.map((gi) => applyGlob(gi, globRegexp)) : [];
   const includeGlobs: string[] = files ? [...explicitFiles, ...includes] : includes;
-  context.overviewProvider.updateFieldsGlob(pathToPrj, includeGlobs, globExcludeExtended, defaultExclude.length);
+  context.overviewContext.globInclude = includeGlobs.map((globPath) => getAdjustedPath(pathToPrj, globPath));
+  context.overviewContext.globExclude = globExcludeExtended.map((globPath) => getAdjustedPath(pathToPrj, globPath));
+  context.overviewContext.numDefaultExclude = defaultExclude.length;
 
   const res: TTsFile[] = [];
   if (files !== undefined) {

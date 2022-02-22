@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Common } from './common';
+import { Core } from './core';
 import { DEPENDENCY_TYPE, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
@@ -22,7 +22,7 @@ export class CircularImportsProvider implements vscode.TreeDataProvider<TDepende
   >();
   public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
 
-  constructor(private common: Common) {
+  constructor(private common: Core) {
     common.registerListener(this.refresh.bind(this));
   }
 

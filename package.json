@@ -206,6 +206,11 @@
       ],
       "view/item/context": [
         {
+          "command": "unusedExports.refresh",
+          "when": "view == overview && viewItem == folder",
+          "group": "inline"
+        },
+        {
           "command": "unusedExports.deleteFile",
           "when": "view == unusedExports && viewItem == fileNotUsed",
           "group": "inline"
