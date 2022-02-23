@@ -572,3 +572,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.15.0 (2022-02-23)
+
+### Added
+
+- Support for workspaces
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

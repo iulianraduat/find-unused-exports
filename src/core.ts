@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { OverviewContext } from './overviewContext';
 import { app } from './unused-exports/app';
 import { TNotUsed } from './unused-exports/notUsed';
 
 const cacheFiles: Record<string, TNotUsed[]> = {};
-const listeners: Record<string, Array<(updatedCore: Core) => void>> = {};
+const listeners: Record<string, Array<() => void>> = {};
 
 export class Core {
   private overviewContext: OverviewContext = {
@@ -29,27 +30,30 @@ export class Core {
     this.doAnalyse();
   }
 
-  private doAnalyse() {
-    new Promise(async (resolve) => {
+  private doAnalyse(): Promise<TNotUsed[] | undefined> {
+    this.overviewContext.lastRun = new Date();
+
+    return new Promise(async (resolve) => {
       const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
       if (this.pathExists(packageJsonPath) === false) {
         this.overviewContext.info = 'No package.json found in workspace';
+        resolve(undefined);
         return;
       }
 
       /* We use the catched values */
       if (cacheFiles[this.workspaceRoot]) {
+        resolve(cacheFiles[this.workspaceRoot]);
         return;
       }
 
       const files = app(this.workspaceRoot, this.overviewContext);
       cacheFiles[this.workspaceRoot] = files;
-
-      resolve(undefined);
+      resolve(files);
     });
   }
 
-  public registerListener(listener: (core: Core) => void) {
+  public registerListener(listener: () => void) {
     if (listeners[this.workspaceRoot] === undefined) {
       listeners[this.workspaceRoot] = [];
     }
@@ -59,35 +63,45 @@ export class Core {
   public async refresh() {
     delete cacheFiles[this.workspaceRoot];
     await this.doAnalyse();
-    listeners[this.workspaceRoot].forEach((listener) => listener(this));
+    listeners[this.workspaceRoot].forEach((listener) => listener());
   }
 
   public getOverviewContext() {
     return this.overviewContext;
   }
 
-  public getUnusedExports(): TNotUsed[] {
-    return (
-      cacheFiles[this.workspaceRoot]?.filter((node) => node.notUsedExports && node.notUsedExports.length > 0) ?? []
-    );
+  public getFilesData(type: TFileDataType): TNotUsed[] {
+    const cache = cacheFiles[this.workspaceRoot];
+    if (cache === undefined) {
+      return [];
+    }
+
+    switch (type) {
+      case TFileDataType.CIRCULAR_IMPORTS:
+        return cache.filter((node) => this.isListNotEmpty(node.circularImports));
+      case TFileDataType.UNUSED_EXPORTS:
+        return cache.filter((node) => this.isListNotEmpty(node.notUsedExports));
+    }
   }
 
-  public getCircularImports(): TNotUsed[] {
-    return (
-      cacheFiles[this.workspaceRoot]?.filter((node) => node.circularImports && node.circularImports.length > 0) ?? []
-    );
+  private isListNotEmpty(list?: string[]) {
+    if (list === undefined) {
+      return false;
+    }
+
+    return list.length > 0;
   }
 
   /* utility functions */
 
-  public open(filePath: string): void {
-    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
+  public static open(filePath: string): void {
+    vscode.workspace.openTextDocument(filePath).then((doc) => {
       vscode.window.showTextDocument(doc);
     });
   }
 
-  public findInFile(filePath: string, unusedExportOrCircularImport: string): void {
-    vscode.workspace.openTextDocument(path.resolve(this.workspaceRoot, filePath)).then((doc) => {
+  public static findInFile(filePath: string, unusedExportOrCircularImport: string): void {
+    vscode.workspace.openTextDocument(filePath).then((doc) => {
       vscode.window.showTextDocument(doc).then(() => {
         const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
         const document: vscode.TextDocument | undefined = editor?.document;
@@ -121,21 +135,7 @@ export class Core {
   }
 }
 
-export interface OverviewContext {
-  countGlobInclude: Record<string, number>;
-  errors?: string[];
-  filesHavingImportsOrExports: number;
-  foundCircularImports: number;
-  globExclude?: string[];
-  globInclude?: string[];
-  info?: string;
-  lastRun: Date;
-  notUsedExports: number;
-  numDefaultExclude?: number;
-  pathToPrj: string;
-  processedFiles: number;
-  totalEllapsedTime: number;
-  totalExports: number;
-  totalImports: number;
-  workspaceName: string;
+export enum TFileDataType {
+  UNUSED_EXPORTS,
+  CIRCULAR_IMPORTS,
 }

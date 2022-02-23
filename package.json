@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.14.1",
+  "version": "1.15.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -23,7 +23,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.14.1.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.15.0.vsix",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
@@ -190,17 +190,17 @@
         },
         {
           "command": "unusedExports.expandAllCircularImports",
-          "when": "view == circularImports",
+          "when": "view == circularImports && config.findUnusedExports.detectCircularImports",
           "group": "navigation@2"
         },
         {
           "command": "unusedExports.collapseAllCircularImports",
-          "when": "view == circularImports",
+          "when": "view == circularImports && config.findUnusedExports.detectCircularImports",
           "group": "navigation@3"
         },
         {
           "command": "unusedExports.refresh",
-          "when": "view == circularImports",
+          "when": "view == circularImports && config.findUnusedExports.detectCircularImports",
           "group": "navigation@4"
         }
       ],
@@ -217,12 +217,12 @@
         },
         {
           "command": "unusedExports.hideFileOrExport",
-          "when": "view == unusedExports && viewItem != noUnusedExports && viewItem != circularImport",
+          "when": "view == unusedExports && viewItem != nothingFound",
           "group": "inline"
         },
         {
           "command": "unusedExports.hideFile",
-          "when": "view == circularImports && (viewItem == fileNotUsed' || viewItem == 'file')",
+          "when": "view == circularImports && viewItem != nothingFound && viewItem != circularImport",
           "group": "inline"
         }
       ]

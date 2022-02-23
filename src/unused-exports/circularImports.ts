@@ -23,8 +23,8 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[],
   return [nodes, cycles.length];
 }
 
-function isCircularImportsEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.detectCircularImports', true);
+export function isCircularImportsEnabled(): boolean {
+  return vscode.workspace.getConfiguration().get('findUnusedExports.detectCircularImports', false);
 }
 
 /* Relations */

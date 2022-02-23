@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { OverviewContext } from '../core';
+import { OverviewContext } from '../overviewContext';
 import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
 import { getExports } from './exports';
@@ -12,7 +12,7 @@ import { buildRelations, TRelation } from './relations';
 import { getSourceFiles } from './sourceFiles';
 import { getOnlyUsefullFiles } from './usefullFiles';
 
-const fixPath = (path: string, prefixLen: number): string => path.substr(prefixLen).replace(/\\/g, '/');
+const fixPath = (path: string, prefixLen: number): string => path.substring(prefixLen).replace(/\\/g, '/');
 
 const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string): void => {
   const pathDelim = path.delimiter;

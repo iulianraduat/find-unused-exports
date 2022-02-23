@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { OverviewContext } from '../core';
+import { OverviewContext } from '../overviewContext';
 import { log } from './log';
 
 export const readJsonFile = (path: string, overviewContext: OverviewContext): { [kes: string]: any } | undefined => {

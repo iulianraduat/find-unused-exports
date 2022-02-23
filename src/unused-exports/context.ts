@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { OverviewContext } from '../core';
+import { OverviewContext } from '../overviewContext';
 import { readJsonFile } from './fsUtils';
 
 export interface TContext {

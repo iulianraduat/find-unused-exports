@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
-import { Core, OverviewContext } from './core';
+import { Core } from './core';
+import { OverviewContext } from './overviewContext';
+import { getOptimizedNodes } from './tdependency';
 import { isResultExpanded } from './unused-exports/settings';
 
 export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry> {
@@ -8,11 +10,13 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
   >();
   public readonly onDidChangeTreeData: vscode.Event<TOverviewEntry | undefined> = this._onDidChangeTreeData.event;
 
-  constructor(private cores: Core[]) {}
-
-  public redraw(): void {
-    this._onDidChangeTreeData.fire(undefined);
+  constructor(private cores: Core[]) {
+    cores.forEach((core) => core.registerListener(this.refresh));
   }
+
+  public refresh = () => {
+    this._onDidChangeTreeData.fire(undefined);
+  };
 
   public getTreeItem(element: TOverviewEntry): vscode.TreeItem {
     return element;
@@ -31,6 +35,11 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     const rows = contexts.map(
       (ctx) => new TOverviewEntry(OverviewEntryType.FOLDER, ctx.workspaceName, 'folder-opened', ctx.info, ctx)
     );
+
+    /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
+    if (rows.length === 1) {
+      return this.getChildren(rows[0]);
+    }
 
     return Promise.resolve(rows);
   }

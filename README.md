@@ -33,11 +33,11 @@ If there are no unused exports, the panel will display a single entry saying thi
 
 An "import \* as" will assume that all imported exports are used from that file.
 
-### Excluded files
+### Included/Excluded files
 
 By default, all files from any node_modules folder or having the extension .d.ts are ignored.
 
-If you want to exclude some files (like storybook's .stories.ts files), you can:
+If you want to include/exclude some files (like storybook's .stories.ts files or .svelte files), you can:
 
 - add a section called findUnusedExports in package.json
 
@@ -125,10 +125,9 @@ There are no special requirements.
 
 ## Known Issues
 
-If you are using a workspace, then the extension is looking for the package.json only in the first folder of the workspace.
-If it is not found, then it reports that and stops.
+If the main/entry file has exports then this extension marks it as "not used" and allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.
 
-Note: If the main/entry file has exports then this extension marks it as "not used" and allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.
+There is no support for defined paths aliases or rootDirs in tsconfig.json and jsconfig.json files.
 
 ## FAQ
 
