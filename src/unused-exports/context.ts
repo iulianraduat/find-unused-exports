@@ -103,11 +103,11 @@ function getExclude(pathToPrj: string, exclude?: string[], outDir?: string): str
     return excludeDirs;
   }
 
-  const dirs = ['node_modules/**/*', 'bower_components/**/*', 'jspm_packages/**/*'];
+  const defaultExcludeDirs = ['node_modules/**/*', 'bower_components/**/*', 'jspm_packages/**/*'];
   if (outDir) {
-    dirs.push(`${outDir}/**/*`);
+    defaultExcludeDirs.push(`${outDir}/**/*`);
   }
-  return dirs;
+  return defaultExcludeDirs;
 }
 
 function getGlobDir(pathToPrj: string, fsPath: string): string {

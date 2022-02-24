@@ -16,3 +16,15 @@ export interface OverviewContext {
   totalImports: number;
   workspaceName: string;
 }
+
+export function addGlobInclude(context: OverviewContext, glob: string, count: number) {
+  if (context.globInclude === undefined) {
+    context.globInclude = [];
+  }
+
+  if (context.globInclude.some(globInclude => globInclude === glob) === false) {
+    context.globInclude.push(glob);
+  }
+
+  context.countGlobInclude[glob] = Math.max(context.countGlobInclude[glob] || 0, count);
+}

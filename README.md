@@ -35,7 +35,16 @@ An "import \* as" will assume that all imported exports are used from that file.
 
 ### Included/Excluded files
 
-By default, all files from any node_modules folder or having the extension .d.ts are ignored.
+If there is no defined exclude then the default exclude globs are used:
+
+- node_modules/\*\*/\*
+- bower_components/\*\*/\*
+- jspm_packages/\*\*/\*
+
+If there is no defined files nor include globs, then the following exclude globs are added:
+
+- \*\*/node_modules/\*\*/\*
+- \*\*/\*.d.ts
 
 If you want to include/exclude some files (like storybook's .stories.ts files or .svelte files), you can:
 
@@ -128,6 +137,8 @@ There are no special requirements.
 If the main/entry file has exports then this extension marks it as "not used" and allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.
 
 There is no support for defined paths aliases or rootDirs in tsconfig.json and jsconfig.json files.
+
+If there are no files or include globs and there are a lot of files, the extension can take a lot of time to scan for files and it looks like it is stuck in a loop.
 
 ## FAQ
 

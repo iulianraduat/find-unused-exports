@@ -586,3 +586,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.15.1 (2022-02-24)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Changed the use of default exclude globs and documented them in README.md file
+
+### Removed
+
+- Nothing

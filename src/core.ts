@@ -33,7 +33,7 @@ export class Core {
   private doAnalyse(): Promise<TNotUsed[] | undefined> {
     this.overviewContext.lastRun = new Date();
 
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
       const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
       if (this.pathExists(packageJsonPath) === false) {
         this.overviewContext.info = 'No package.json found in workspace';
