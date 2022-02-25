@@ -600,3 +600,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.15.2 (2022-02-25)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Small improvement in README.md file
+
+### Removed
+
+- Nothing

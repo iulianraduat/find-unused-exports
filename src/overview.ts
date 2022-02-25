@@ -37,7 +37,7 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     );
 
     /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
-    if (rows.length === 1) {
+    if (vscode.workspace.workspaceFolders?.length === 1) {
       return this.getChildren(rows[0]);
     }
 

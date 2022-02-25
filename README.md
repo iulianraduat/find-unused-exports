@@ -116,7 +116,7 @@ There are no special requirements.
 
 - findUnusedExports.logInFile
 
-  - Save the log in a file (.vscode/find-unused-exports.log)
+  - Save the log in a file (.vscode/find-unused-exports.log located in the first folder defined for a workspace)
 
 - findUnusedExports.logOnlyLastRun
 
