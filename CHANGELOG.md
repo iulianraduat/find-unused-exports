@@ -614,3 +614,18 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.15.3 (2022-04-07)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed the removal of folders from treeview when they are deleted and their parent is hidden
+- The root folder in circular imports is no longer hidden if there is only one folder left displayed
+
+### Removed
+
+- Nothing

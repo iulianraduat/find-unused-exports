@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { Core, TFileDataType } from './core';
-import { DEPENDENCY_TYPE, getOptimizedNodes, TDependency } from './tdependency';
-import { log } from './unused-exports/log';
+import { DEPENDENCY_TYPE, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
 
@@ -15,10 +14,10 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     return this.cacheHidden.includes(node.id) === false;
   };
 
-  private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> = new vscode.EventEmitter<
-    TDependency | undefined
-  >();
-  public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> =
+    new vscode.EventEmitter<TDependency | undefined>();
+  public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> =
+    this._onDidChangeTreeData.event;
 
   constructor(
     private cores: Core[],
@@ -30,7 +29,8 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       collapsibleState: vscode.TreeItemCollapsibleState,
       isNotHidden: (node: TDependency) => boolean
     ) => TDependency,
-    private getNoResultsNode: (core: Core) => TDependency
+    private getNoResultsNode: (core: Core) => TDependency,
+    private allowCollapseRoot: boolean
   ) {
     this.cacheHidden = [];
     cores.forEach((core) => core.registerListener(this.refresh));
@@ -90,7 +90,14 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       ? vscode.TreeItemCollapsibleState.Expanded
       : vscode.TreeItemCollapsibleState.Collapsed;
     const rows = files
-      .map((file) => this.mapFile2Dependency(parent, file, collapsibleState, this.isNotHidden))
+      .map((file) =>
+        this.mapFile2Dependency(
+          parent,
+          file,
+          collapsibleState,
+          this.isNotHidden
+        )
+      )
       .filter(this.isNotHidden);
     return rows;
   }
@@ -102,12 +109,23 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     }
 
     if (node.parent === undefined) {
-      this.cacheFolders = this.cacheFolders.filter((folder) => folder.id !== node.id);
+      this.cacheFolders = this.cacheFolders.filter(
+        (folder) => folder.id !== node.id
+      );
       this._onDidChangeTreeData.fire(undefined);
       return;
     }
 
-    node.parent.children = node.parent.children?.filter((file) => file.id !== node.id);
+    node.parent.children = node.parent.children?.filter(
+      (file) => file.id !== node.id
+    );
+
+    /* For the case that we have only one folder displayed and its root is hidden */
+    if (node.parent.parent === undefined && this.cacheFolders?.length === 1) {
+      this._onDidChangeTreeData.fire(undefined);
+      return;
+    }
+
     this._onDidChangeTreeData.fire(node.parent);
   }
 
@@ -165,11 +183,14 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     }
 
     /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
-    if (this.cacheFolders?.length === 1 && this.cacheFolders?.[0].children) {
+    if (
+      this.allowCollapseRoot &&
+      this.cacheFolders?.length === 1 &&
+      this.cacheFolders?.[0].children
+    ) {
       return Promise.resolve(this.cacheFolders?.[0].children || []);
     }
 
     return Promise.resolve(this.cacheFolders || []);
   }
-
 }

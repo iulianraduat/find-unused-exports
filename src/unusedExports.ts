@@ -7,7 +7,14 @@ import { TNotUsed } from './unused-exports/notUsed';
 
 export class UnusedExportsProvider extends Provider {
   constructor(cores: Core[]) {
-    super(cores, undefined, TFileDataType.UNUSED_EXPORTS, mapFile2Dependency, getNoUnusedExports);
+    super(
+      cores,
+      undefined,
+      TFileDataType.UNUSED_EXPORTS,
+      mapFile2Dependency,
+      getNoUnusedExports,
+      true
+    );
   }
 }
 
@@ -42,7 +49,10 @@ function mapFile2Dependency(
   return row;
 }
 
-function unusedExportsInFile(parent: TDependency, isNotHidden: (node: TDependency) => boolean): TDependency[] {
+function unusedExportsInFile(
+  parent: TDependency,
+  isNotHidden: (node: TDependency) => boolean
+): TDependency[] {
   const mapFn = mapUnusedExport2Dependency(parent);
   return parent.notUsedExports?.map(mapFn).filter(isNotHidden) ?? [];
 }
