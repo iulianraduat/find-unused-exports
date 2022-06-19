@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.15.3",
+  "version": "1.16.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -11,11 +11,14 @@
     "type": "git",
     "url": "https://github.com/iulian-radu-at/find-unused-exports"
   },
-  "engines": {
-    "vscode": "^1.59.0"
-  },
   "bugs": {
     "url": "https://github.com/iulian-radu-at/find-unused-exports/issues"
+  },
+  "sponsor": {
+    "url": "https://www.patreon.com/iulian_radu_at"
+  },
+  "engines": {
+    "vscode": "^1.59.0"
   },
   "main": "./out/main.js",
   "scripts": {
@@ -23,7 +26,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.15.3.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.16.0.vsix",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
@@ -39,12 +42,12 @@
     "@types/glob": "7.2.0",
     "@types/node": "16.11.10",
     "@types/vscode": "1.59.0",
-    "@typescript-eslint/eslint-plugin": "5.11.0",
-    "@typescript-eslint/parser": "5.11.0",
-    "esbuild": "0.14.21",
-    "eslint": "8.9.0",
+    "@typescript-eslint/eslint-plugin": "5.28.0",
+    "@typescript-eslint/parser": "5.28.0",
+    "esbuild": "0.14.46",
+    "eslint": "8.18.0",
     "rimraf": "3.0.2",
-    "typescript": "4.5.5",
+    "typescript": "4.7.4",
     "vscode-test": "1.6.1"
   },
   "categories": [
@@ -56,7 +59,8 @@
     "onView:circularImports",
     "onLanguage:typescript",
     "onLanguage:javascript",
-    "onCommand:unusedExports.refresh"
+    "onCommand:unusedExports.refresh",
+    "onCommand:unusedExports.showOutput"
   ],
   "contributes": {
     "viewsContainers": {

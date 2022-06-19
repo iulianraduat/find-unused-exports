@@ -3,11 +3,24 @@
     "module": "commonjs",
     "target": "es6",
     "outDir": "out",
-    "lib": ["es6"],
+    "lib": [
+      "es6"
+    ],
     "sourceMap": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "moduleSuffixes": [
+      "notext",
+      ".native",
+      ""
+    ]
   },
-  "file": ["index.ts"],
-  "include": ["./**/*"],
-  "exclude": ["node_modules/**"]
+  "file": [
+    "index.ts"
+  ],
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "node_modules/**"
+  ]
 }

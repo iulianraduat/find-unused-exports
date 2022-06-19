@@ -1,7 +1,10 @@
 import { TExport } from './exports';
 import { TImport } from './imports';
 
-export const buildRelations = (imports: TImport[], exports: TExport[]): TRelation[] => {
+export const buildRelations = (
+  imports: TImport[],
+  exports: TExport[]
+): TRelation[] => {
   const arr: TRelation[] = [];
   imports.forEach(addImport(arr));
   exports.forEach(addExport(arr));
@@ -13,9 +16,7 @@ const addImport = (arr: TRelation[]) => (anImport: TImport) => {
 
   let entry = findEntry(arr, inPath);
   if (entry === undefined) {
-    entry = {
-      path: inPath,
-    };
+    entry = { path: inPath };
     arr.push(entry);
   }
 
@@ -66,9 +67,11 @@ const addExport = (arr: TRelation[]) => (anExport: TExport) => {
   entry.exports.notUsed.push(name);
 };
 
-const findEntry = (arr: TRelation[], path: string) => arr.find((entry) => entry.path === path);
+const findEntry = (arr: TRelation[], path: string) =>
+  arr.find((entry) => entry.path === path);
 
-const findImport = (imports: TRelationImport[], path: string) => imports.find((i) => i.path === path);
+const findImport = (imports: TRelationImport[], path: string) =>
+  imports.find((i) => i.path === path);
 
 export interface TRelation {
   exports?: TRelationExport;

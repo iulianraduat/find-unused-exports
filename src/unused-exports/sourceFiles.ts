@@ -1,7 +1,6 @@
 import * as glob from 'glob';
 import * as path from 'path';
-import { addGlobInclude } from '../overviewContext';
-import { OverviewContext } from './../.history/core_20220222142044';
+import { addGlobInclude, OverviewContext } from '../overviewContext';
 import { TContext } from './context';
 import { getAdjustedPath } from './fsUtils';
 import { log } from './log';
@@ -12,7 +11,10 @@ export interface TTsFile {
 
 const defaultExclude = ['**/node_modules/**/*', '**/*.d.ts'];
 
-export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] {
+export function getSourceFiles(
+  pathToPrj: string,
+  context: TContext
+): TTsFile[] {
   const { allowJs, exclude = [], include, files } = context;
 
   /* A glob must use only forward slashes */
@@ -29,20 +31,36 @@ export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] 
     context.overviewContext.globInclude = [globRegexp];
     context.overviewContext.globExclude = globExcludeExtended;
     context.overviewContext.numDefaultExclude = defaultExclude.length;
-    globFile(res, pathToPrj, globRegexp, globExcludeExtended, context.overviewContext);
+    globFile(
+      res,
+      pathToPrj,
+      globRegexp,
+      globExcludeExtended,
+      context.overviewContext
+    );
     return res;
   }
 
   /* We want to see the stats before doing the actions */
-  const includes = include ? globInclude.map((gi) => applyGlob(gi, globRegexp)) : [];
-  const includeGlobs: string[] = files ? [...explicitFiles, ...includes] : includes;
+  const includes = include
+    ? globInclude.map((gi) => applyGlob(gi, globRegexp))
+    : [];
+  const includeGlobs: string[] = files
+    ? [...explicitFiles, ...includes]
+    : includes;
   context.overviewContext.globInclude = includeGlobs;
   context.overviewContext.globExclude = globExclude;
   context.overviewContext.numDefaultExclude = undefined;
 
   const res: TTsFile[] = [];
   if (files !== undefined) {
-    globFiles(res, pathToPrj, explicitFiles, globExclude, context.overviewContext);
+    globFiles(
+      res,
+      pathToPrj,
+      explicitFiles,
+      globExclude,
+      context.overviewContext
+    );
   }
   if (include !== undefined) {
     globFiles(res, pathToPrj, includes, globExclude, context.overviewContext);
@@ -50,7 +68,8 @@ export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] 
   return res;
 }
 
-const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.@(ts|js)?(x)' : '**/*.ts?(x)');
+const getGlobRegexp = (allowJs?: boolean): string =>
+  allowJs ? '**/*.@(ts|js)?(x)' : '**/*.ts?(x)';
 
 function fixPaths(paths: string[]): string[] {
   return paths.map((f) => fixPath(f));
@@ -109,7 +128,11 @@ function globFile(
   ctx: OverviewContext
 ) {
   log('Using glob rule', path.resolve(pathToFolder, globRegexp));
-  globIgnore && log('And glob ignore rules', globIgnore.map(aGlobIgnore => path.resolve(pathToFolder, aGlobIgnore)));
+  globIgnore &&
+    log(
+      'And glob ignore rules',
+      globIgnore.map((aGlobIgnore) => path.resolve(pathToFolder, aGlobIgnore))
+    );
   let count = 0;
   glob
     .sync(globRegexp, {
@@ -127,5 +150,9 @@ function globFile(
       });
       count++;
     });
-  addGlobInclude(ctx, getAdjustedPath(fixPath(pathToFolder), globRegexp), count);
+  addGlobInclude(
+    ctx,
+    getAdjustedPath(fixPath(pathToFolder), globRegexp),
+    count
+  );
 }

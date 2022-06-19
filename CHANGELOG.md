@@ -629,3 +629,18 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.16.0 (2022-06-19)
+
+### Added
+
+- Support for TypeScript 4.7 compilerOptions.moduleSuffixes option from tsconfig.json
+- Support link for extension's author (https://www.patreon.com/iulian_radu_at)
+
+### Changed
+
+- Updated packages
+
+### Removed
+
+- Nothing

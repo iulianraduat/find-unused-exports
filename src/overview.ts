@@ -1,14 +1,17 @@
 import * as vscode from 'vscode';
 import { Core } from './core';
 import { OverviewContext } from './overviewContext';
-import { getOptimizedNodes } from './tdependency';
 import { isResultExpanded } from './unused-exports/settings';
 
-export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry> {
-  private _onDidChangeTreeData: vscode.EventEmitter<TOverviewEntry | undefined> = new vscode.EventEmitter<
+export class OverviewProvider
+  implements vscode.TreeDataProvider<TOverviewEntry>
+{
+  private _onDidChangeTreeData: vscode.EventEmitter<
     TOverviewEntry | undefined
-  >();
-  public readonly onDidChangeTreeData: vscode.Event<TOverviewEntry | undefined> = this._onDidChangeTreeData.event;
+  > = new vscode.EventEmitter<TOverviewEntry | undefined>();
+  public readonly onDidChangeTreeData: vscode.Event<
+    TOverviewEntry | undefined
+  > = this._onDidChangeTreeData.event;
 
   constructor(private cores: Core[]) {
     cores.forEach((core) => core.registerListener(this.refresh));
@@ -33,7 +36,14 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
 
     const contexts = this.cores.map((core) => core.getOverviewContext());
     const rows = contexts.map(
-      (ctx) => new TOverviewEntry(OverviewEntryType.FOLDER, ctx.workspaceName, 'folder-opened', ctx.info, ctx)
+      (ctx) =>
+        new TOverviewEntry(
+          OverviewEntryType.FOLDER,
+          ctx.workspaceName,
+          'folder-opened',
+          ctx.info,
+          ctx
+        )
     );
 
     /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
@@ -54,17 +64,36 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     const rows = [
       this.map2DateTime(ctx.lastRun, 'Last run', 'calendar'),
       this.map2OverviewEntry(ctx.processedFiles, 'Processed files', 'files'),
-      this.map2OverviewEntry(ctx.filesHavingImportsOrExports, 'Files having imports|exports', 'files'),
+      this.map2OverviewEntry(
+        ctx.filesHavingImportsOrExports,
+        'Files having imports|exports',
+        'files'
+      ),
       this.map2OverviewEntry(ctx.totalImports, 'Total imports', 'info'),
       this.map2OverviewEntry(ctx.totalExports, 'Total exports', 'info'),
       this.map2OverviewEntry(ctx.notUsedExports, 'Not used exports', 'info'),
-      this.map2OverviewEntry(ctx.foundCircularImports, 'Found circular imports', 'info'),
-      this.map2OverviewEntry(ctx.totalEllapsedTime, 'Total ellapsed time (ms)', 'watch'),
+      this.map2OverviewEntry(
+        ctx.foundCircularImports,
+        'Found circular imports',
+        'info'
+      ),
+      this.map2OverviewEntry(
+        ctx.totalEllapsedTime,
+        'Total ellapsed time (ms)',
+        'watch'
+      ),
       this.map2OverviewEntry(ctx.pathToPrj, "Project's root", 'folder-opened'),
     ];
 
     ctx.globInclude?.forEach((globInclude) =>
-      rows.push(this.map2LabelValueIcon('Include', globInclude, 'file-text', ctx.countGlobInclude[globInclude] || 0))
+      rows.push(
+        this.map2LabelValueIcon(
+          'Include',
+          globInclude,
+          'file-text',
+          ctx.countGlobInclude[globInclude] || 0
+        )
+      )
     );
 
     ctx.globExclude?.forEach((globExclude, index) =>
@@ -73,18 +102,26 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
           'Exclude',
           globExclude,
           'file-text',
-          ctx.numDefaultExclude && index < ctx.numDefaultExclude ? 'default' : undefined
+          ctx.numDefaultExclude && index < ctx.numDefaultExclude
+            ? 'default'
+            : undefined
         )
       )
     );
 
-    ctx.errors?.forEach((error) => rows.push(this.map2LabelValueIcon('Warning', error, 'alert')));
+    ctx.errors?.forEach((error) =>
+      rows.push(this.map2LabelValueIcon('Warning', error, 'alert'))
+    );
 
     return Promise.resolve(rows);
   }
 
   private map2DateTime(dt: Date, label: string, icon?: string): TOverviewEntry {
-    return new TOverviewEntry(OverviewEntryType.OVERVIEW, `${label}: ${dt.toISOString()}`, icon);
+    return new TOverviewEntry(
+      OverviewEntryType.OVERVIEW,
+      `${label}: ${dt.toISOString()}`,
+      icon
+    );
   }
 
   private map2LabelValueIcon(
@@ -93,11 +130,24 @@ export class OverviewProvider implements vscode.TreeDataProvider<TOverviewEntry>
     icon: string | undefined,
     description?: string | number
   ): TOverviewEntry {
-    return new TOverviewEntry(OverviewEntryType.OVERVIEW, `${label}: ${globPath}`, icon, description);
+    return new TOverviewEntry(
+      OverviewEntryType.OVERVIEW,
+      `${label}: ${globPath}`,
+      icon,
+      description
+    );
   }
 
-  private map2OverviewEntry(value: string | number, label: string, icon?: string): TOverviewEntry {
-    return new TOverviewEntry(OverviewEntryType.OVERVIEW, `${label}: ${value}`, icon);
+  private map2OverviewEntry(
+    value: string | number,
+    label: string,
+    icon?: string
+  ): TOverviewEntry {
+    return new TOverviewEntry(
+      OverviewEntryType.OVERVIEW,
+      `${label}: ${value}`,
+      icon
+    );
   }
 }
 
@@ -126,7 +176,10 @@ class TOverviewEntry extends vscode.TreeItem {
   }
 }
 
-function getCollapsibleState(type: OverviewEntryType, description?: string | number): vscode.TreeItemCollapsibleState {
+function getCollapsibleState(
+  type: OverviewEntryType,
+  description?: string | number
+): vscode.TreeItemCollapsibleState {
   if (type !== OverviewEntryType.FOLDER) {
     return vscode.TreeItemCollapsibleState.None;
   }
@@ -136,7 +189,9 @@ function getCollapsibleState(type: OverviewEntryType, description?: string | num
     return vscode.TreeItemCollapsibleState.Collapsed;
   }
 
-  return isResultExpanded() ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed;
+  return isResultExpanded()
+    ? vscode.TreeItemCollapsibleState.Expanded
+    : vscode.TreeItemCollapsibleState.Collapsed;
 }
 
 enum OverviewEntryType {
