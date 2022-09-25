@@ -1,8 +1,12 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { OverviewContext } from '../overviewContext';
 import { log } from './log';
 
-export const readJsonFile = (path: string, overviewContext: OverviewContext): { [kes: string]: any } | undefined => {
+export const readJsonFile = (
+  path: string,
+  overviewContext: OverviewContext
+): { [kes: string]: any } | undefined => {
   if (fs.existsSync(path) === false) {
     return undefined;
   }
@@ -10,7 +14,10 @@ export const readJsonFile = (path: string, overviewContext: OverviewContext): { 
   try {
     let content = fs.readFileSync(path, 'utf8');
     /* we remove the comments from it */
-    content = content.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m));
+    content = content.replace(
+      /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
+      (m, g) => (g ? '' : m)
+    );
     return JSON.parse(content);
   } catch (e: any) {
     log(`Error parsing "${path}"`, e.message ?? e);
@@ -39,4 +46,8 @@ export const isFile = (path: string): boolean => {
 
 export function getAdjustedPath(pathToPrj: string, globPath: string) {
   return globPath.replace(pathToPrj, '');
+}
+
+export function pathResolve(...pathSegments: string[]): string {
+  return path.resolve(...pathSegments); // .replace(/\\/g, '/');
 }

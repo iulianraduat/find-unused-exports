@@ -4,6 +4,7 @@ import { Core, TFileDataType } from './core';
 import { Provider } from './provider';
 import { DEPENDENCY_TYPE, TDependency } from './tdependency';
 import { isCircularImportsEnabled } from './unused-exports/circularImports';
+import { pathResolve } from './unused-exports/fsUtils';
 import { TNotUsed } from './unused-exports/notUsed';
 
 export class CircularImportsProvider extends Provider {
@@ -114,7 +115,7 @@ function getFileBaseName(pathname?: string): string {
 }
 
 function resolvePath(pathToPrj: string | undefined, filePath: string) {
-  return pathToPrj ? path.resolve(pathToPrj, filePath) : filePath;
+  return pathToPrj ? pathResolve(pathToPrj, filePath) : pathResolve(filePath);
 }
 
 function getNoCircularImports(core: Core) {

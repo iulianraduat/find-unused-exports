@@ -1,7 +1,7 @@
 import * as glob from 'glob';
 import * as path from 'path';
 import { TContext } from './context';
-import { isDirectory, isFile } from './fsUtils';
+import { isDirectory, isFile, pathResolve } from './fsUtils';
 import { log } from './log';
 import { TTsImport, TTsParsed } from './parsedFiles';
 
@@ -40,7 +40,7 @@ const makeImportAbs =
   (anImport: TTsImport): TTsImport | undefined => {
     const { path: relPath } = anImport;
 
-    const absPath = path.resolve(filePath, relPath);
+    const absPath = pathResolve(filePath, relPath);
     const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
     if (exactPath) {
       return {
@@ -50,7 +50,7 @@ const makeImportAbs =
     }
 
     if (baseUrl) {
-      const absPath = path.resolve(baseUrl, relPath);
+      const absPath = pathResolve(baseUrl, relPath);
       const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
       if (exactPath) {
         return {
@@ -67,10 +67,7 @@ const getGlobRegexp = (path: string, allowJs?: boolean): string =>
   allowJs ? `${path}.@(ts|tsx|js|jsx)` : `${path}.@(ts|tsx)`;
 
 const getDirGlobRegexp = (rootPath: string, allowJs?: boolean): string =>
-  path.resolve(
-    rootPath,
-    allowJs ? `index.@(ts|tsx|js|jsx)` : `index.@(ts|tsx)`
-  );
+  pathResolve(rootPath, allowJs ? `index.@(ts|tsx|js|jsx)` : `index.@(ts|tsx)`);
 
 function resolveFilePath(
   filePath: string,
@@ -132,13 +129,13 @@ function doGlob(
     if (res) {
       return res;
     }
-    log(`Cannot resolve path to '${extendedFilePath}'. Tried`, [
-      tryMode,
-      filePath,
-      moduleSuffixes,
-      i,
-      allowJs,
-    ]);
+    // log(`Cannot resolve path to '${extendedFilePath}'. Tried`, [
+    //   tryMode,
+    //   filePath,
+    //   moduleSuffixes,
+    //   i,
+    //   allowJs,
+    // ]);
   }
   return undefined;
 }
@@ -158,7 +155,7 @@ function doOneGlob(
       realpath: true,
     });
     if (res?.length === 1) {
-      return path.resolve(res[0]);
+      return pathResolve(res[0]);
     }
   } catch (err: any) {
     log(

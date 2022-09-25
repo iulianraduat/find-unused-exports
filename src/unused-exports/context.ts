@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { OverviewContext } from '../overviewContext';
-import { readJsonFile } from './fsUtils';
+import { pathResolve, readJsonFile } from './fsUtils';
 
 export interface TContext {
   allowJs?: boolean;
@@ -22,8 +22,8 @@ export const makeContext = (
   pathToPrj: string,
   overviewContext: OverviewContext
 ): TContext => {
-  const pathToTsconfig = path.resolve(pathToPrj, 'tsconfig.json');
-  const pathToJsconfig = path.resolve(pathToPrj, 'jsconfig.json');
+  const pathToTsconfig = pathResolve(pathToPrj, 'tsconfig.json');
+  const pathToJsconfig = pathResolve(pathToPrj, 'jsconfig.json');
   let tsconfig = readJsonFile(pathToTsconfig, overviewContext);
   if (tsconfig === undefined) {
     tsconfig = readJsonFile(pathToJsconfig, overviewContext);
@@ -43,12 +43,12 @@ export const makeContext = (
     compilerOptions || jsConfig;
 
   /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
-  const pathToPackageJson = path.resolve(pathToPrj, 'package.json');
+  const pathToPackageJson = pathResolve(pathToPrj, 'package.json');
   const packageJson = readJsonFile(pathToPackageJson, overviewContext);
   const includeFindUnusedExports1 = packageJson?.findUnusedExports?.include;
   const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
 
-  const pathToFindUnusedExportsConfig = path.resolve(
+  const pathToFindUnusedExportsConfig = pathResolve(
     pathToPrj,
     '.findUnusedExports.json'
   );
@@ -70,7 +70,7 @@ export const makeContext = (
 
   const res: TContext = {
     allowJs,
-    baseUrl: baseUrl ? path.resolve(pathToPrj, baseUrl) : undefined,
+    baseUrl: baseUrl ? pathResolve(pathToPrj, baseUrl) : undefined,
     exclude: getExclude(
       pathToPrj,
       mixArrays(exclude, excludeFindUnusedExports),
@@ -147,7 +147,7 @@ function getExclude(
 }
 
 function getGlobDir(pathToPrj: string, fsPath: string): string {
-  const dir = path.resolve(pathToPrj, fsPath);
+  const dir = pathResolve(pathToPrj, fsPath);
   return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory()
     ? `${fsPath}/**/*`
     : fsPath;

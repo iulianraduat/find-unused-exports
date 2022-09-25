@@ -2,7 +2,7 @@ import * as glob from 'glob';
 import * as path from 'path';
 import { addGlobInclude, OverviewContext } from '../overviewContext';
 import { TContext } from './context';
-import { getAdjustedPath } from './fsUtils';
+import { getAdjustedPath, pathResolve } from './fsUtils';
 import { log } from './log';
 
 export interface TTsFile {
@@ -127,11 +127,11 @@ function globFile(
   globIgnore: string[] | undefined,
   ctx: OverviewContext
 ) {
-  log('Using glob rule', path.resolve(pathToFolder, globRegexp));
+  log('Using glob rule', pathResolve(pathToFolder, globRegexp));
   globIgnore &&
     log(
       'And glob ignore rules',
-      globIgnore.map((aGlobIgnore) => path.resolve(pathToFolder, aGlobIgnore))
+      globIgnore.map((aGlobIgnore) => pathResolve(pathToFolder, aGlobIgnore))
     );
   let count = 0;
   glob
@@ -143,7 +143,7 @@ function globFile(
       realpath: true,
     })
     .filter((f: string) => {
-      const source = path.resolve(pathToFolder, f);
+      const source = pathResolve(pathToFolder, f);
       log('Found source file', source);
       res.push({
         path: source,
