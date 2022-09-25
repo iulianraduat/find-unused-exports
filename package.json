@@ -36,10 +36,10 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "7.2.3"
+    "glob": "8.0.3"
   },
   "devDependencies": {
-    "@types/glob": "7.2.0",
+    "@types/glob": "8.0.0",
     "@types/node": "16.11.10",
     "@types/vscode": "1.59.0",
     "@typescript-eslint/eslint-plugin": "5.38.0",

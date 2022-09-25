@@ -3,6 +3,7 @@ import { OverviewContext } from '../overviewContext';
 import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
 import { getExports } from './exports';
+import { pathResolve } from './fsUtils';
 import { getOnlyProjectImports } from './importedFiles';
 import { getImports } from './imports';
 import { log, resetLog } from './log';
@@ -12,9 +13,13 @@ import { buildRelations, TRelation } from './relations';
 import { getSourceFiles } from './sourceFiles';
 import { getOnlyUsefullFiles } from './usefullFiles';
 
-const fixPath = (path: string, prefixLen: number): string => path.substring(prefixLen).replace(/\\/g, '/');
+const fixPath = (path: string, prefixLen: number): string =>
+  path.substring(prefixLen).replace(/\\/g, '/');
 
-const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string): void => {
+const makePathRelativeToProject = (
+  relations: TRelation[],
+  absPathToPrj: string
+): void => {
   const pathDelim = path.delimiter;
   const len = absPathToPrj.length + pathDelim.length;
   relations.forEach((r) => {
@@ -28,12 +33,15 @@ const makePathRelativeToProject = (relations: TRelation[], absPathToPrj: string)
   });
 };
 
-export function app(absPathToPrj: string, overviewContext: OverviewContext): TNotUsed[] {
+export function app(
+  absPathToPrj: string,
+  overviewContext: OverviewContext
+): TNotUsed[] {
   const startTime = new Date();
 
   resetLog();
   log(startTime.toISOString());
-  let ts = log('Path to project', absPathToPrj);
+  let ts = log('Path to project', pathResolve(absPathToPrj));
   const context = makeContext(absPathToPrj, overviewContext);
   const sourceFiles = getSourceFiles(absPathToPrj, context);
   ts = log('Finding the sources took', undefined, ts);
@@ -56,12 +64,15 @@ export function app(absPathToPrj: string, overviewContext: OverviewContext): TNo
   const numNotUsedExports = finalList.length;
   ts = log('Not used exports', numNotUsedExports, ts);
 
-  const [unusedExportsAndCircularImportsList, numCircularImports] = detectCircularImports(relations, finalList, ts);
+  const [unusedExportsAndCircularImportsList, numCircularImports] =
+    detectCircularImports(relations, finalList, ts);
 
   const endTime = new Date();
   const timeDiffMs: number = endTime.getTime() - startTime.getTime();
   log('Total ellapsed time (ms)', timeDiffMs);
-  log('------------------------------------------------------------------------');
+  log(
+    '------------------------------------------------------------------------'
+  );
 
   overviewContext.filesHavingImportsOrExports = usefullFiles.length;
   overviewContext.foundCircularImports = numCircularImports;

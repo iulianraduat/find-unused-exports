@@ -654,6 +654,7 @@ This extension assumes a set of default exclude folders:
 ### Changed
 
 - Updated packages
+- The windows path is displayed in a posix format in debug window as glob 8 is using posix format for path also in windows ("/" instead of "\\")
 
 ### Removed
 

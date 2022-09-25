@@ -49,5 +49,5 @@ export function getAdjustedPath(pathToPrj: string, globPath: string) {
 }
 
 export function pathResolve(...pathSegments: string[]): string {
-  return path.resolve(...pathSegments); // .replace(/\\/g, '/');
+  return path.resolve(...pathSegments).replace(/\\/g, '/');
 }
