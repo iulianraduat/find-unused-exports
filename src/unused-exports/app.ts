@@ -56,7 +56,7 @@ export function app(
   ts = log('Total imports', imports.length, ts);
   const exports = getExports(usefullFiles, imports);
   ts = log('Total exports', exports.length, ts);
-  const relations = buildRelations(imports, exports);
+  const relations = buildRelations(imports, exports, context.main);
   makePathRelativeToProject(relations, absPathToPrj);
   ts = log('Analysed files', relations.length, ts);
   const notUsed = getNotUsed(relations);

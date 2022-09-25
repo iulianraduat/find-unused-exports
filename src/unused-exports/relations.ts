@@ -1,13 +1,16 @@
 import { TExport } from './exports';
 import { TImport } from './imports';
+import { log } from './log';
+import { areMainExportsUsed } from './settings';
 
 export const buildRelations = (
   imports: TImport[],
-  exports: TExport[]
+  exports: TExport[],
+  mainInPackageJson?: string
 ): TRelation[] => {
   const arr: TRelation[] = [];
   imports.forEach(addImport(arr));
-  exports.forEach(addExport(arr));
+  exports.forEach(addExport(arr, mainInPackageJson));
   return arr;
 };
 
@@ -36,36 +39,45 @@ const addImport = (arr: TRelation[]) => (anImport: TImport) => {
   importEntry.names.push(name);
 };
 
-const addExport = (arr: TRelation[]) => (anExport: TExport) => {
-  const { inPath, name, isUsed } = anExport;
+const addExport =
+  (arr: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
+    const { inPath, name, isUsed } = anExport;
 
-  let entry = findEntry(arr, inPath);
-  if (entry === undefined) {
-    entry = {
-      path: inPath,
-    };
-    arr.push(entry);
-  }
-
-  if (entry.exports === undefined) {
-    entry.exports = {};
-  }
-
-  if (isUsed) {
-    if (entry.exports.used === undefined) {
-      entry.exports.used = [];
+    let entry = findEntry(arr, inPath);
+    if (entry === undefined) {
+      entry = {
+        path: inPath,
+      };
+      arr.push(entry);
     }
 
-    entry.exports.used.push(name);
-    return;
-  }
+    if (entry.exports === undefined) {
+      entry.exports = {};
+    }
 
-  if (entry.exports.notUsed === undefined) {
-    entry.exports.notUsed = [];
-  }
+    if (isUsed) {
+      if (entry.exports.used === undefined) {
+        entry.exports.used = [];
+      }
 
-  entry.exports.notUsed.push(name);
-};
+      entry.exports.used.push(name);
+      return;
+    }
+
+    if (entry.exports.notUsed === undefined) {
+      entry.exports.notUsed = [];
+    }
+
+    /* We want to consider all exports in the file used in the main field of package.json as being used */
+    if (inPath === mainInPackageJson && areMainExportsUsed()) {
+      log(
+        `Consider export of '${name}' in '${inPath}' as being used (findUnusedExports.considerMainExportsUsed is enabled).`
+      );
+      return;
+    }
+
+    entry.exports.notUsed.push(name);
+  };
 
 const findEntry = (arr: TRelation[], path: string) =>
   arr.find((entry) => entry.path === path);

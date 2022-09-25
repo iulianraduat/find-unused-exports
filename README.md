@@ -104,6 +104,11 @@ There are no special requirements.
 
 ## Extension Settings
 
+- findUnusedExports.considerMainExportsUsed
+
+  - Find unused exports: consider all exports from the file used in the main field of package.json as used
+  - default false
+
 - findUnusedExports.defaultResultExpanded:
 
   - Find unused exports: show all found results initially expanded (otherwise collapsed)

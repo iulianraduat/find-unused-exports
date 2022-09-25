@@ -9,6 +9,7 @@ export interface TContext {
   exclude?: string[];
   files?: string[];
   include?: string[];
+  main?: string;
   moduleSuffixes?: string[];
   overviewContext: OverviewContext;
   pathToPrj: string;
@@ -45,6 +46,7 @@ export const makeContext = (
   /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
   const pathToPackageJson = pathResolve(pathToPrj, 'package.json');
   const packageJson = readJsonFile(pathToPackageJson, overviewContext);
+  const main = packageJson?.main;
   const includeFindUnusedExports1 = packageJson?.findUnusedExports?.include;
   const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
 
@@ -81,6 +83,7 @@ export const makeContext = (
       pathToPrj,
       mixArrays(include, includeFindUnusedExports)
     ),
+    main: main ? pathResolve(pathToPrj, main) : undefined,
     moduleSuffixes,
     overviewContext,
     pathToPrj,

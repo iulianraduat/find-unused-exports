@@ -659,3 +659,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.18.0 (2022-09-25)
+
+### Added
+
+- The exports made in the file defined in the main field of package.json can be considered used (needs to be enabled via a setting of this extension)
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing
