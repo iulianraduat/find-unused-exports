@@ -4,7 +4,7 @@ let sbItem: vscode.StatusBarItem;
 
 export function initStatusBarItem() {
   sbItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-  sbItem.command = 'unusedExports.refresh';
+  sbItem.command = 'unusedExports.refreshAndShowSideView';
   idleStatusBarItem();
   sbItem.show();
 }
@@ -23,6 +23,6 @@ export function spinStatusBarItem() {
 export function idleStatusBarItem() {
   sbItem.text = '$(check) Find unused exports';
   sbItem.tooltip =
-    'Click to refresh the list of unused exports (and circular imports)';
+    'Click to refresh the list of unused exports (and circular imports) and see the side view';
   sbItem.show();
 }

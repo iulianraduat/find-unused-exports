@@ -44,6 +44,16 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
+  disposable: vscode.Disposable;
+  disposable = vscode.commands.registerCommand(
+    'unusedExports.refreshAndShowSideView',
+    () => {
+      refreshAllCores(cores);
+      vscode.commands.executeCommand('unusedExports.focus');
+    }
+  );
+  context.subscriptions.push(disposable);
+
   disposable = vscode.commands.registerCommand('unusedExports.showOutput', () =>
     showOutputWindow()
   );

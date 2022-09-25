@@ -95,6 +95,11 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "unusedExports.refreshAndShowSideView",
+        "title": "Refresh list of unused exports (and circular imports) and show the side view",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "unusedExports.showOutput",
         "title": "Show the output window",
         "icon": "$(debug)"
