@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { Core, TFileDataType } from './core';
+import { idleStatusBarItem, spinStatusBarItem } from './statusBarItem';
 import { DEPENDENCY_TYPE, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
@@ -45,6 +46,8 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       return;
     }
 
+    spinStatusBarItem();
+
     const collapsibleState = isResultExpanded()
       ? vscode.TreeItemCollapsibleState.Expanded
       : vscode.TreeItemCollapsibleState.Collapsed;
@@ -69,6 +72,8 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     this.cacheFolders.forEach((folder) => {
       folder.children = this.getFiles(folder);
     });
+
+    idleStatusBarItem();
 
     this.cacheHidden = [];
     this._onDidChangeTreeData.fire(undefined);

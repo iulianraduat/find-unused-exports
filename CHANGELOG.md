@@ -644,3 +644,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.17.0 (2022-09-25)
+
+### Added
+
+- Display in status bar if the extension is updating the list of exports and circular imports
+
+### Changed
+
+- Updated packages
+
+### Removed
+
+- Nothing

@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { CircularImportsProvider } from './circularImports';
 import { Core } from './core';
 import { OverviewProvider } from './overview';
+import { disposeStatusBarItem, initStatusBarItem } from './statusBarItem';
 import { TDependency } from './tdependency';
 import { showOutputWindow } from './unused-exports/log';
 import { UnusedExportsProvider } from './unusedExports';
@@ -15,6 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('We cannot check an empty workspace!');
     return;
   }
+
+  initStatusBarItem();
 
   const cores = workspaceFolders.map(
     (wsf) => new Core(wsf.name, wsf.uri.fsPath)
@@ -130,6 +133,11 @@ export function activate(context: vscode.ExtensionContext) {
       Core.findInFile(filePath, unusedExportOrCircularImport)
   );
   context.subscriptions.push(disposable);
+}
+
+// find-unused-exports:ignore-next-line-exports
+export function deactivate() {
+  disposeStatusBarItem();
 }
 
 function refreshAllCores(cores: Core[]) {
