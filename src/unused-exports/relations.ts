@@ -71,7 +71,15 @@ const addExport =
     /* We want to consider all exports in the file used in the main field of package.json as being used */
     if (inPath === mainInPackageJson && areMainExportsUsed()) {
       log(
-        `Consider export of '${name}' in '${inPath}' as being used (findUnusedExports.considerMainExportsUsed is enabled).`
+        `Consider export of "${name}" in "${inPath}" as being used (findUnusedExports.considerMainExportsUsed is enabled).`
+      );
+      return;
+    }
+
+    /* There are generated code which exports multiple types with the same name (like an interface and a const) */
+    if (entry.exports.notUsed.some((knownName) => knownName === name)) {
+      log(
+        `Multiple unused exports with the same name "${name}" in "${inPath}".`
       );
       return;
     }
