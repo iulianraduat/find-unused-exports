@@ -145,11 +145,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
+function refreshAllCores(cores: Core[]) {
+  cores.forEach((core) => core.refresh());
+}
+
 // find-unused-exports:ignore-next-line-exports
 export function deactivate() {
   disposeStatusBarItem();
-}
-
-function refreshAllCores(cores: Core[]) {
-  cores.forEach((core) => core.refresh());
 }

@@ -10,6 +10,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
   /* We need to have it also undefined as an empty array means that the user removed all entries */
   private cacheFolders: TDependency[] | undefined;
   private cacheHidden: string[];
+  private lockRefresh: boolean;
 
   protected isNotHidden = (node: TDependency): boolean => {
     return this.cacheHidden.includes(node.id) === false;
@@ -34,11 +35,16 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     private allowCollapseRoot: boolean
   ) {
     this.cacheHidden = [];
+    this.lockRefresh = false;
     cores.forEach((core) => core.registerListener(this.refresh));
     this.refresh();
   }
 
   public refresh = () => {
+    if (this.lockRefresh) {
+      return;
+    }
+
     const node = this.getNodeIfDisabled?.();
     if (node) {
       this.cacheFolders = [node];
@@ -46,8 +52,10 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       return;
     }
 
+    this.lockRefresh = true;
     spinStatusBarItem();
 
+    /* we need to give a chance to VSCode to update the status bar */
     const collapsibleState = isResultExpanded()
       ? vscode.TreeItemCollapsibleState.Expanded
       : vscode.TreeItemCollapsibleState.Collapsed;
@@ -74,6 +82,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     });
 
     idleStatusBarItem();
+    this.lockRefresh = false;
 
     this.cacheHidden = [];
     this._onDidChangeTreeData.fire(undefined);
@@ -187,7 +196,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       return Promise.resolve(element?.children);
     }
 
-    /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
+    /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level */
     if (
       this.allowCollapseRoot &&
       this.cacheFolders?.length === 1 &&
