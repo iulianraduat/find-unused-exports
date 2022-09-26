@@ -673,3 +673,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.18.1 (2022-09-26)
+
+### Added
+
+- Protection to multiple unused exports with the same name but different types
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing
