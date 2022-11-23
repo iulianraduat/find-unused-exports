@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Core } from './core';
 
-export enum DEPENDENCY_TYPE {
+export enum DependencyType {
   FOLDER,
   FILE,
   UNUSED_EXPORT,
@@ -19,12 +19,13 @@ export class TDependency extends vscode.TreeItem {
   constructor(
     public readonly parent: TDependency | undefined,
     public id: string,
-    public readonly type: DEPENDENCY_TYPE,
+    public readonly type: DependencyType,
     public readonly label: string,
     private readonly isCompletelyUnused?: boolean,
     public readonly notUsedExports?: string[],
     public readonly circularImports?: string[],
-    public collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None,
+    public collapsibleState: vscode.TreeItemCollapsibleState = vscode
+      .TreeItemCollapsibleState.None,
     public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
@@ -57,34 +58,34 @@ export class TDependency extends vscode.TreeItem {
 
   private getDescription() {
     switch (this.type) {
-      case DEPENDENCY_TYPE.FOLDER:
+      case DependencyType.FOLDER:
         return '';
-      case DEPENDENCY_TYPE.FILE:
+      case DependencyType.FILE:
         return this.isCompletelyUnused ? 'not used' : '';
-      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+      case DependencyType.UNUSED_EXPORT:
         return undefined;
-      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+      case DependencyType.CIRCULAR_IMPORT:
         return undefined;
-      case DEPENDENCY_TYPE.EMPTY:
+      case DependencyType.EMPTY:
         return undefined;
-      case DEPENDENCY_TYPE.DISABLED:
+      case DependencyType.DISABLED:
         return undefined;
     }
   }
 
   private getIconName() {
     switch (this.type) {
-      case DEPENDENCY_TYPE.FOLDER:
+      case DependencyType.FOLDER:
         return new vscode.ThemeIcon('folder-opened');
-      case DEPENDENCY_TYPE.FILE:
+      case DependencyType.FILE:
         return this.getIconPath('dependency.svg');
-      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+      case DependencyType.UNUSED_EXPORT:
         return this.getIconPath('export.svg');
-      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+      case DependencyType.CIRCULAR_IMPORT:
         return this.getIconPath('circle.svg');
-      case DEPENDENCY_TYPE.EMPTY:
+      case DependencyType.EMPTY:
         return new vscode.ThemeIcon('check');
-      case DEPENDENCY_TYPE.DISABLED:
+      case DependencyType.DISABLED:
         return new vscode.ThemeIcon('circle-large-outline');
     }
   }
@@ -98,34 +99,34 @@ export class TDependency extends vscode.TreeItem {
 
   private getTooltip() {
     switch (this.type) {
-      case DEPENDENCY_TYPE.FOLDER:
+      case DependencyType.FOLDER:
         return this.core?.getOverviewContext().pathToPrj;
-      case DEPENDENCY_TYPE.FILE:
+      case DependencyType.FILE:
         return undefined;
-      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+      case DependencyType.UNUSED_EXPORT:
         return 'not used export';
-      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+      case DependencyType.CIRCULAR_IMPORT:
         return 'circular import';
-      case DEPENDENCY_TYPE.EMPTY:
+      case DependencyType.EMPTY:
         return '';
-      case DEPENDENCY_TYPE.DISABLED:
+      case DependencyType.DISABLED:
         return '';
     }
   }
 
   private getContextValue(): string {
     switch (this.type) {
-      case DEPENDENCY_TYPE.FOLDER:
+      case DependencyType.FOLDER:
         return 'folder';
-      case DEPENDENCY_TYPE.FILE:
+      case DependencyType.FILE:
         return this.isCompletelyUnused ? 'fileNotUsed' : 'file';
-      case DEPENDENCY_TYPE.UNUSED_EXPORT:
+      case DependencyType.UNUSED_EXPORT:
         return 'notUsedExport';
-      case DEPENDENCY_TYPE.CIRCULAR_IMPORT:
+      case DependencyType.CIRCULAR_IMPORT:
         return 'circularImport';
-      case DEPENDENCY_TYPE.EMPTY:
+      case DependencyType.EMPTY:
         return 'nothingFound';
-      case DEPENDENCY_TYPE.DISABLED:
+      case DependencyType.DISABLED:
         return 'nothingFound';
     }
   }

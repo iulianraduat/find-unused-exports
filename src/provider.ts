@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { Core, TFileDataType } from './core';
+import { Core, FileDataType } from './core';
 import { idleStatusBarItem, spinStatusBarItem } from './statusBarItem';
-import { DEPENDENCY_TYPE, TDependency } from './tdependency';
+import { DependencyType, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
 
@@ -11,6 +11,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
   private cacheFolders: TDependency[] | undefined;
   private cacheHidden: string[];
   private lockRefresh: boolean;
+  private dependencyType: DependencyType;
 
   protected isNotHidden = (node: TDependency): boolean => {
     return this.cacheHidden.includes(node.id) === false;
@@ -24,7 +25,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
   constructor(
     private cores: Core[],
     private getNodeIfDisabled: (() => TDependency | undefined) | undefined,
-    private fileDataType: TFileDataType,
+    private fileDataType: FileDataType,
     private mapFile2Dependency: (
       parent: TDependency,
       node: TNotUsed,
@@ -36,6 +37,8 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
   ) {
     this.cacheHidden = [];
     this.lockRefresh = false;
+    this.dependencyType = getDependencyTypeFrom(fileDataType);
+
     cores.forEach((core) => core.registerListener(this.refresh));
     this.refresh();
   }
@@ -65,7 +68,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       const node = new TDependency(
         undefined,
         core.getOverviewContext().workspaceName,
-        DEPENDENCY_TYPE.FOLDER,
+        DependencyType.FOLDER,
         core.getOverviewContext().workspaceName,
         false,
         undefined,
@@ -134,13 +137,22 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       (file) => file.id !== node.id
     );
 
+    /* If there is no longer a child of the expected type for this provider then we remove the file too */
+    const hideParentNode = this.getHideParentNode(node.parent.children);
+    if (hideParentNode && node.parent.parent) {
+      const parentNodeId = node.parent.id;
+      node.parent.parent.children = node.parent.parent.children?.filter(
+        (file) => file.id !== parentNodeId
+      );
+    }
+
     /* For the case that we have only one folder displayed and its root is hidden */
     if (node.parent.parent === undefined && this.cacheFolders?.length === 1) {
       this._onDidChangeTreeData.fire(undefined);
       return;
     }
 
-    this._onDidChangeTreeData.fire(node.parent);
+    this._onDidChangeTreeData.fire(hideParentNode ? undefined : node.parent);
   }
 
   public deleteFile(node: TDependency): void {
@@ -206,5 +218,30 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     }
 
     return Promise.resolve(this.cacheFolders || []);
+  }
+
+  private getHideParentNode(children: TDependency[] | undefined) {
+    if (children === undefined) {
+      return false;
+    }
+
+    if (children.length === 0) {
+      return true;
+    }
+
+    return (
+      children.some((child) => child.type === this.dependencyType) === false
+    );
+  }
+}
+
+function getDependencyTypeFrom(fileDataType: FileDataType): DependencyType {
+  switch (fileDataType) {
+    case FileDataType.UNUSED_EXPORTS:
+      return DependencyType.UNUSED_EXPORT;
+    case FileDataType.CIRCULAR_IMPORTS:
+      return DependencyType.CIRCULAR_IMPORT;
+    default:
+      return DependencyType.DISABLED;
   }
 }

@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { Core, TFileDataType } from './core';
+import { Core, FileDataType } from './core';
 import { Provider } from './provider';
-import { DEPENDENCY_TYPE, TDependency } from './tdependency';
+import { DependencyType, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 
 export class UnusedExportsProvider extends Provider {
@@ -10,7 +10,7 @@ export class UnusedExportsProvider extends Provider {
     super(
       cores,
       undefined,
-      TFileDataType.UNUSED_EXPORTS,
+      FileDataType.UNUSED_EXPORTS,
       mapFile2Dependency,
       getNoUnusedExports,
       true
@@ -32,7 +32,7 @@ function mapFile2Dependency(
   const row = new TDependency(
     parent,
     `${parent.id}::${filePath}`,
-    DEPENDENCY_TYPE.FILE,
+    DependencyType.FILE,
     filePath,
     isCompletelyUnused,
     notUsedExports,
@@ -62,7 +62,7 @@ function mapUnusedExport2Dependency(parent: TDependency) {
     return new TDependency(
       parent,
       `${parent.id}::${notUsedExport}`,
-      DEPENDENCY_TYPE.UNUSED_EXPORT,
+      DependencyType.UNUSED_EXPORT,
       notUsedExport,
       false,
       undefined,
@@ -81,7 +81,7 @@ function getNoUnusedExports(core: Core) {
   return new TDependency(
     undefined,
     core.getOverviewContext().workspaceName + '::NoUnusedExports',
-    DEPENDENCY_TYPE.EMPTY,
+    DependencyType.EMPTY,
     'No unused exports'
   );
 }

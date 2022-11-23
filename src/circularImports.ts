@@ -1,8 +1,8 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { Core, TFileDataType } from './core';
+import { Core, FileDataType } from './core';
 import { Provider } from './provider';
-import { DEPENDENCY_TYPE, TDependency } from './tdependency';
+import { DependencyType, TDependency } from './tdependency';
 import { isCircularImportsEnabled } from './unused-exports/circularImports';
 import { pathResolve } from './unused-exports/fsUtils';
 import { TNotUsed } from './unused-exports/notUsed';
@@ -12,7 +12,7 @@ export class CircularImportsProvider extends Provider {
     super(
       cores,
       areCircularImportsEnabled,
-      TFileDataType.CIRCULAR_IMPORTS,
+      FileDataType.CIRCULAR_IMPORTS,
       mapFile2Dependency,
       getNoCircularImports,
       false
@@ -33,7 +33,7 @@ function mapFile2Dependency(
   const row = new TDependency(
     parent,
     `${parent.id}::${filePath}`,
-    DEPENDENCY_TYPE.FILE,
+    DependencyType.FILE,
     filePath,
     false,
     undefined,
@@ -75,7 +75,7 @@ function mapCircularImport2Dependency(
     return new TDependency(
       parent,
       `${parent.id}::${circularImport}`,
-      DEPENDENCY_TYPE.CIRCULAR_IMPORT,
+      DependencyType.CIRCULAR_IMPORT,
       circularImport,
       false,
       undefined,
@@ -122,7 +122,7 @@ function getNoCircularImports(core: Core) {
   return new TDependency(
     undefined,
     core.getOverviewContext().workspaceName + '::NoCircularImports',
-    DEPENDENCY_TYPE.EMPTY,
+    DependencyType.EMPTY,
     'No circular imports'
   );
 }
@@ -135,7 +135,7 @@ function areCircularImportsEnabled(): TDependency | undefined {
   return new TDependency(
     undefined,
     'NoCircularImportsEnabled',
-    DEPENDENCY_TYPE.DISABLED,
+    DependencyType.DISABLED,
     'The detection of circular imports is disabled'
   );
 }

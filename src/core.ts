@@ -70,16 +70,18 @@ export class Core {
     return this.overviewContext;
   }
 
-  public getFilesData(type: TFileDataType): TNotUsed[] {
+  public getFilesData(type: FileDataType): TNotUsed[] {
     const cache = cacheFiles[this.workspaceRoot];
     if (cache === undefined) {
       return [];
     }
 
     switch (type) {
-      case TFileDataType.CIRCULAR_IMPORTS:
-        return cache.filter((node) => this.isListNotEmpty(node.circularImports));
-      case TFileDataType.UNUSED_EXPORTS:
+      case FileDataType.CIRCULAR_IMPORTS:
+        return cache.filter((node) =>
+          this.isListNotEmpty(node.circularImports)
+        );
+      case FileDataType.UNUSED_EXPORTS:
         return cache.filter((node) => this.isListNotEmpty(node.notUsedExports));
     }
   }
@@ -100,10 +102,14 @@ export class Core {
     });
   }
 
-  public static findInFile(filePath: string, unusedExportOrCircularImport: string): void {
+  public static findInFile(
+    filePath: string,
+    unusedExportOrCircularImport: string
+  ): void {
     vscode.workspace.openTextDocument(filePath).then((doc) => {
       vscode.window.showTextDocument(doc).then(() => {
-        const editor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
+        const editor: vscode.TextEditor | undefined =
+          vscode.window.activeTextEditor;
         const document: vscode.TextDocument | undefined = editor?.document;
         if (editor === undefined || document === undefined) {
           return;
@@ -135,7 +141,7 @@ export class Core {
   }
 }
 
-export enum TFileDataType {
+export enum FileDataType {
   UNUSED_EXPORTS,
   CIRCULAR_IMPORTS,
 }
