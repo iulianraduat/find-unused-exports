@@ -126,6 +126,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 
   disposable = vscode.commands.registerCommand(
+    'unusedExports.ignoreFile',
+    (node: TDependency) => unusedExportsProvider.ignoreFile(node)
+  );
+  context.subscriptions.push(disposable);
+
+  disposable = vscode.commands.registerCommand(
     'unusedExports.hideFile',
     (node: TDependency) => circularImportsProvider.hideFileOrExport(node)
   );

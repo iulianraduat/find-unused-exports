@@ -2,6 +2,7 @@ import { TExport } from './exports';
 import { TImport } from './imports';
 import { log } from './log';
 import { areMainExportsUsed } from './settings';
+import { isFileIgnored } from './vscUtils';
 
 export const buildRelations = (
   imports: TImport[],
@@ -72,6 +73,14 @@ const addExport =
     if (inPath === mainInPackageJson && areMainExportsUsed()) {
       log(
         `Consider export of "${name}" in "${inPath}" as being used (findUnusedExports.considerMainExportsUsed is enabled).`
+      );
+      return;
+    }
+
+    /* We ignore what the user specified in .vscode file */
+    if (isFileIgnored(inPath)) {
+      log(
+        `Consider export of "${name}" in "${inPath}" as being used (see ignore.files in .vscode/find-unused-exports.json).`
       );
       return;
     }

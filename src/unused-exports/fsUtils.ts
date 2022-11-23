@@ -51,3 +51,7 @@ export function getAdjustedPath(pathToPrj: string, globPath: string) {
 export function pathResolve(...pathSegments: string[]): string {
   return path.resolve(...pathSegments).replace(/\\/g, '/');
 }
+
+export function fixPathSeparator(filepath: string) {
+  return filepath.replace(/\\/g, '/');
+}

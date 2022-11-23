@@ -20,6 +20,9 @@ Automatically find all exports in typescript and javascript files which are not 
   - // find-unused-exports:ignore-next-line-exports
 - Can detect circular imports, which produce undefined variables by import
   - Only the first set of circular imports for a file is displayed in panel (for clarity of the circular path)
+- Files can be added to a list (via the interface) to ignore all their current and futher unused exports
+  - The list is stored in .vscode/find-unused-exports.json
+  - You can add a file to ignore list using the checkmark right from its name and only if there are some used exports
 
 ## Usage
 

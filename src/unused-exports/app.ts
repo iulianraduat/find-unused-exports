@@ -3,7 +3,7 @@ import { OverviewContext } from '../overviewContext';
 import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
 import { getExports } from './exports';
-import { pathResolve } from './fsUtils';
+import { fixPathSeparator, pathResolve } from './fsUtils';
 import { getOnlyProjectImports } from './importedFiles';
 import { getImports } from './imports';
 import { log, resetLog } from './log';
@@ -14,7 +14,7 @@ import { getSourceFiles } from './sourceFiles';
 import { getOnlyUsefullFiles } from './usefullFiles';
 
 const fixPath = (path: string, prefixLen: number): string =>
-  path.substring(prefixLen).replace(/\\/g, '/');
+  fixPathSeparator(path.substring(prefixLen));
 
 const makePathRelativeToProject = (
   relations: TRelation[],

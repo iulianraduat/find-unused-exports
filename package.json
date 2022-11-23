@@ -154,6 +154,11 @@
         "icon": "$(trash)"
       },
       {
+        "command": "unusedExports.ignoreFile",
+        "title": "Ignore all current and future unused exports in this file",
+        "icon": "$(check)"
+      },
+      {
         "command": "unusedExports.findInFile",
         "title": "Find an unused export or circular import in a file",
         "icon": "$(diff)"
@@ -216,22 +221,27 @@
         {
           "command": "unusedExports.refresh",
           "when": "view == overview && viewItem == folder",
-          "group": "inline"
+          "group": "inline@1"
         },
         {
           "command": "unusedExports.deleteFile",
           "when": "view == unusedExports && viewItem == fileNotUsed",
-          "group": "inline"
+          "group": "inline@2"
+        },
+        {
+          "command": "unusedExports.ignoreFile",
+          "when": "view == unusedExports && viewItem == file",
+          "group": "inline@3"
         },
         {
           "command": "unusedExports.hideFileOrExport",
           "when": "view == unusedExports && viewItem != nothingFound",
-          "group": "inline"
+          "group": "inline@4"
         },
         {
           "command": "unusedExports.hideFile",
           "when": "view == circularImports && viewItem != nothingFound && viewItem != circularImport",
-          "group": "inline"
+          "group": "inline@5"
         }
       ]
     },

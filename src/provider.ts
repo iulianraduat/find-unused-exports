@@ -5,6 +5,7 @@ import { idleStatusBarItem, spinStatusBarItem } from './statusBarItem';
 import { DependencyType, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
+import { addToIgnoreFilenames } from './unused-exports/vscUtils';
 
 export class Provider implements vscode.TreeDataProvider<TDependency> {
   /* We need to have it also undefined as an empty array means that the user removed all entries */
@@ -117,6 +118,17 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       )
       .filter(this.isNotHidden);
     return rows;
+  }
+
+  public ignoreFile(node: TDependency): void {
+    if (!node.absFilePath) {
+      return;
+    }
+
+    addToIgnoreFilenames(node.absFilePath);
+
+    /* We also need to hide it now */
+    this.hideFileOrExport(node);
   }
 
   public hideFileOrExport(node: TDependency): void {
