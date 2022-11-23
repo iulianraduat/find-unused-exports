@@ -715,3 +715,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.19.0 (2022-11-23)
+
+### Added
+
+- It is possible to define globs, file names or workspaces to be ignored for unused exports
+
+### Changed
+
+- Updated the packages
+
+### Removed
+
+- Nothing
