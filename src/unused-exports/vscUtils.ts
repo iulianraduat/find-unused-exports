@@ -27,8 +27,7 @@ function getConfig(): TConfig | undefined {
     }
     return config;
   } catch (err) {
-    fs.writeFileSync(configPath, JSON.stringify(emptyConfig, null, 2));
-    return { ...emptyConfig };
+    return;
   }
 }
 

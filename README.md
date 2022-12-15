@@ -7,6 +7,12 @@
 
 Automatically find all exports in typescript and javascript files which are not imported in other files.
 
+## Sponsorship
+
+Please consider sponsoring me through [Patreon](https://www.patreon.com/iulian_radu_at) so I can continue to have time to improve and create more useful tools for you.
+
+[10€/month](https://www.patreon.com/iulian_radu_at) is a small amount that can allow me to continue to help you all.
+
 ## Features
 
 - Automatically find all exports and imports in .ts and .tsx files

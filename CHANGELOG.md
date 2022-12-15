@@ -729,3 +729,18 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.19.1 (2022-12-15)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed bug creating empty configuration file
+- A file containing only unused exports can be added now to the list of ignored files
+
+### Removed
+
+- Nothing
