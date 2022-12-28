@@ -1,8 +1,8 @@
 # Find Unused Exports
 
-[![Marketplace Version](https://vsmarketplacebadge.apphb.com/version/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-[![Rating](https://vsmarketplacebadge.apphb.com/rating/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+[![Marketplace Version](https://vsmarketplacebadges.dev/version/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+[![Installs](https://vsmarketplacebadges.dev/installs/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+[![Rating](https://vsmarketplacebadges.dev/rating/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
 <a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.svg?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
 
 Automatically find all exports in typescript and javascript files which are not imported in other files.
