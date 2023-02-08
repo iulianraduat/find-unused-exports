@@ -11,7 +11,7 @@ export const getOnlyProjectImports = (
   context: TContext,
   parsedFiles: TTsParsed[]
 ): TTsParsed[] => {
-  const { allowJs, baseUrl, moduleSuffixes = defaultModuleSuffixes } = context;
+  const { allowJs, baseUrl, moduleSuffixes = defaultModuleSuffixes, paths } = context;
 
   parsedFiles.forEach((tsParsed) => {
     const { path: filePath, imports } = tsParsed;
@@ -19,6 +19,7 @@ export const getOnlyProjectImports = (
       baseUrl,
       path.dirname(filePath),
       moduleSuffixes,
+      paths,
       allowJs
     );
     tsParsed.imports = imports.map(mapFn).filter(importValid) as TTsImport[];
@@ -35,22 +36,24 @@ const makeImportAbs =
     baseUrl: string | undefined,
     filePath: string,
     moduleSuffixes: string[],
+    paths: TContext['paths'],
     allowJs?: boolean
   ) =>
-  (anImport: TTsImport): TTsImport | undefined => {
-    const { path: relPath } = anImport;
+    (anImport: TTsImport): TTsImport | undefined => {
+      let { path: relPath } = anImport;
+      
+      if (paths) {
+        Object.keys(paths).forEach(key => {
+          let pattern = new RegExp(`^${key.replace(/\*/g, '(.*)')}$`);
+          let replacement = `${paths[key][0].replace(/\*/g, '$1')}`;
+          if (pattern.test(relPath)) {
+            relPath = relPath.replace(pattern, replacement);
+          }
+        });
+      }
 
-    const absPath = pathResolve(filePath, relPath);
-    const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
-    if (exactPath) {
-      return {
-        ...anImport,
-        path: exactPath,
-      };
-    }
 
-    if (baseUrl) {
-      const absPath = pathResolve(baseUrl, relPath);
+      const absPath = pathResolve(filePath, relPath);
       const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
       if (exactPath) {
         return {
@@ -58,10 +61,20 @@ const makeImportAbs =
           path: exactPath,
         };
       }
-    }
 
-    return undefined;
-  };
+      if (baseUrl) {
+        const absPath = pathResolve(baseUrl, relPath);
+        const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
+        if (exactPath) {
+          return {
+            ...anImport,
+            path: exactPath,
+          };
+        }
+      }
+
+      return undefined;
+    };
 
 const getGlobRegexp = (path: string, allowJs?: boolean): string =>
   allowJs ? `${path}.@(ts|tsx|js|jsx)` : `${path}.@(ts|tsx)`;

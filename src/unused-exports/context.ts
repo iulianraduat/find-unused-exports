@@ -3,6 +3,10 @@ import * as path from 'path';
 import { OverviewContext } from '../overviewContext';
 import { pathResolve, readJsonFile } from './fsUtils';
 
+export type Paths = {
+  [propsName:string]:string[]
+};
+
 export interface TContext {
   allowJs?: boolean;
   baseUrl?: string;
@@ -13,6 +17,7 @@ export interface TContext {
   moduleSuffixes?: string[];
   overviewContext: OverviewContext;
   pathToPrj: string;
+  paths?:Paths
 }
 
 /**
@@ -40,7 +45,7 @@ export const makeContext = (
 
   const { compilerOptions, exclude, files, include } = tsconfig || {};
   const jsConfig = { allowJs: true };
-  const { allowJs, baseUrl, moduleSuffixes, outDir } =
+  const { allowJs, baseUrl, moduleSuffixes, outDir , paths} =
     compilerOptions || jsConfig;
 
   /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
@@ -87,6 +92,7 @@ export const makeContext = (
     moduleSuffixes,
     overviewContext,
     pathToPrj,
+    paths
   };
   return res;
 };
