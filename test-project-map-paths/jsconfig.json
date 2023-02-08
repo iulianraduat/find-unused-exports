@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "out",
+    "lib": ["es6"],
+    "sourceMap": true,
+    "rootDir": ".",
+    "baseUrl": "src",
+    "paths": {
+      "app/*": ["app/*"],
+      "conf/*": ["app/config_old/*", "app/config/*"],
+      "environment/*": ["environment/*", "env/*"],
+      "shared/*": ["app/_shared/*"],
+      "helpers/*": ["helps/*"],
+      "tests/*": ["test/unit/*"],
+      "one/*": ["one/index.js"],
+      "fix": ["fix/fix.js"]
+    }
+  },
+  "file": ["index.js"],
+  "include": ["./**/*"],
+  "exclude": ["node_modules/**"]
+}

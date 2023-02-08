@@ -11,7 +11,12 @@ export const getOnlyProjectImports = (
   context: TContext,
   parsedFiles: TTsParsed[]
 ): TTsParsed[] => {
-  const { allowJs, baseUrl, moduleSuffixes = defaultModuleSuffixes } = context;
+  const {
+    allowJs,
+    baseUrl,
+    moduleSuffixes = defaultModuleSuffixes,
+    paths,
+  } = context;
 
   parsedFiles.forEach((tsParsed) => {
     const { path: filePath, imports } = tsParsed;
@@ -19,26 +24,53 @@ export const getOnlyProjectImports = (
       baseUrl,
       path.dirname(filePath),
       moduleSuffixes,
+      paths,
       allowJs
     );
-    tsParsed.imports = imports.map(mapFn).filter(importValid) as TTsImport[];
+    tsParsed.imports = imports.map(mapFn).filter(importValid);
   });
 
   return parsedFiles;
 };
 
-const importValid = (anImport: TTsImport | undefined): boolean =>
-  anImport !== undefined;
+function importValid(anImport: TTsImport | undefined): anImport is TTsImport {
+  return anImport !== undefined;
+}
 
 const makeImportAbs =
   (
     baseUrl: string | undefined,
     filePath: string,
     moduleSuffixes: string[],
+    paths: TContext['paths'],
     allowJs?: boolean
   ) =>
   (anImport: TTsImport): TTsImport | undefined => {
-    const { path: relPath } = anImport;
+    const relPath = anImport.path;
+
+    if (baseUrl && paths) {
+      for (const key in paths) {
+        const aliasPaths = paths[key];
+        const keyPattern = wildcardToPattern(key);
+        const pattern = new RegExp(`^${keyPattern}$`);
+        if (pattern.test(relPath) === false) {
+          continue;
+        }
+
+        for (const mapPath of aliasPaths) {
+          const replacement = mapPath.replace(/\*/g, '$1');
+          const tryPath = relPath.replace(pattern, replacement);
+          const absPath = pathResolve(baseUrl, tryPath);
+          const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
+          if (exactPath) {
+            return {
+              ...anImport,
+              path: exactPath,
+            };
+          }
+        }
+      }
+    }
 
     const absPath = pathResolve(filePath, relPath);
     const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
@@ -63,6 +95,11 @@ const makeImportAbs =
     return undefined;
   };
 
+const wildcardRe = /\*/g;
+function wildcardToPattern(key: string): string {
+  return key.replace(wildcardRe, '(.*)');
+}
+
 const getGlobRegexp = (path: string, allowJs?: boolean): string =>
   allowJs ? `${path}.@(ts|tsx|js|jsx)` : `${path}.@(ts|tsx)`;
 
@@ -80,7 +117,7 @@ function resolveFilePath(
 
   try {
     /* try it as file */
-    const globReFile = getGlobRegexp(filePath, allowJs);
+    // const globReFile = getGlobRegexp(filePath, allowJs);
     const resFile = doGlob(
       'file',
       getGlobRegexp,

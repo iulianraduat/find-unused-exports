@@ -744,3 +744,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.20.0 (2023-02-08)
+
+### Added
+
+- Support for mapping paths
+
+### Changed
+
+- Nothing
+
+### Removed
+
+- Nothing

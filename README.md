@@ -1,9 +1,9 @@
 # Find Unused Exports
 
-[![Marketplace Version](https://vsmarketplacebadges.dev/version/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-[![Installs](https://vsmarketplacebadges.dev/installs/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-[![Rating](https://vsmarketplacebadges.dev/rating-short/iulian-radu-at.find-unused-exports.svg)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-<a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.svg?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
+[![Marketplace Version](https://vsmarketplacebadges.dev/version/iulian-radu-at.find-unused-exports.png)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+[![Installs](https://vsmarketplacebadges.dev/installs/iulian-radu-at.find-unused-exports.png)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+[![Rating](https://vsmarketplacebadges.dev/rating-short/iulian-radu-at.find-unused-exports.png)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+<a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.png?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
 
 Automatically find all exports in typescript and javascript files which are not imported in other files.
 
@@ -11,7 +11,7 @@ Automatically find all exports in typescript and javascript files which are not 
 
 Please consider sponsoring me through [Patreon](https://www.patreon.com/iulian_radu_at) so I can continue to have time to improve and create more useful tools for you.
 
-[10€/month](https://www.patreon.com/iulian_radu_at) is a small amount that can allow me to continue to help you all.
+[$10/month or €10/month](https://www.patreon.com/iulian_radu_at) is a small amount which allows me to continue to help you all.
 
 ## Features
 

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { OverviewContext } from '../overviewContext';
 import { pathResolve, readJsonFile } from './fsUtils';
+import { log } from './log';
 
 export interface TContext {
   allowJs?: boolean;
@@ -13,6 +13,7 @@ export interface TContext {
   moduleSuffixes?: string[];
   overviewContext: OverviewContext;
   pathToPrj: string;
+  paths?: Record<string, Array<string>>;
 }
 
 /**
@@ -40,7 +41,7 @@ export const makeContext = (
 
   const { compilerOptions, exclude, files, include } = tsconfig || {};
   const jsConfig = { allowJs: true };
-  const { allowJs, baseUrl, moduleSuffixes, outDir } =
+  const { allowJs, baseUrl, moduleSuffixes, outDir, paths } =
     compilerOptions || jsConfig;
 
   /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
@@ -70,6 +71,12 @@ export const makeContext = (
     excludeFindUnusedExports2
   );
 
+  if (!baseUrl && paths) {
+    log(
+      'Warning: compilerOptions.paths requires compilerOptions.baseUrl which is not defined'
+    );
+  }
+
   const res: TContext = {
     allowJs,
     baseUrl: baseUrl ? pathResolve(pathToPrj, baseUrl) : undefined,
@@ -87,6 +94,8 @@ export const makeContext = (
     moduleSuffixes,
     overviewContext,
     pathToPrj,
+    // paths requires baseUrl to be defined
+    paths: baseUrl ? paths : undefined,
   };
   return res;
 };
