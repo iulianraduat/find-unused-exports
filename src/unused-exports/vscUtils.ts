@@ -45,7 +45,7 @@ function getConfigPath(): string | undefined {
   return `${vscodePath}${path.sep}find-unused-exports.json`;
 }
 
-export function getIgnoreFilenames(): string[] {
+function getIgnoreFilenames(): string[] {
   const config = getConfig();
   if (config === undefined) {
     return [];

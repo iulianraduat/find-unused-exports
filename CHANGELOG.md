@@ -758,3 +758,19 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.21.0 (2023-04-27)
+
+### Added
+
+- Ignoring all template strings so it no longer produces false positives for imports/exports found in them
+
+### Changed
+
+- The minimum VSCode version must be 1.75.0
+- Using an improved version of glob (which is used to find files)
+- The extension is activated only when visiting the corresponding view or its command is run
+
+### Removed
+
+- Nothing

@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -18,7 +18,7 @@
     "url": "https://www.patreon.com/iulian_radu_at"
   },
   "engines": {
-    "vscode": "^1.59.0"
+    "vscode": "^1.75.0"
   },
   "main": "./out/main.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-1.20.0.vsix",
+    "install:local": "code --install-extension find-unused-exports-1.21.0.vsix",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
@@ -36,25 +36,21 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "8.1.0"
+    "glob": "10.2.2"
   },
   "devDependencies": {
-    "@types/glob": "8.0.1",
+    "@types/glob": "8.1.0",
     "@types/node": "16.18.3",
-    "@types/vscode": "1.59.0",
-    "@typescript-eslint/eslint-plugin": "5.51.0",
-    "@typescript-eslint/parser": "5.51.0",
-    "esbuild": "0.17.6",
-    "eslint": "8.33.0",
-    "rimraf": "4.1.2",
-    "typescript": "4.9.5"
+    "@types/vscode": "1.75.0",
+    "@typescript-eslint/eslint-plugin": "5.59.1",
+    "@typescript-eslint/parser": "5.59.1",
+    "esbuild": "0.17.18",
+    "eslint": "8.39.0",
+    "rimraf": "5.0.0",
+    "typescript": "5.0.4"
   },
   "categories": [
     "Linters"
-  ],
-  "activationEvents": [
-    "onLanguage:typescript",
-    "onLanguage:javascript"
   ],
   "contributes": {
     "viewsContainers": {

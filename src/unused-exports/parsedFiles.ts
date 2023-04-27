@@ -37,14 +37,14 @@ function parseFile(file: TTsFile): TTsParsed {
   };
 }
 
-const fileNameRe = `("[^"]+"|'[^']+'|\`[^\`]+\`)`;
+const fileNameRe = `("[^"\\s]+"|'[^'\\s]+'|\`[^\`\\s]+\`)`;
 /* we need to remove the above start and end quotes */
 const fixPath = (path: string) => (path.length >= 3 ? path.substring(1, path.length - 1) : '');
 
 const validIECharsRe = `(?:\\b[*_$a-zA-Z0-9{,}\\s\r\n]+?)`;
 const importExportFromRegex = [
-  new RegExp(`import(?:\\s+type)?\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
-  new RegExp(`export\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
+  new RegExp(`\\bimport(?:\\s+type)?\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
+  new RegExp(`\\bexport\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
 ];
 
 export const varNameRe = `[_$a-zA-Z0-9]+`;
@@ -59,8 +59,8 @@ const removeSpaces = (txt: string) => txt.replace(spacesRe, '');
 const removeTypeSpaces = (txt: string) => removeSpaces(txt.replace(typeSpacesRe, ''));
 
 const importRequireRegexps = [
-  new RegExp(`(?:import|require)\\s*${fileNameRe}`, 'g'),
-  new RegExp(`(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g'),
+  new RegExp(`\\b(?:import|require)\\s*${fileNameRe}`, 'g'),
+  new RegExp(`\\b(?:import|require)\\s*\\(\\s*${fileNameRe}\\s*\\)`, 'g'),
 ];
 
 function getImports(content: string): TTsImport[] {
@@ -93,18 +93,18 @@ function getImports(content: string): TTsImport[] {
 }
 
 const individualExportRegexps = [
-  new RegExp(`export\\s+(default)\\s`, 'g'),
-  new RegExp(`export\\s+(?:class|const|let|var|enum|type|interface|function\\*?)\\s+(${varNameRe})`, 'g'),
+  new RegExp(`\\bexport\\s+(default)\\s`, 'g'),
+  new RegExp(`\\bexport\\s+(?:class|const|let|var|enum|type|interface|function\\*?)\\s+(${varNameRe})`, 'g'),
 ];
 
-const destructuredExportsRegexps = [new RegExp(`export\\s+(?:const|let|var)\\s+\\{\\s*([^}]+)\\s*\\}`, 'g')];
+const destructuredExportsRegexps = [new RegExp(`\\bexport\\s+(?:const|let|var)\\s+\\{\\s*([^}]+)\\s*\\}`, 'g')];
 const varNameColonRe = new RegExp(`${varNameRe}\\s*:\\s*`, 'gi');
 
-const exportListRegexps = [new RegExp(`export\\s*(\\{\\s*[^}]+\\s*\\})`, 'g')];
+const exportListRegexps = [new RegExp(`\\bexport\\s*(\\{\\s*[^}]+\\s*\\})`, 'g')];
 const varNameAsRe = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
 
 const aggregatedExportsRegexps = [
-  new RegExp(`export\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+)?)\\s*from\\s*${fileNameRe}`, 'g'),
+  new RegExp(`\\bexport\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+)?)\\s*from\\s*${fileNameRe}`, 'g'),
 ];
 const starAsRe = new RegExp(`\\*\\s*as\\s+`, 'gi');
 
@@ -188,13 +188,14 @@ function isShowIgnoredExportsEnabled(): boolean {
 }
 
 const reCommentExport = /\/\/\s*find-unused-exports:ignore-next-line-exports\b.*\r?\nexport\b.*/gm;
-const reCommentMultiline = /\/\*.*?\*\//gs;
-const reCommentSingleline = /\/\/.*/g;
+const reCommentMultiLine = /\/\*.*?\*\//gs;
+const reCommentSingleLine = /\/\/.*/g;
+const reStringBacktick = /`[^`]+`/g;
 function fixContent(content: string): string {
   let newContent = content;
   if (isShowIgnoredExportsEnabled() === false) {
     newContent = newContent.replace(reCommentExport, '');
   }
 
-  return newContent.replace(reCommentMultiline, '').replace(reCommentSingleline, '');
+  return newContent.replace(reCommentMultiLine, '').replace(reCommentSingleLine, '').replace(reStringBacktick, '');
 }
