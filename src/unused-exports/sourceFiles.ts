@@ -1,9 +1,8 @@
 import * as path from 'path';
 import { addGlobInclude, OverviewContext } from '../overviewContext';
 import { TContext } from './context';
-import { getAdjustedPath, pathResolve } from './fsUtils';
+import { getAdjustedPath, globSync, pathResolve } from './fsUtils';
 import { log } from './log';
-import { globSync } from './usefullFiles';
 
 export interface TTsFile {
   path: string;

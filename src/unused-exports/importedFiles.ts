@@ -1,9 +1,8 @@
 import * as path from 'path';
 import { TContext } from './context';
-import { fixDriverLetterCase, isDirectory, isFile, pathResolve } from './fsUtils';
+import { fixDriverLetterCase, globSync, isDirectory, isFile, pathResolve } from './fsUtils';
 import { log } from './log';
 import { TTsImport, TTsParsed } from './parsedFiles';
-import { globSync } from './usefullFiles';
 
 const defaultModuleSuffixes = [''];
 

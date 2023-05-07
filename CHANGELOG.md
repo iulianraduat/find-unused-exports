@@ -788,3 +788,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.21.2 (2023-05-07)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed all circular imports in project
+
+### Removed
+
+- Nothing

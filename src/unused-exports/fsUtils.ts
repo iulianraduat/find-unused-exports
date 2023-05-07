@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { glob } from 'glob';
 import * as path from 'path';
 import { OverviewContext } from '../overviewContext';
 import { log } from './log';
@@ -66,4 +67,16 @@ export function fixDriverLetterCase(filePath: string): string {
   const driverLetter = filePath.substring(0, 1).toLowerCase();
   const restPath = filePath.substring(1);
   return driverLetter + restPath;
+}
+
+export function globSync(globRe: string, cwd: string = '.', globIgnore?: string[]): string[] {
+  const res = glob.sync(globRe, {
+    cwd,
+    ignore: globIgnore,
+    nodir: true,
+    realpath: true,
+    posix: true,
+    absolute: true,
+  });
+  return res?.map((filePath) => filePath.replace('//?/', ''));
 }
