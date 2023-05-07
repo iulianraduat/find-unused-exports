@@ -1,9 +1,9 @@
-import * as glob from 'glob';
 import * as path from 'path';
 import { TContext } from './context';
-import { isDirectory, isFile, pathResolve } from './fsUtils';
+import { fixDriverLetterCase, isDirectory, isFile, pathResolve } from './fsUtils';
 import { log } from './log';
 import { TTsImport, TTsParsed } from './parsedFiles';
+import { globSync } from './usefullFiles';
 
 const defaultModuleSuffixes = [''];
 
@@ -182,24 +182,13 @@ function doOneGlob(
   getGlobRegexp: (path: string, allowJs?: boolean | undefined) => string,
   filePath: string,
   allowJs?: boolean
-) {
+): string | undefined {
   try {
     const globRe = getGlobRegexp(filePath, allowJs);
-    const res = glob.sync(globRe, {
-      cwd: '.',
-      nodir: true,
-      nosort: true,
-      realpath: true,
-    });
-    if (res?.length === 1) {
-      return pathResolve(res[0]);
-    }
+    const res = globSync(globRe)?.[0];
+    return res ? fixDriverLetterCase(res) : undefined;
   } catch (err: any) {
-    log(
-      `Exception glob: cannot resolve path to '${filePath}'. Tried ${tryMode}`,
-      err?.message || err
-    );
+    log(`Exception glob: cannot resolve path to '${filePath}'. Tried ${tryMode}`, err?.message || err);
     throw err;
   }
-  return undefined;
 }

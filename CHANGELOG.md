@@ -774,3 +774,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 1.21.1 (2023-05-07)
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Fixed the bug introduced with the use of the glob 10
+
+### Removed
+
+- Nothing

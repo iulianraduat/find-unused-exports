@@ -54,13 +54,13 @@ function getIgnoreFilenames(): string[] {
   return config.ignore.files ?? [];
 }
 
-export function addToIgnoreFilenames(filepath: string): void {
+export function addToIgnoreFilenames(filePath: string): void {
   const configPath = getConfigPath();
   if (configPath === undefined) {
     return;
   }
 
-  const fixedFilepath = fixPathSeparator(filepath);
+  const fixedFilepath = fixPathSeparator(filePath);
 
   const alreadyIgnoredFiles = getIgnoreFilenames();
   if (alreadyIgnoredFiles.includes(fixedFilepath)) {
@@ -72,12 +72,12 @@ export function addToIgnoreFilenames(filepath: string): void {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 }
 
-export function isFileIgnored(filepath: string): boolean {
+export function isFileIgnored(filePath: string): boolean {
   const configPath = getConfigPath();
   if (configPath === undefined) {
     return false;
   }
 
   const alreadyIgnoredFiles = getIgnoreFilenames();
-  return alreadyIgnoredFiles.includes(filepath);
+  return alreadyIgnoredFiles.includes(filePath);
 }

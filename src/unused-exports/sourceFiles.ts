@@ -1,9 +1,9 @@
-import * as glob from 'glob';
 import * as path from 'path';
 import { addGlobInclude, OverviewContext } from '../overviewContext';
 import { TContext } from './context';
 import { getAdjustedPath, pathResolve } from './fsUtils';
 import { log } from './log';
+import { globSync } from './usefullFiles';
 
 export interface TTsFile {
   path: string;
@@ -134,22 +134,14 @@ function globFile(
       globIgnore.map((aGlobIgnore) => pathResolve(pathToFolder, aGlobIgnore))
     );
   let count = 0;
-  glob
-    .sync(globRegexp, {
-      cwd: pathToFolder,
-      ignore: globIgnore,
-      nodir: true,
-      nosort: true,
-      realpath: true,
-    })
-    .filter((f: string) => {
-      const source = pathResolve(pathToFolder, f);
-      log('Found source file', source);
-      res.push({
-        path: source,
-      });
-      count++;
+  globSync(globRegexp, pathToFolder, globIgnore).filter((f: string) => {
+    const source = pathResolve(pathToFolder, f);
+    log('Found source file', source);
+    res.push({
+      path: source,
     });
+    count++;
+  });
   addGlobInclude(
     ctx,
     getAdjustedPath(fixPath(pathToFolder), globRegexp),

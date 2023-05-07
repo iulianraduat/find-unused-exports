@@ -49,9 +49,21 @@ export function getAdjustedPath(pathToPrj: string, globPath: string) {
 }
 
 export function pathResolve(...pathSegments: string[]): string {
-  return path.resolve(...pathSegments).replace(/\\/g, '/');
+  const res = path.resolve(...pathSegments).replace(/\\/g, '/');
+  return fixDriverLetterCase(res);
 }
 
-export function fixPathSeparator(filepath: string) {
-  return filepath.replace(/\\/g, '/');
+export function fixPathSeparator(filePath: string): string {
+  return filePath.replace(/\\/g, '/');
+}
+
+const rePathWithDriverLetter = /^[A-Z]:/;
+export function fixDriverLetterCase(filePath: string): string {
+  if (!rePathWithDriverLetter.test(filePath)) {
+    return filePath;
+  }
+
+  const driverLetter = filePath.substring(0, 1).toLowerCase();
+  const restPath = filePath.substring(1);
+  return driverLetter + restPath;
 }
