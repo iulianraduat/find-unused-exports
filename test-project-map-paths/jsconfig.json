@@ -18,7 +18,7 @@
       "fix": ["fix/fix.js"]
     }
   },
-  "file": ["index.js"],
+  "files": ["index.js"],
   "include": ["./**/*"],
   "exclude": ["node_modules/**"]
 }

@@ -7,7 +7,7 @@
     "sourceMap": true,
     "rootDir": "."
   },
-  "file": ["index.js"],
+  "files": ["main.js"],
   "include": ["./**/*"],
   "exclude": ["node_modules/**"]
 }
