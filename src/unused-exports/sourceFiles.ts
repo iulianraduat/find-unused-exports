@@ -116,9 +116,7 @@ function globFile(
   globSync(globRegexp, pathToFolder, globIgnore).filter((f: string) => {
     const source = pathResolve(pathToFolder, f);
     log('Found source file', source);
-    res.push({
-      path: source,
-    });
+    res.push({ path: source });
     count++;
   });
   addGlobInclude(ctx, getAdjustedPath(fixPath(pathToFolder), globRegexp), count);
