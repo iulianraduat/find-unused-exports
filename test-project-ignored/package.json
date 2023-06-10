@@ -11,7 +11,8 @@
   "findUnusedExports": {
     "include": [
       "index.*",
-      "./include/**/*.ts"
+      "./include/**/*.ts",
+      "./exclude/**/*.{js,ts}"
     ],
     "exclude": [
       "./exclude/**"

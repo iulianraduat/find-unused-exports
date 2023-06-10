@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
 import { Core, FileDataType } from './core';
 import { Provider } from './provider';
@@ -50,27 +49,15 @@ function mapFile2Dependency(
   return row;
 }
 
-function circularImportsInFile(
-  pathToPrj: string | undefined,
-  firstPathname: string,
-  node: TDependency
-): TDependency[] {
+function circularImportsInFile(pathToPrj: string | undefined, firstPathname: string, node: TDependency): TDependency[] {
   const mapFn = mapCircularImport2Dependency(pathToPrj, firstPathname, node);
   return node.circularImports?.map(mapFn) ?? [];
 }
 
-function mapCircularImport2Dependency(
-  pathToPrj: string | undefined,
-  firstPathname: string,
-  parent: TDependency
-) {
+function mapCircularImport2Dependency(pathToPrj: string | undefined, firstPathname: string, parent: TDependency) {
   return (circularImport: string, index: number): TDependency => {
     const absFilePath = resolvePath(pathToPrj, circularImport);
-    const nextImport = getNextImport(
-      firstPathname,
-      parent.circularImports,
-      index
-    );
+    const nextImport = getNextImport(firstPathname, parent.circularImports, index);
 
     return new TDependency(
       parent,
@@ -90,18 +77,13 @@ function mapCircularImport2Dependency(
   };
 }
 
-function getNextImport(
-  firstPathname: string,
-  circularImports: string[] | undefined,
-  index: number
-): string {
+function getNextImport(firstPathname: string, circularImports: string[] | undefined, index: number): string {
   if (circularImports === undefined) {
     return '';
   }
 
   index++;
-  const pathname =
-    index < circularImports.length ? circularImports[index] : firstPathname;
+  const pathname = index < circularImports.length ? circularImports[index] : firstPathname;
   return getFileBaseName(pathname);
 }
 

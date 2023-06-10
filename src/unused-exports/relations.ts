@@ -4,11 +4,7 @@ import { log } from './log';
 import { areMainExportsUsed } from './settings';
 import { isFileIgnored } from './vscUtils';
 
-export const buildRelations = (
-  imports: TImport[],
-  exports: TExport[],
-  mainInPackageJson?: string
-): TRelation[] => {
+export const buildRelations = (imports: TImport[], exports: TExport[], mainInPackageJson?: string): TRelation[] => {
   const arr: TRelation[] = [];
   imports.forEach(addImport(arr));
   exports.forEach(addExport(arr, mainInPackageJson));
@@ -40,67 +36,61 @@ const addImport = (arr: TRelation[]) => (anImport: TImport) => {
   importEntry.names.push(name);
 };
 
-const addExport =
-  (arr: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
-    const { inPath, name, isUsed } = anExport;
+const addExport = (arr: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
+  const { inPath, name, isUsed } = anExport;
 
-    let entry = findEntry(arr, inPath);
-    if (entry === undefined) {
-      entry = {
-        path: inPath,
-      };
-      arr.push(entry);
+  let entry = findEntry(arr, inPath);
+  if (entry === undefined) {
+    entry = {
+      path: inPath,
+    };
+    arr.push(entry);
+  }
+
+  if (entry.exports === undefined) {
+    entry.exports = {};
+  }
+
+  if (isUsed) {
+    if (entry.exports.used === undefined) {
+      entry.exports.used = [];
     }
 
-    if (entry.exports === undefined) {
-      entry.exports = {};
-    }
+    entry.exports.used.push(name);
+    return;
+  }
 
-    if (isUsed) {
-      if (entry.exports.used === undefined) {
-        entry.exports.used = [];
-      }
+  if (entry.exports.notUsed === undefined) {
+    entry.exports.notUsed = [];
+  }
 
-      entry.exports.used.push(name);
-      return;
-    }
+  /* We want to consider all exports in the file used in the main field of package.json as being used */
+  if (inPath === mainInPackageJson && areMainExportsUsed()) {
+    log(
+      `Consider export of "${name}" in "${inPath}" as being used (findUnusedExports.considerMainExportsUsed is enabled).`
+    );
+    return;
+  }
 
-    if (entry.exports.notUsed === undefined) {
-      entry.exports.notUsed = [];
-    }
+  /* We ignore what the user specified in .vscode file */
+  if (isFileIgnored(inPath)) {
+    log(
+      `Consider export of "${name}" in "${inPath}" as being used (see ignore.files in .vscode/find-unused-exports.json).`
+    );
+    return;
+  }
 
-    /* We want to consider all exports in the file used in the main field of package.json as being used */
-    if (inPath === mainInPackageJson && areMainExportsUsed()) {
-      log(
-        `Consider export of "${name}" in "${inPath}" as being used (findUnusedExports.considerMainExportsUsed is enabled).`
-      );
-      return;
-    }
+  /* If the same file is found by multiple glob rules it will produce duplicates in the tree */
+  if (entry.exports.notUsed.some((knownName) => knownName === name)) {
+    return;
+  }
 
-    /* We ignore what the user specified in .vscode file */
-    if (isFileIgnored(inPath)) {
-      log(
-        `Consider export of "${name}" in "${inPath}" as being used (see ignore.files in .vscode/find-unused-exports.json).`
-      );
-      return;
-    }
+  entry.exports.notUsed.push(name);
+};
 
-    /* There are generated code which exports multiple types with the same name (like an interface and a const) */
-    if (entry.exports.notUsed.some((knownName) => knownName === name)) {
-      log(
-        `Multiple unused exports with the same name "${name}" in "${inPath}".`
-      );
-      return;
-    }
+const findEntry = (arr: TRelation[], path: string) => arr.find((entry) => entry.path === path);
 
-    entry.exports.notUsed.push(name);
-  };
-
-const findEntry = (arr: TRelation[], path: string) =>
-  arr.find((entry) => entry.path === path);
-
-const findImport = (imports: TRelationImport[], path: string) =>
-  imports.find((i) => i.path === path);
+const findImport = (imports: TRelationImport[], path: string) => imports.find((i) => i.path === path);
 
 export interface TRelation {
   exports?: TRelationExport;

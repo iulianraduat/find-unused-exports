@@ -45,6 +45,9 @@ export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] 
   if (include !== undefined) {
     globFiles(res, pathToPrj, includes, globExclude, context.overviewContext);
   }
+  // TODO remove duplicated files
+  // - can influence the performance as there can be a lot of files already added in the array
+  // - now each duplicated file will be scanned again for imports and exports
   return res;
 }
 

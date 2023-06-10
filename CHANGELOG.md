@@ -803,7 +803,7 @@ This extension assumes a set of default exclude folders:
 
 - Nothing
 
-## 1.22.0 (2023-06-10)
+## 2.0.0 (2023-06-10)
 
 ### Added
 
@@ -817,10 +817,6 @@ This extension assumes a set of default exclude folders:
 - If there are defined exclude rules in package.json or .findUnusedExports.json then
   the default exclude glob rule and the exclude from tsconfig.json or jsconfig.json are no longer applied
 
-### Changes
-
-- Fixed the wrong "Multiple unused exports with the same name" warnings
-
 ### Removed
 
-- Nothing
+- Reporting "Multiple unused exports with the same name"
