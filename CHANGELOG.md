@@ -820,3 +820,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Reporting "Multiple unused exports with the same name"
+
+## 2.0.1 (2023-06-10)
+
+### Added
+
+- Nothing
+
+### Changes
+
+- Fixed the badges
+
+### Removed
+
+- Nothing
