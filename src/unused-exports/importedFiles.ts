@@ -6,26 +6,12 @@ import { TTsImport, TTsParsed } from './parsedFiles';
 
 const defaultModuleSuffixes = [''];
 
-export const getOnlyProjectImports = (
-  context: TContext,
-  parsedFiles: TTsParsed[]
-): TTsParsed[] => {
-  const {
-    allowJs,
-    baseUrl,
-    moduleSuffixes = defaultModuleSuffixes,
-    paths,
-  } = context;
+export const getOnlyProjectImports = (context: TContext, parsedFiles: TTsParsed[]): TTsParsed[] => {
+  const { allowJs, baseUrl, moduleSuffixes = defaultModuleSuffixes, paths } = context;
 
   parsedFiles.forEach((tsParsed) => {
     const { path: filePath, imports } = tsParsed;
-    const mapFn = makeImportAbs(
-      baseUrl,
-      path.dirname(filePath),
-      moduleSuffixes,
-      paths,
-      allowJs
-    );
+    const mapFn = makeImportAbs(baseUrl, path.dirname(filePath), moduleSuffixes, paths, allowJs);
     tsParsed.imports = imports.map(mapFn).filter(importValid);
   });
 
@@ -100,16 +86,12 @@ function wildcardToPattern(key: string): string {
 }
 
 const getGlobRegexp = (path: string, allowJs?: boolean): string =>
-  allowJs ? `${path}.@(ts|tsx|js|jsx)` : `${path}.@(ts|tsx)`;
+  allowJs ? `${path}.{ts,tsx,js,jsx}` : `${path}.{ts,tsx}`;
 
 const getDirGlobRegexp = (rootPath: string, allowJs?: boolean): string =>
-  pathResolve(rootPath, allowJs ? `index.@(ts|tsx|js|jsx)` : `index.@(ts|tsx)`);
+  pathResolve(rootPath, allowJs ? `index.{ts,tsx,js,jsx}` : `index.{ts,tsx}`);
 
-function resolveFilePath(
-  filePath: string,
-  moduleSuffixes: string[],
-  allowJs?: boolean
-): string | undefined {
+function resolveFilePath(filePath: string, moduleSuffixes: string[], allowJs?: boolean): string | undefined {
   if (isFile(filePath)) {
     return filePath;
   }
@@ -117,13 +99,7 @@ function resolveFilePath(
   try {
     /* try it as file */
     // const globReFile = getGlobRegexp(filePath, allowJs);
-    const resFile = doGlob(
-      'file',
-      getGlobRegexp,
-      filePath,
-      moduleSuffixes,
-      allowJs
-    );
+    const resFile = doGlob('file', getGlobRegexp, filePath, moduleSuffixes, allowJs);
     if (resFile) {
       return resFile;
     }
@@ -133,13 +109,7 @@ function resolveFilePath(
     }
 
     /* try it as directory */
-    const resDir = doGlob(
-      'folder',
-      getDirGlobRegexp,
-      filePath,
-      moduleSuffixes,
-      allowJs
-    );
+    const resDir = doGlob('folder', getDirGlobRegexp, filePath, moduleSuffixes, allowJs);
     if (resDir) {
       return resDir;
     }
