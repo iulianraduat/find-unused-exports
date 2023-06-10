@@ -44,18 +44,21 @@ An "import \* as" will assume that all imported exports are used from that file.
 
 ### Included/Excluded files
 
-If there is no defined exclude then the default exclude globs are used:
+By default are matched only .js, .jsx, .ts and .tsx files.
+The .js and .jsx are included in pattern only if compilerOptions.allowJs from tsconfig.json is true or the project is in javascript.
+
+If there are no defined exclude then the default exclude globs are used:
 
 - node_modules/\*\*/\*
 - bower_components/\*\*/\*
 - jspm_packages/\*\*/\*
 
-If there is no defined files nor include globs, then the following exclude globs are added:
+If there are no defined files nor include globs, then the following exclude globs are added:
 
 - \*\*/node_modules/\*\*/\*
 - \*\*/\*.d.ts
 
-If you want to include/exclude some files (like storybook's .stories.ts files or .svelte files), you can:
+If you want to include/exclude other files than the default (like storybook's .stories.ts files or .svelte files), you can:
 
 - add a section called findUnusedExports in package.json
 
@@ -79,7 +82,7 @@ If you want to include/exclude some files (like storybook's .stories.ts files or
 }
 ```
 
-If both are used then the excluded rules from both of them will be used.
+If both are used then the include and excluded rules from both of them will be used.
 
 ### Screenshot
 
