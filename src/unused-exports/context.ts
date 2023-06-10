@@ -20,10 +20,7 @@ export interface TContext {
  * We read the tsconfig.json to find which files will be included and if they can be imported relative to baseUrl
  * @param path is the location of the project's root
  */
-export const makeContext = (
-  pathToPrj: string,
-  overviewContext: OverviewContext
-): TContext => {
+export const makeContext = (pathToPrj: string, overviewContext: OverviewContext): TContext => {
   const pathToTsconfig = pathResolve(pathToPrj, 'tsconfig.json');
   const pathToJsconfig = pathResolve(pathToPrj, 'jsconfig.json');
   let tsconfig = readJsonFile(pathToTsconfig, overviewContext);
@@ -41,8 +38,7 @@ export const makeContext = (
 
   const { compilerOptions, exclude, files, include } = tsconfig || {};
   const jsConfig = { allowJs: true };
-  const { allowJs, baseUrl, moduleSuffixes, outDir, paths } =
-    compilerOptions || jsConfig;
+  const { allowJs, baseUrl, moduleSuffixes, outDir, paths } = compilerOptions || jsConfig;
 
   /* We are looking for custom include/exclude rules in package.json and .findUnusedExports.json */
   const pathToPackageJson = pathResolve(pathToPrj, 'package.json');
@@ -51,45 +47,24 @@ export const makeContext = (
   const includeFindUnusedExports1 = packageJson?.findUnusedExports?.include;
   const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
 
-  const pathToFindUnusedExportsConfig = pathResolve(
-    pathToPrj,
-    '.findUnusedExports.json'
-  );
-  const findUnusedExportsConfig = readJsonFile(
-    pathToFindUnusedExportsConfig,
-    overviewContext
-  );
+  const pathToFindUnusedExportsConfig = pathResolve(pathToPrj, '.findUnusedExports.json');
+  const findUnusedExportsConfig = readJsonFile(pathToFindUnusedExportsConfig, overviewContext);
   const includeFindUnusedExports2 = findUnusedExportsConfig?.include;
   const excludeFindUnusedExports2 = findUnusedExportsConfig?.exclude;
 
-  const includeFindUnusedExports = mixArrays(
-    includeFindUnusedExports1,
-    includeFindUnusedExports2
-  );
-  const excludeFindUnusedExports = mixArrays(
-    excludeFindUnusedExports1,
-    excludeFindUnusedExports2
-  );
+  const includeFindUnusedExports = mixArrays(includeFindUnusedExports1, includeFindUnusedExports2);
+  const excludeFindUnusedExports = mixArrays(excludeFindUnusedExports1, excludeFindUnusedExports2);
 
   if (!baseUrl && paths) {
-    log(
-      'Warning: compilerOptions.paths requires compilerOptions.baseUrl which is not defined'
-    );
+    log('Warning: compilerOptions.paths requires compilerOptions.baseUrl which is not defined');
   }
 
   const res: TContext = {
     allowJs,
     baseUrl: baseUrl ? pathResolve(pathToPrj, baseUrl) : undefined,
-    exclude: getExclude(
-      pathToPrj,
-      mixArrays(exclude, excludeFindUnusedExports),
-      outDir
-    ),
-    files,
-    include: getInclude(
-      pathToPrj,
-      mixArrays(include, includeFindUnusedExports)
-    ),
+    exclude: getExclude(pathToPrj, excludeFindUnusedExports ?? exclude, excludeFindUnusedExports ? undefined : outDir),
+    files: includeFindUnusedExports ? undefined : files,
+    include: getInclude(pathToPrj, includeFindUnusedExports ?? include),
     main: main ? pathResolve(pathToPrj, main) : undefined,
     moduleSuffixes,
     overviewContext,
@@ -120,10 +95,7 @@ function mixArrays(a?: unknown, b?: unknown): string[] | undefined {
   return [...(a as string[]), ...(b as string[])];
 }
 
-function getInclude(
-  pathToPrj: string,
-  include?: string[]
-): string[] | undefined {
+function getInclude(pathToPrj: string, include?: string[]): string[] | undefined {
   if (include === undefined) {
     return;
   }
@@ -132,11 +104,7 @@ function getInclude(
   return includeDirs;
 }
 
-function getExclude(
-  pathToPrj: string,
-  exclude?: string[],
-  outDir?: string
-): string[] | undefined {
+function getExclude(pathToPrj: string, exclude?: string[], outDir?: string): string[] | undefined {
   if (exclude) {
     const excludeDirs = exclude.map((dir) => getGlobDir(pathToPrj, dir));
 
@@ -147,11 +115,7 @@ function getExclude(
     return excludeDirs;
   }
 
-  const defaultExcludeDirs = [
-    'node_modules/**/*',
-    'bower_components/**/*',
-    'jspm_packages/**/*',
-  ];
+  const defaultExcludeDirs = ['node_modules/**/*', 'bower_components/**/*', 'jspm_packages/**/*'];
   if (outDir) {
     defaultExcludeDirs.push(`${outDir}/**/*`);
   }
@@ -160,7 +124,5 @@ function getExclude(
 
 function getGlobDir(pathToPrj: string, fsPath: string): string {
   const dir = pathResolve(pathToPrj, fsPath);
-  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory()
-    ? `${fsPath}/**/*`
-    : fsPath;
+  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory() ? `${fsPath}/**/*` : fsPath;
 }

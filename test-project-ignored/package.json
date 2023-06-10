@@ -10,6 +10,7 @@
   "license": "ISC",
   "findUnusedExports": {
     "include": [
+      "index.*",
       "./include/**/*.ts"
     ],
     "exclude": [
