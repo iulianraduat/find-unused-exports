@@ -40,7 +40,7 @@ export function getSourceFiles(pathToPrj: string, context: TContext): TTsFile[] 
 
   const res: TTsFile[] = [];
   if (files !== undefined) {
-    globFiles(res, pathToPrj, explicitFiles, globExclude, context.overviewContext);
+    globFiles(res, pathToPrj, explicitFiles, undefined, context.overviewContext);
   }
   if (include !== undefined) {
     globFiles(res, pathToPrj, includes, globExclude, context.overviewContext);

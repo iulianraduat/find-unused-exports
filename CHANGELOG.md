@@ -812,7 +812,7 @@ This extension assumes a set of default exclude folders:
 ### Breaking changes
 
 - If there are defined include rules in package.json or .findUnusedExports.json then
-  the default include glob rule and the include from tsconfig.json or jsconfig.json are no longer applied
+  the default include glob rule and the files and include from tsconfig.json or jsconfig.json are no longer applied
 
 - If there are defined exclude rules in package.json or .findUnusedExports.json then
   the default exclude glob rule and the exclude from tsconfig.json or jsconfig.json are no longer applied
