@@ -4,7 +4,11 @@ import { TNotUsed } from './notUsed';
 import { TRelation } from './relations';
 import { isResultExpanded } from './settings';
 
-export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[], ts?: number): [TNotUsed[], number] {
+export async function detectCircularImports(
+  relations: TRelation[],
+  nodes: TNotUsed[],
+  ts?: number
+): Promise<[TNotUsed[], number]> {
   if (isCircularImportsEnabled() === false) {
     return [nodes, 0];
   }
@@ -15,7 +19,8 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[],
     return [nodes, 0];
   }
 
-  const mapRelations: Record<string, string[]> = array2map4relations(optimizedRelations);
+  const mapRelations: Record<string, string[]> =
+    array2map4relations(optimizedRelations);
   const cycles = findCirculars(mapRelations);
   addCyclesToNodes(cycles, nodes);
 
@@ -24,7 +29,9 @@ export function detectCircularImports(relations: TRelation[], nodes: TNotUsed[],
 }
 
 export function isCircularImportsEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.detectCircularImports', false);
+  return vscode.workspace
+    .getConfiguration()
+    .get('findUnusedExports.detectCircularImports', false);
 }
 
 /* Relations */
@@ -43,10 +50,15 @@ function getOptimizedRelations(relations: TRelation[]): TRelation[] {
 function optimizeRelations(relations: TRelation[]): TRelation[] {
   return relations
     .map((rel) => toRelationImports(rel, relations))
-    .filter((rel) => rel !== undefined && hasRelationExports(rel)) as TRelation[];
+    .filter(
+      (rel) => rel !== undefined && hasRelationExports(rel)
+    ) as TRelation[];
 }
 
-function toRelationImports(relation: TRelation, relations: TRelation[]): TRelation | undefined {
+function toRelationImports(
+  relation: TRelation,
+  relations: TRelation[]
+): TRelation | undefined {
   const { imports } = relation;
   if (imports === undefined || imports.length === 0) {
     return undefined;
@@ -62,7 +74,11 @@ function toRelationImports(relation: TRelation, relations: TRelation[]): TRelati
 
 function hasRelationExports(relation: TRelation): boolean {
   const { exports } = relation;
-  if (exports === undefined || exports.used === undefined || exports.used.length === 0) {
+  if (
+    exports === undefined ||
+    exports.used === undefined ||
+    exports.used.length === 0
+  ) {
     return false;
   }
 
@@ -125,7 +141,10 @@ function addCyclesToNodes(cycles: string[][], nodes: TNotUsed[]): void {
   cycles.forEach((c) => addCycleToNodes(c, nodes));
 }
 
-function addCycleToNodes(circularImportsPath: string[], nodes: TNotUsed[]): void {
+function addCycleToNodes(
+  circularImportsPath: string[],
+  nodes: TNotUsed[]
+): void {
   const path = circularImportsPath.shift()!;
   if (circularImportsPath.length === 0) {
     return;

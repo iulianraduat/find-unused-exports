@@ -1,11 +1,11 @@
 import { log } from './log';
 import { TTsImport, TTsParsed, varNameRe } from './parsedFiles';
 
-export const getImports = (parsedFiles: TTsParsed[]): TImport[] => {
+export async function getImports(parsedFiles: TTsParsed[]): Promise<TImport[]> {
   const arr: TImport[] = [];
   parsedFiles.forEach(parseImport(arr));
   return arr;
-};
+}
 
 const parseImport =
   (arr: TImport[]) =>
@@ -14,17 +14,18 @@ const parseImport =
     imports.forEach(addParsedImports(arr, path));
   };
 
-const addParsedImports = (arr: TImport[], path: string) => (anImport: TTsImport) => {
-  const { name, path: fromPath } = anImport;
-  const names = getImportedNames(name);
-  names.forEach((name) =>
-    arr.push({
-      inPath: path,
-      name,
-      fromPath,
-    })
-  );
-};
+const addParsedImports =
+  (arr: TImport[], path: string) => (anImport: TTsImport) => {
+    const { name, path: fromPath } = anImport;
+    const names = getImportedNames(name);
+    names.forEach((name) =>
+      arr.push({
+        inPath: path,
+        name,
+        fromPath,
+      })
+    );
+  };
 
 const defaultOrGroupRe = new RegExp(`${varNameRe}|\\*|,|\\{[^\\}]*\\}`, 'gi');
 const varNameInGroupRe = new RegExp(`${varNameRe}|,}`, 'gi');

@@ -2,11 +2,14 @@ import { TTsParsed, TTsExport, varNameRe } from './parsedFiles';
 import { TImport } from './imports';
 import { log } from './log';
 
-export const getExports = (parsedFiles: TTsParsed[], imports: TImport[]): TExport[] => {
+export async function getExports(
+  parsedFiles: TTsParsed[],
+  imports: TImport[]
+): Promise<TExport[]> {
   const arr: TExport[] = [];
   parsedFiles.forEach(parseExport(arr, imports));
   return arr;
-};
+}
 
 const parseExport =
   (arr: TExport[], imports: TImport[]) =>
@@ -15,20 +18,22 @@ const parseExport =
     exports.forEach(addParsedExports(arr, imports, path));
   };
 
-const addParsedExports = (arr: TExport[], imports: TImport[], path: string) => (anExport: TTsExport) => {
-  const { name, path: fromPath } = anExport;
+const addParsedExports =
+  (arr: TExport[], imports: TImport[], path: string) =>
+  (anExport: TTsExport) => {
+    const { name, path: fromPath } = anExport;
 
-  const names = getExportedNames(name);
-  names.forEach((name) => {
-    const isUsed = isItUsed(path, name, imports);
-    arr.push({
-      inPath: path,
-      name,
-      fromPath,
-      isUsed,
+    const names = getExportedNames(name);
+    names.forEach((name) => {
+      const isUsed = isItUsed(path, name, imports);
+      arr.push({
+        inPath: path,
+        name,
+        fromPath,
+        isUsed,
+      });
     });
-  });
-};
+  };
 
 const groupRe = new RegExp(`${varNameRe}|\\{[^}]+\\}`, 'g');
 const varNameInGroupRe = new RegExp(varNameRe, 'g');
@@ -64,8 +69,11 @@ const getExportedNames = (name: string): string[] => {
 };
 
 const isItUsed = (path: string, name: string, imports: TImport[]): boolean =>
-  imports.find((anImport) => anImport.fromPath === path && (anImport.name === name || anImport.name === '*')) !==
-  undefined;
+  imports.find(
+    (anImport) =>
+      anImport.fromPath === path &&
+      (anImport.name === name || anImport.name === '*')
+  ) !== undefined;
 
 export interface TExport {
   inPath: string;

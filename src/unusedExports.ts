@@ -4,6 +4,7 @@ import { Core, FileDataType } from './core';
 import { Provider } from './provider';
 import { DependencyType, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
+import { pathResolve } from './unused-exports/fsUtils';
 
 export class UnusedExportsProvider extends Provider {
   constructor(cores: Core[]) {
@@ -27,7 +28,7 @@ function mapFile2Dependency(
   const { filePath, isCompletelyUnused, notUsedExports } = node;
 
   const pathToPrj = parent.core?.getOverviewContext().pathToPrj;
-  const absFilePath = pathToPrj ? path.resolve(pathToPrj, filePath) : filePath;
+  const absFilePath = pathToPrj ? pathResolve(pathToPrj, filePath) : filePath;
 
   const row = new TDependency(
     parent,

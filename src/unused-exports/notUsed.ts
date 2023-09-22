@@ -1,7 +1,7 @@
 import { TRelation } from './relations';
 import { isResultExpanded } from './settings';
 
-export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
+export async function getNotUsed(relations: TRelation[]): Promise<TNotUsed[]> {
   const nodes: TNotUsed[] = [];
 
   relations.forEach((rel) => {
@@ -27,9 +27,10 @@ export const getNotUsed = (relations: TRelation[]): TNotUsed[] => {
     nodes.push(node);
   });
   return nodes;
-};
+}
 
-export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath);
+export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number =>
+  a.filePath.localeCompare(b.filePath);
 
 export interface TNotUsed {
   circularImports?: string[];

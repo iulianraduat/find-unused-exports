@@ -18,7 +18,9 @@ export interface TTsImport {
   path: string;
 }
 
-export const getParsedFiles = (files: TTsFile[]): TTsParsed[] => files.map(parseFile);
+export async function getParsedFiles(files: TTsFile[]): Promise<TTsParsed[]> {
+  return files.map(parseFile);
+}
 
 function parseFile(file: TTsFile): TTsParsed {
   let ts = log('Parse file', file.path);
@@ -39,11 +41,15 @@ function parseFile(file: TTsFile): TTsParsed {
 
 const fileNameRe = `("[^"\\s]+"|'[^'\\s]+'|\`[^\`\\s]+\`)`;
 /* we need to remove the above start and end quotes */
-const fixPath = (path: string) => (path.length >= 3 ? path.substring(1, path.length - 1) : '');
+const fixPath = (path: string) =>
+  path.length >= 3 ? path.substring(1, path.length - 1) : '';
 
 const validIECharsRe = `(?:\\b[*_$a-zA-Z0-9{,}\\s\r\n]+?)`;
 const importExportFromRegex = [
-  new RegExp(`\\bimport(?:\\s+type)?\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
+  new RegExp(
+    `\\bimport(?:\\s+type)?\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`,
+    'g'
+  ),
   new RegExp(`\\bexport\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
 ];
 
@@ -56,7 +62,8 @@ const exactAllValidNamesRe = new RegExp(`^${allValidNamesRe}$`);
 const spacesRe = new RegExp(`\\s+|\r|\n`, 'g');
 const typeSpacesRe = new RegExp(`\\btype(?:\\s+|\r|\n)`, 'g');
 const removeSpaces = (txt: string) => txt.replace(spacesRe, '');
-const removeTypeSpaces = (txt: string) => removeSpaces(txt.replace(typeSpacesRe, ''));
+const removeTypeSpaces = (txt: string) =>
+  removeSpaces(txt.replace(typeSpacesRe, ''));
 
 const importRequireRegexps = [
   new RegExp(`\\b(?:import|require)\\s*${fileNameRe}`, 'g'),
@@ -94,17 +101,27 @@ function getImports(content: string): TTsImport[] {
 
 const individualExportRegexps = [
   new RegExp(`\\bexport\\s+(default)\\s`, 'g'),
-  new RegExp(`\\bexport\\s+(?:class|const|let|var|enum|type|interface|function\\*?)\\s+(${varNameRe})`, 'g'),
+  new RegExp(
+    `\\bexport\\s+(?:class|const|let|var|enum|type|interface|function\\*?)\\s+(${varNameRe})`,
+    'g'
+  ),
 ];
 
-const destructuredExportsRegexps = [new RegExp(`\\bexport\\s+(?:const|let|var)\\s+\\{\\s*([^}]+)\\s*\\}`, 'g')];
+const destructuredExportsRegexps = [
+  new RegExp(`\\bexport\\s+(?:const|let|var)\\s+\\{\\s*([^}]+)\\s*\\}`, 'g'),
+];
 const varNameColonRe = new RegExp(`${varNameRe}\\s*:\\s*`, 'gi');
 
-const exportListRegexps = [new RegExp(`\\bexport\\s*(\\{\\s*[^}]+\\s*\\})`, 'g')];
+const exportListRegexps = [
+  new RegExp(`\\bexport\\s*(\\{\\s*[^}]+\\s*\\})`, 'g'),
+];
 const varNameAsRe = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
 
 const aggregatedExportsRegexps = [
-  new RegExp(`\\bexport\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+)?)\\s*from\\s*${fileNameRe}`, 'g'),
+  new RegExp(
+    `\\bexport\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+)?)\\s*from\\s*${fileNameRe}`,
+    'g'
+  ),
 ];
 const starAsRe = new RegExp(`\\*\\s*as\\s+`, 'gi');
 
@@ -125,7 +142,9 @@ function getExports(content: string): TTsExport[] {
   const matches2 = getMatches(destructuredExportsRegexps, content);
   matches2?.forEach((match) => {
     const [exportedNames] = match;
-    const exportedNamesWithoutColon = removeSpaces(exportedNames.replace(varNameColonRe, ''));
+    const exportedNamesWithoutColon = removeSpaces(
+      exportedNames.replace(varNameColonRe, '')
+    );
     res.push({
       name: exportedNamesWithoutColon,
       path: undefined,
@@ -136,7 +155,9 @@ function getExports(content: string): TTsExport[] {
   const matches3 = getMatches(exportListRegexps, content);
   matches3?.forEach((match) => {
     const [exportedNames] = match;
-    const exportedNamesWithoutAs = removeSpaces(exportedNames.replace(varNameAsRe, ''));
+    const exportedNamesWithoutAs = removeSpaces(
+      exportedNames.replace(varNameAsRe, '')
+    );
     res.push({
       name: exportedNamesWithoutAs,
       path: undefined,
@@ -147,7 +168,9 @@ function getExports(content: string): TTsExport[] {
   const matches4 = getMatches(aggregatedExportsRegexps, content);
   matches4?.forEach((match) => {
     const [exportedName, fromPath] = match;
-    const exportedNameWithoutAs = removeSpaces(exportedName.replace(starAsRe, ''));
+    const exportedNameWithoutAs = removeSpaces(
+      exportedName.replace(starAsRe, '')
+    );
     res.push({
       name: exportedNameWithoutAs,
       path: exportedNameWithoutAs === '*' ? fromPath : undefined,
@@ -157,7 +180,11 @@ function getExports(content: string): TTsExport[] {
   return res;
 }
 
-function getMatches(regexps: RegExp[], content: string, fixRe?: RegExp): string[][] | undefined {
+function getMatches(
+  regexps: RegExp[],
+  content: string,
+  fixRe?: RegExp
+): string[][] | undefined {
   const arr: string[][] = [];
   regexps.forEach((regexp) => {
     regexp.lastIndex = 0;
@@ -184,10 +211,13 @@ function getMatches(regexps: RegExp[], content: string, fixRe?: RegExp): string[
 }
 
 function isShowIgnoredExportsEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.showIgnoredExports', false);
+  return vscode.workspace
+    .getConfiguration()
+    .get('findUnusedExports.showIgnoredExports', false);
 }
 
-const reCommentExport = /\/\/\s*find-unused-exports:ignore-next-line-exports\b.*\r?\nexport\b.*/gm;
+const reCommentExport =
+  /\/\/\s*find-unused-exports:ignore-next-line-exports\b.*\r?\nexport\b.*/gm;
 const reCommentMultiLine = /\/\*.*?\*\//gs;
 const reCommentSingleLine = /\/\/.*/g;
 const reStringBacktick = /`[^`]+`/g;
@@ -197,5 +227,8 @@ function fixContent(content: string): string {
     newContent = newContent.replace(reCommentExport, '');
   }
 
-  return newContent.replace(reCommentMultiLine, '').replace(reCommentSingleLine, '').replace(reStringBacktick, '');
+  return newContent
+    .replace(reCommentMultiLine, '')
+    .replace(reCommentSingleLine, '')
+    .replace(reStringBacktick, '');
 }

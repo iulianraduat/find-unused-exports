@@ -5,9 +5,6 @@ import { OverviewContext } from './overviewContext';
 import { app } from './unused-exports/app';
 import { TNotUsed } from './unused-exports/notUsed';
 
-const cacheFiles: Record<string, TNotUsed[]> = {};
-const listeners: Record<string, Array<() => void>> = {};
-
 export class Core {
   private overviewContext: OverviewContext = {
     countGlobInclude: {},
@@ -24,16 +21,45 @@ export class Core {
     workspaceName: '',
   };
 
+  private cacheFiles?: TNotUsed[];
+  private listeners: Array<() => void> = [];
+  private lockRefresh: boolean = false;
+
   constructor(workspaceName: string, private workspaceRoot: string) {
     this.overviewContext.workspaceName = workspaceName;
     this.overviewContext.pathToPrj = workspaceRoot;
-    this.doAnalyse();
+  }
+
+  public registerListener(listener: () => void) {
+    if (!this.listeners) {
+      this.listeners = [];
+    }
+    this.listeners.push(listener);
+  }
+
+  public async refresh() {
+    if (this.lockRefresh) {
+      return;
+    }
+
+    // We announce all listeners that we refresh
+    this.lockRefresh = true;
+    this.cacheFiles = undefined;
+    this.listeners.forEach((listener) => listener());
+    await this.doAnalyse();
+    // It must happen before we inform the listeners otherwise isRefreshing is returning true
+    this.lockRefresh = false;
+    this.listeners.forEach((listener) => listener());
+  }
+
+  public isRefreshing() {
+    return this.lockRefresh;
   }
 
   private doAnalyse(): Promise<TNotUsed[] | undefined> {
     this.overviewContext.lastRun = new Date();
 
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
       if (this.pathExists(packageJsonPath) === false) {
         this.overviewContext.info = 'No package.json found in workspace';
@@ -42,28 +68,15 @@ export class Core {
       }
 
       /* We use the catched values */
-      if (cacheFiles[this.workspaceRoot]) {
-        resolve(cacheFiles[this.workspaceRoot]);
+      if (this.cacheFiles) {
+        resolve(this.cacheFiles);
         return;
       }
 
-      const files = app(this.workspaceRoot, this.overviewContext);
-      cacheFiles[this.workspaceRoot] = files;
+      const files = await app(this.workspaceRoot, this.overviewContext);
+      this.cacheFiles = files;
       resolve(files);
     });
-  }
-
-  public registerListener(listener: () => void) {
-    if (listeners[this.workspaceRoot] === undefined) {
-      listeners[this.workspaceRoot] = [];
-    }
-    listeners[this.workspaceRoot].push(listener);
-  }
-
-  public async refresh() {
-    delete cacheFiles[this.workspaceRoot];
-    await this.doAnalyse();
-    listeners[this.workspaceRoot].forEach((listener) => listener());
   }
 
   public getOverviewContext() {
@@ -71,10 +84,7 @@ export class Core {
   }
 
   public getFilesData(type: FileDataType): TNotUsed[] {
-    const cache = cacheFiles[this.workspaceRoot];
-    if (cache === undefined) {
-      return [];
-    }
+    const cache = this.cacheFiles ?? [];
 
     switch (type) {
       case FileDataType.CIRCULAR_IMPORTS:
@@ -139,6 +149,10 @@ export class Core {
 
     return true;
   }
+}
+
+export function someCoreRefreshing(cores: Array<Core>) {
+  return cores.some((core) => core.isRefreshing());
 }
 
 export enum FileDataType {

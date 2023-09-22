@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import { Core, FileDataType } from './core';
-import { idleStatusBarItem, spinStatusBarItem } from './statusBarItem';
+import { Core, FileDataType, someCoreRefreshing } from './core';
+import { Refreshing } from './refreshing';
 import { DependencyType, TDependency } from './tdependency';
 import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
@@ -11,7 +11,6 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
   /* We need to have it also undefined as an empty array means that the user removed all entries */
   private cacheFolders: TDependency[] | undefined;
   private cacheHidden: string[];
-  private lockRefresh: boolean;
   private dependencyType: DependencyType;
 
   protected isNotHidden = (node: TDependency): boolean => {
@@ -37,15 +36,18 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     private allowCollapseRoot: boolean
   ) {
     this.cacheHidden = [];
-    this.lockRefresh = false;
     this.dependencyType = getDependencyTypeFrom(fileDataType);
 
     cores.forEach((core) => core.registerListener(this.refresh));
-    this.refresh();
   }
 
   public refresh = () => {
-    if (this.lockRefresh) {
+    this.cacheHidden = [];
+
+    const someRefreshing = someCoreRefreshing(this.cores);
+    if (someRefreshing) {
+      this.cacheFolders = [Refreshing];
+      this._onDidChangeTreeData.fire(undefined);
       return;
     }
 
@@ -55,9 +57,6 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       this._onDidChangeTreeData.fire(undefined);
       return;
     }
-
-    this.lockRefresh = true;
-    spinStatusBarItem();
 
     /* we need to give a chance to VSCode to update the status bar */
     const collapsibleState = isResultExpanded()
@@ -84,9 +83,6 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     this.cacheFolders.forEach((folder) => {
       folder.children = this.getFiles(folder);
     });
-
-    idleStatusBarItem();
-    this.lockRefresh = false;
 
     this.cacheHidden = [];
     this._onDidChangeTreeData.fire(undefined);
@@ -226,10 +222,10 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       this.cacheFolders?.length === 1 &&
       this.cacheFolders?.[0].children
     ) {
-      return Promise.resolve(this.cacheFolders?.[0].children || []);
+      return Promise.resolve(this.cacheFolders[0].children);
     }
 
-    return Promise.resolve(this.cacheFolders || []);
+    return Promise.resolve(this.cacheFolders ?? []);
   }
 
   private getHideParentNode(children: TDependency[] | undefined) {

@@ -9,6 +9,7 @@ export enum DependencyType {
   CIRCULAR_IMPORT,
   EMPTY,
   DISABLED,
+  REFRESH,
 }
 
 export class TDependency extends vscode.TreeItem {
@@ -62,13 +63,7 @@ export class TDependency extends vscode.TreeItem {
         return '';
       case DependencyType.FILE:
         return this.isCompletelyUnused ? 'not used' : '';
-      case DependencyType.UNUSED_EXPORT:
-        return undefined;
-      case DependencyType.CIRCULAR_IMPORT:
-        return undefined;
-      case DependencyType.EMPTY:
-        return undefined;
-      case DependencyType.DISABLED:
+      default:
         return undefined;
     }
   }
@@ -87,6 +82,8 @@ export class TDependency extends vscode.TreeItem {
         return new vscode.ThemeIcon('check');
       case DependencyType.DISABLED:
         return new vscode.ThemeIcon('circle-large-outline');
+      case DependencyType.REFRESH:
+        return new vscode.ThemeIcon('refresh');
     }
   }
 
@@ -101,20 +98,16 @@ export class TDependency extends vscode.TreeItem {
     switch (this.type) {
       case DependencyType.FOLDER:
         return this.core?.getOverviewContext().pathToPrj;
-      case DependencyType.FILE:
-        return undefined;
       case DependencyType.UNUSED_EXPORT:
         return 'not used export';
       case DependencyType.CIRCULAR_IMPORT:
         return 'circular import';
-      case DependencyType.EMPTY:
-        return '';
-      case DependencyType.DISABLED:
-        return '';
+      default:
+        return undefined;
     }
   }
 
-  private getContextValue(): string {
+  private getContextValue(): string | undefined {
     switch (this.type) {
       case DependencyType.FOLDER:
         return 'folder';
@@ -124,9 +117,7 @@ export class TDependency extends vscode.TreeItem {
         return 'notUsedExport';
       case DependencyType.CIRCULAR_IMPORT:
         return 'circularImport';
-      case DependencyType.EMPTY:
-        return 'nothingFound';
-      case DependencyType.DISABLED:
+      default:
         return 'nothingFound';
     }
   }

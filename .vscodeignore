@@ -10,5 +10,14 @@ vsc-extension-quickstart.md
 **/*.ts
 .history/**
 test-project-js/**
+test-project-ignored/**
+test-project-map-paths/**
 test-project-ts/**
 .history/
+ToDo.txt
+images/logo.svg
+images/screenshot.png
+find-unused-exports.code-workspace
+EXAMPLES.txt
+.findUnusedExports.json
+node_modules/**

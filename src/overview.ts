@@ -1,16 +1,18 @@
 import * as vscode from 'vscode';
-import { Core } from './core';
+import { Core, someCoreRefreshing } from './core';
 import { OverviewContext } from './overviewContext';
+import { Refreshing } from './refreshing';
+import { TDependency } from './tdependency';
 import { isResultExpanded } from './unused-exports/settings';
 
 export class OverviewProvider
-  implements vscode.TreeDataProvider<TOverviewEntry>
+  implements vscode.TreeDataProvider<TOverviewEntry | TDependency>
 {
   private _onDidChangeTreeData: vscode.EventEmitter<
-    TOverviewEntry | undefined
+    TOverviewEntry | TDependency | undefined
   > = new vscode.EventEmitter<TOverviewEntry | undefined>();
   public readonly onDidChangeTreeData: vscode.Event<
-    TOverviewEntry | undefined
+    TOverviewEntry | TDependency | undefined
   > = this._onDidChangeTreeData.event;
 
   constructor(private cores: Core[]) {
@@ -21,11 +23,17 @@ export class OverviewProvider
     this._onDidChangeTreeData.fire(undefined);
   };
 
+  public getParent() {
+    return undefined;
+  }
+
   public getTreeItem(element: TOverviewEntry): vscode.TreeItem {
     return element;
   }
 
-  public getChildren(element?: TOverviewEntry): Thenable<TOverviewEntry[]> {
+  public getChildren(
+    element?: TOverviewEntry
+  ): Thenable<Array<TOverviewEntry | TDependency>> {
     if (element?.type === OverviewEntryType.FOLDER) {
       return this.getChildFile(element);
     }
@@ -34,16 +42,13 @@ export class OverviewProvider
       return Promise.resolve([]);
     }
 
-    const contexts = this.cores.map((core) => core.getOverviewContext());
-    const rows = contexts.map(
-      (ctx) =>
-        new TOverviewEntry(
-          OverviewEntryType.FOLDER,
-          ctx.workspaceName,
-          'folder-opened',
-          ctx.info,
-          ctx
-        )
+    const someRefreshing = someCoreRefreshing(this.cores);
+    if (someRefreshing) {
+      return Promise.resolve([Refreshing]);
+    }
+
+    const rows = this.cores.map((core) =>
+      getOverviewNode(core.getOverviewContext())
     );
 
     /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
@@ -192,6 +197,16 @@ function getCollapsibleState(
   return isResultExpanded()
     ? vscode.TreeItemCollapsibleState.Expanded
     : vscode.TreeItemCollapsibleState.Collapsed;
+}
+
+function getOverviewNode(ctx: OverviewContext): TOverviewEntry {
+  return new TOverviewEntry(
+    OverviewEntryType.FOLDER,
+    ctx.workspaceName,
+    'folder-opened',
+    ctx.info,
+    ctx
+  );
 }
 
 enum OverviewEntryType {

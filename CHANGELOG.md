@@ -813,7 +813,6 @@ This extension assumes a set of default exclude folders:
 
 - If there are defined include rules in package.json or .findUnusedExports.json then
   the default include glob rule and the files and include from tsconfig.json or jsconfig.json are no longer applied
-
 - If there are defined exclude rules in package.json or .findUnusedExports.json then
   the default exclude glob rule and the exclude from tsconfig.json or jsconfig.json are no longer applied
 
@@ -834,3 +833,18 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.1.1 (2023-09-22)
+
+### Added
+
+- Nothing
+
+### Changes
+
+- Displays in view when it is doing the refresh
+- Drastically reduced the size of the file packing this extension
+
+### Removed
+
+- The "Find unused exports" in status bar
