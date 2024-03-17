@@ -858,6 +858,7 @@ This extension assumes a set of default exclude folders:
 ### Changes
 
 - Fixed the detection of not used types from `export { type TYPE }`
+- Fixed the detection of not used types from `export type { TYPE }`
 
 ### Removed
 

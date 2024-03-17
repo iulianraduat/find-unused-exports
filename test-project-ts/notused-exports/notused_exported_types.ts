@@ -24,8 +24,4 @@ function Z_NotUsed() {
   //
 }
 
-export type {
-  X_NotUsed as A_NotUsed2,
-  Y_NotUsed as B_NotUsed2,
-  Z_NotUsed as C_NotUsed2,
-};
+export type { X_NotUsed, Y_NotUsed as S_NotUsed, Z_NotUsed as T_NotUsed };

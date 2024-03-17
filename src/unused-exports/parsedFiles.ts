@@ -46,8 +46,9 @@ const fixPath = (path: string) =>
 
 const validIECharsRe = `(?:\\b[*_$a-zA-Z0-9{,}\\s\r\n]+?)`;
 const importExportFromRegex = [
+  new RegExp(`\\bimport\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
   new RegExp(
-    `\\bimport(?:\\s+type)?\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`,
+    `\\bimport\\s+type\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`,
     'g'
   ),
   new RegExp(`\\bexport\\s*(${validIECharsRe})\\s*from\\s*${fileNameRe}`, 'g'),
@@ -114,13 +115,15 @@ const varNameColonRe = new RegExp(`${varNameRe}\\s*:\\s*`, 'gi');
 
 const exportListRegexps = [
   new RegExp(`\\bexport\\s*(\\{\\s*[^}]+\\s*\\})`, 'g'),
+  new RegExp(`\\bexport\\s+type\\s*(\\{\\s*[^}]+\\s*\\})`, 'g'),
 ];
 const varNameAsRe = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
 const typePrefixingTypeRe = new RegExp(`\\btype\\s+`, 'gi');
 
 const aggregatedExportsRegexps = [
+  new RegExp(`\\bexport\\s*(\\*)\\s*from\\s*${fileNameRe}`, 'g'),
   new RegExp(
-    `\\bexport\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+)?)\\s*from\\s*${fileNameRe}`,
+    `\\bexport\\s*(\\*(?:\\s*as\\s+${varNameRe}\\s+))\\s*from\\s*${fileNameRe}`,
     'g'
   ),
 ];
