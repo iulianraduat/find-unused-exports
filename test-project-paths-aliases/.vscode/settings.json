@@ -1,0 +1,5 @@
+{
+  "findUnusedExports.detectCircularImports": true,
+  "findUnusedExports.considerMainExportsUsed": true,
+  "findUnusedExports.debug": true
+}

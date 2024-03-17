@@ -18,15 +18,15 @@ export async function getOnlyProjectImports(
 ): Promise<TTsParsed[]> {
   const {
     allowJs,
-    baseUrl,
     moduleSuffixes = defaultModuleSuffixes,
     paths,
+    pathToBaseUrl,
   } = context;
 
   parsedFiles.forEach((tsParsed) => {
     const { path: filePath, imports } = tsParsed;
     const mapFn = makeImportAbs(
-      baseUrl,
+      pathToBaseUrl,
       path.dirname(filePath),
       moduleSuffixes,
       paths,
@@ -44,7 +44,7 @@ function importValid(anImport: TTsImport | undefined): anImport is TTsImport {
 
 const makeImportAbs =
   (
-    baseUrl: string | undefined,
+    pathToBaseUrl: string,
     filePath: string,
     moduleSuffixes: string[],
     paths: TContext['paths'],
@@ -53,7 +53,7 @@ const makeImportAbs =
   (anImport: TTsImport): TTsImport | undefined => {
     const relPath = anImport.path;
 
-    if (baseUrl && paths) {
+    if (paths) {
       for (const key in paths) {
         const aliasPaths = paths[key];
         const keyPattern = wildcardToPattern(key);
@@ -65,7 +65,7 @@ const makeImportAbs =
         for (const mapPath of aliasPaths) {
           const replacement = mapPath.replace(/\*/g, '$1');
           const tryPath = relPath.replace(pattern, replacement);
-          const absPath = pathResolve(baseUrl, tryPath);
+          const absPath = pathResolve(pathToBaseUrl, tryPath);
           const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
           if (exactPath) {
             return {
@@ -77,8 +77,8 @@ const makeImportAbs =
       }
     }
 
-    const absPath = pathResolve(filePath, relPath);
-    const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
+    let absPath = pathResolve(filePath, relPath);
+    let exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
     if (exactPath) {
       return {
         ...anImport,
@@ -86,15 +86,13 @@ const makeImportAbs =
       };
     }
 
-    if (baseUrl) {
-      const absPath = pathResolve(baseUrl, relPath);
-      const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
-      if (exactPath) {
-        return {
-          ...anImport,
-          path: exactPath,
-        };
-      }
+    absPath = pathResolve(pathToBaseUrl, relPath);
+    exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs);
+    if (exactPath) {
+      return {
+        ...anImport,
+        path: exactPath,
+      };
     }
 
     return undefined;

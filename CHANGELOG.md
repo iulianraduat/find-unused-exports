@@ -853,12 +853,13 @@ This extension assumes a set of default exclude folders:
 
 ### Added
 
-- Nothing
+- Test project for aliased paths
 
 ### Changes
 
 - Fixed the detection of not used types from `export { type TYPE }`
 - Fixed the detection of not used types from `export type { TYPE }`
+- Fixed the detection of paths aliases usage
 
 ### Removed
 

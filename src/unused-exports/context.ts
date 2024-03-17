@@ -1,17 +1,16 @@
 import * as fs from 'fs';
 import { OverviewContext } from '../overviewContext';
 import { pathResolve, readJsonFile } from './fsUtils';
-import { log } from './log';
 
 export interface TContext {
   allowJs?: boolean;
-  baseUrl?: string;
   exclude?: string[];
   files?: string[];
   include?: string[];
   main?: string;
   moduleSuffixes?: string[];
   overviewContext: OverviewContext;
+  pathToBaseUrl: string;
   pathToPrj: string;
   paths?: Record<string, Array<string>>;
 }
@@ -71,15 +70,8 @@ export async function makeContext(
     excludeFindUnusedExports2
   );
 
-  if (!baseUrl && paths) {
-    log(
-      'Warning: compilerOptions.paths requires compilerOptions.baseUrl which is not defined'
-    );
-  }
-
   const res: TContext = {
     allowJs,
-    baseUrl: baseUrl ? pathResolve(pathToPrj, baseUrl) : undefined,
     exclude: getExclude(
       pathToPrj,
       excludeFindUnusedExports ?? exclude,
@@ -90,9 +82,9 @@ export async function makeContext(
     main: main ? pathResolve(pathToPrj, main) : undefined,
     moduleSuffixes,
     overviewContext,
+    pathToBaseUrl: baseUrl ? pathResolve(pathToPrj, baseUrl) : pathToPrj,
     pathToPrj,
-    // paths requires baseUrl to be defined
-    paths: baseUrl ? paths : undefined,
+    paths,
   };
   return res;
 }
