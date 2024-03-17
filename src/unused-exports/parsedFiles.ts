@@ -116,6 +116,7 @@ const exportListRegexps = [
   new RegExp(`\\bexport\\s*(\\{\\s*[^}]+\\s*\\})`, 'g'),
 ];
 const varNameAsRe = new RegExp(`${varNameRe}\\s+as\\s+`, 'gi');
+const typePrefixingTypeRe = new RegExp(`\\btype\\s+`, 'gi');
 
 const aggregatedExportsRegexps = [
   new RegExp(
@@ -155,11 +156,11 @@ function getExports(content: string): TTsExport[] {
   const matches3 = getMatches(exportListRegexps, content);
   matches3?.forEach((match) => {
     const [exportedNames] = match;
-    const exportedNamesWithoutAs = removeSpaces(
-      exportedNames.replace(varNameAsRe, '')
+    const names = removeSpaces(
+      exportedNames.replace(varNameAsRe, '').replace(typePrefixingTypeRe, '')
     );
     res.push({
-      name: exportedNamesWithoutAs,
+      name: names,
       path: undefined,
     });
   });

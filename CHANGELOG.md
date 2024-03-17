@@ -848,3 +848,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - The "Find unused exports" in status bar
+
+## 2.1.2 (2024-03-17)
+
+### Added
+
+- Nothing
+
+### Changes
+
+- Fixed the detection of not used types from `export { type TYPE }`
+
+### Removed
+
+- Nothing

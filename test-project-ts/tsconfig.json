@@ -6,7 +6,8 @@
     "lib": ["es6"],
     "sourceMap": true,
     "rootDir": ".",
-    "moduleSuffixes": ["notext", ".native", ""]
+    "moduleSuffixes": ["notext", ".native", ""],
+    "isolatedModules": true
   },
   "files": ["index.ts"],
   "include": ["./**/*"],
