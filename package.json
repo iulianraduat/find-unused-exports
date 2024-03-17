@@ -36,17 +36,17 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "10.3.5"
+    "glob": "10.3.10"
   },
   "devDependencies": {
     "@types/node": "16.18.35",
     "@types/vscode": "1.75.0",
     "@typescript-eslint/eslint-plugin": "5.59.9",
     "@typescript-eslint/parser": "5.59.9",
-    "esbuild": "0.18.0",
-    "eslint": "8.42.0",
-    "rimraf": "5.0.1",
-    "typescript": "5.2.2"
+    "esbuild": "0.20.2",
+    "eslint": "8.57.0",
+    "rimraf": "5.0.5",
+    "typescript": "5.4.2"
   },
   "categories": [
     "Linters"
