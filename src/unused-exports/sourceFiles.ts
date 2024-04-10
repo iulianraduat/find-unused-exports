@@ -20,7 +20,7 @@ export async function getSourceFiles(
   const globRegexp = getGlobRegexp(allowJs);
   const globExclude = fixPaths(exclude);
   const globExcludeExtended = fixPaths([...defaultExclude, ...exclude]);
-  const explicitFiles = getRoots(files);
+  const explicitFiles = files ? getRoots(files) : undefined;
   const globInclude = getRoots(include, globRegexp);
 
   context.overviewContext.pathToPrj = pathToPrj;
@@ -44,15 +44,14 @@ export async function getSourceFiles(
   const includes = include
     ? globInclude.map((gi) => applyGlob(gi, globRegexp))
     : [];
-  const includeGlobs: string[] = files
-    ? [...explicitFiles, ...includes]
-    : includes;
+  const includeGlobs: string[] =
+    files && explicitFiles ? [...explicitFiles, ...includes] : includes;
   context.overviewContext.globInclude = includeGlobs;
   context.overviewContext.globExclude = globExclude;
   context.overviewContext.numDefaultExclude = undefined;
 
   const res: TTsFile[] = [];
-  if (files !== undefined) {
+  if (explicitFiles !== undefined) {
     globFiles(
       res,
       pathToPrj,
@@ -129,16 +128,16 @@ function globFile(
   globIgnore: string[] | undefined,
   ctx: OverviewContext
 ) {
-  log('Using glob rule', pathResolve(pathToFolder, globRegexp));
+  log('📂 Using glob rule', pathResolve(pathToFolder, globRegexp));
   globIgnore &&
     log(
-      'And glob ignore rules',
+      '📁 And glob ignore rules',
       globIgnore.map((aGlobIgnore) => pathResolve(pathToFolder, aGlobIgnore))
     );
   let count = 0;
   globSync(globRegexp, pathToFolder, globIgnore).filter((f: string) => {
     const source = pathResolve(pathToFolder, f);
-    log('Found source file', source);
+    log('└ Found source file', source);
     res.push({ path: source });
     count++;
   });

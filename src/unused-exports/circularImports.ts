@@ -15,7 +15,7 @@ export async function detectCircularImports(
 
   const optimizedRelations = getOptimizedRelations(relations);
   if (optimizedRelations.length === 0) {
-    log('Found circular imports', 0, ts);
+    log('🎯 Found circular imports', 0, ts);
     return [nodes, 0];
   }
 
@@ -24,7 +24,7 @@ export async function detectCircularImports(
   const cycles = findCirculars(mapRelations);
   addCyclesToNodes(cycles, nodes);
 
-  log('Found circular imports', cycles.length, ts);
+  log('🎯 Found circular imports', cycles.length, ts);
   return [nodes, cycles.length];
 }
 

@@ -879,3 +879,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.1.4 (2024-04-10)
+
+### Added
+
+- Nothing
+
+### Changes
+
+- Added emojies to output messages
+
+### Removed
+
+- Nothing

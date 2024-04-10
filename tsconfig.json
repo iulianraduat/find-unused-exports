@@ -12,6 +12,7 @@
     // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
     "noUnusedParameters": true /* Report errors on unused parameters. */
   },
+  "files": ["src/extension.ts"],
   "include": ["src/**/*"],
   "exclude": ["node_modules", ".vscode-test", ".history"]
 }

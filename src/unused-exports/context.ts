@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { OverviewContext } from '../overviewContext';
 import { pathResolve, readJsonFile } from './fsUtils';
+import { log } from './log';
 
 export interface TContext {
   allowJs?: boolean;
@@ -26,9 +27,13 @@ export async function makeContext(
   const pathToTsconfig = pathResolve(pathToPrj, 'tsconfig.json');
   const pathToJsconfig = pathResolve(pathToPrj, 'jsconfig.json');
   let tsconfig = readJsonFile(pathToTsconfig, overviewContext);
+  if (tsconfig) {
+    log('⚙️ Loading configuration from', pathToTsconfig);
+  }
   if (tsconfig === undefined) {
     tsconfig = readJsonFile(pathToJsconfig, overviewContext);
     if (tsconfig) {
+      log('⚙️ Loading config from', pathToJsconfig);
       const { compilerOptions = {} } = tsconfig;
       tsconfig.compilerOptions = {
         ...compilerOptions,
@@ -49,6 +54,9 @@ export async function makeContext(
   const main = packageJson?.main;
   const includeFindUnusedExports1 = packageJson?.findUnusedExports?.include;
   const excludeFindUnusedExports1 = packageJson?.findUnusedExports?.exclude;
+  if (includeFindUnusedExports1 || excludeFindUnusedExports1) {
+    log('⚙️ Loading findUnusedExports configuration from', pathToPackageJson);
+  }
 
   const pathToFindUnusedExportsConfig = pathResolve(
     pathToPrj,
@@ -60,6 +68,12 @@ export async function makeContext(
   );
   const includeFindUnusedExports2 = findUnusedExportsConfig?.include;
   const excludeFindUnusedExports2 = findUnusedExportsConfig?.exclude;
+  if (includeFindUnusedExports2 || excludeFindUnusedExports2) {
+    log(
+      '⚙️ Loading findUnusedExports configuration from',
+      pathToFindUnusedExportsConfig
+    );
+  }
 
   const includeFindUnusedExports = mixArrays(
     includeFindUnusedExports1,

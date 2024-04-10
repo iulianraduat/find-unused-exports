@@ -23,15 +23,15 @@ export async function getParsedFiles(files: TTsFile[]): Promise<TTsParsed[]> {
 }
 
 function parseFile(file: TTsFile): TTsParsed {
-  let ts = log('Parse file', file.path);
+  let ts = log('📑 Parse file', file.path);
   const content = readFile(file.path);
   /* we want to ignore any import/export present in a comment */
   const fixedContent = fixContent(content);
-  ts = log('Normalizing the content took', undefined, ts);
+  ts = log('└ Normalizing the content took', undefined, ts);
   const imports = getImports(fixedContent);
-  ts = log('Found imports', imports.length, ts);
+  ts = log('└ Found imports', imports.length, ts);
   const exports = getExports(fixedContent);
-  log('Found exports', exports.length, ts);
+  log('└ Found exports', exports.length, ts);
   return {
     ...file,
     exports,
