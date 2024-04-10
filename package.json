@@ -2,20 +2,20 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
   "homepage": "https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iulian-radu-at/find-unused-exports"
+    "url": "https://github.com/iulianraduat/find-unused-exports"
   },
   "bugs": {
-    "url": "https://github.com/iulian-radu-at/find-unused-exports/issues"
+    "url": "https://github.com/iulianraduat/find-unused-exports/issues"
   },
   "sponsor": {
-    "url": "https://www.patreon.com/iulian_radu_at"
+    "url": "https://www.patreon.com/iulianraduat"
   },
   "engines": {
     "vscode": "^1.75.0"
@@ -26,7 +26,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node --target=es6",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-2.1.2.vsix",
+    "install:local": "code --install-extension find-unused-exports-2.1.3.vsix",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",

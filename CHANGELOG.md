@@ -865,3 +865,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.1.3 (2024-04-10)
+
+### Added
+
+- Nothing
+
+### Changes
+
+- Updated the links
+
+### Removed
+
+- Nothing
