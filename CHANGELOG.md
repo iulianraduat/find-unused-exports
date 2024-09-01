@@ -893,3 +893,20 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.1.5 (2024-09-01)
+
+### Added
+
+- Write in log the list of unused exports
+
+### Changes
+
+- Fixed the number of not used exports reported in logs
+- The link for support
+- Updated the packages
+- Optimized the imports
+
+### Removed
+
+- Nothing

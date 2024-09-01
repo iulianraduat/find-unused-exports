@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { workspace } from 'vscode';
 import { log } from './log';
 import { TNotUsed } from './notUsed';
 import { TRelation } from './relations';
@@ -29,7 +29,7 @@ export async function detectCircularImports(
 }
 
 export function isCircularImportsEnabled(): boolean {
-  return vscode.workspace
+  return workspace
     .getConfiguration()
     .get('findUnusedExports.detectCircularImports', false);
 }

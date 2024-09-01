@@ -1,6 +1,12 @@
 'use strict';
 
-import * as vscode from 'vscode';
+import {
+  commands,
+  Disposable,
+  ExtensionContext,
+  window,
+  workspace,
+} from 'vscode';
 import { CircularImportsProvider } from './circularImports';
 import { Core } from './core';
 import { OverviewProvider } from './overview';
@@ -9,10 +15,10 @@ import { showOutputWindow } from './unused-exports/log';
 import { UnusedExportsProvider } from './unusedExports';
 
 // find-unused-exports:ignore-next-line-exports
-export function activate(context: vscode.ExtensionContext) {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
+export function activate(context: ExtensionContext) {
+  const workspaceFolders = workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    vscode.window.showInformationMessage('We cannot check an empty workspace!');
+    window.showInformationMessage('We cannot check an empty workspace!');
     return;
   }
 
@@ -21,42 +27,36 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const overviewProvider = new OverviewProvider(cores);
-  vscode.window.registerTreeDataProvider('overview', overviewProvider);
+  window.registerTreeDataProvider('overview', overviewProvider);
 
   const unusedExportsProvider = new UnusedExportsProvider(cores);
-  vscode.window.registerTreeDataProvider(
-    'unusedExports',
-    unusedExportsProvider
-  );
+  window.registerTreeDataProvider('unusedExports', unusedExportsProvider);
 
   const circularImportsProvider = new CircularImportsProvider(cores);
-  vscode.window.registerTreeDataProvider(
-    'circularImports',
-    circularImportsProvider
-  );
+  window.registerTreeDataProvider('circularImports', circularImportsProvider);
 
-  let disposable: vscode.Disposable;
-  disposable = vscode.commands.registerCommand('unusedExports.refresh', () =>
+  let disposable: Disposable;
+  disposable = commands.registerCommand('unusedExports.refresh', () =>
     refreshAllCores(cores)
   );
   context.subscriptions.push(disposable);
 
-  disposable: vscode.Disposable;
-  disposable = vscode.commands.registerCommand(
+  disposable: Disposable;
+  disposable = commands.registerCommand(
     'unusedExports.refreshAndShowSideView',
     () => {
       refreshAllCores(cores);
-      vscode.commands.executeCommand('unusedExports.focus');
+      commands.executeCommand('unusedExports.focus');
     }
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand('unusedExports.showOutput', () =>
+  disposable = commands.registerCommand('unusedExports.showOutput', () =>
     showOutputWindow()
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.expandAllUnusedExports',
     () => {
       unusedExportsProvider.expandAll();
@@ -64,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.collapseAllUnusedExports',
     () => {
       unusedExportsProvider.collapseAll();
@@ -72,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.expandAllCircularImports',
     () => {
       circularImportsProvider.expandAll();
@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.collapseAllCircularImports',
     () => {
       circularImportsProvider.collapseAll();
@@ -88,10 +88,10 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.enableCircularImports',
     () => {
-      vscode.workspace
+      workspace
         .getConfiguration()
         .update('findUnusedExports.detectCircularImports', true)
         .then(() => refreshAllCores(cores));
@@ -99,10 +99,10 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.disableCircularImports',
     () => {
-      vscode.workspace
+      workspace
         .getConfiguration()
         .update('findUnusedExports.detectCircularImports', false)
         .then(() => refreshAllCores(cores));
@@ -110,37 +110,37 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.openFile',
     (filePath: string) => Core.open(filePath)
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.hideFileOrExport',
     (node: TDependency) => unusedExportsProvider.hideFileOrExport(node)
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.ignoreFile',
     (node: TDependency) => unusedExportsProvider.ignoreFile(node)
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.hideFile',
     (node: TDependency) => circularImportsProvider.hideFileOrExport(node)
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.deleteFile',
     (node: TDependency) => unusedExportsProvider.deleteFile(node)
   );
   context.subscriptions.push(disposable);
 
-  disposable = vscode.commands.registerCommand(
+  disposable = commands.registerCommand(
     'unusedExports.findInFile',
     (filePath: string, unusedExportOrCircularImport: string) =>
       Core.findInFile(filePath, unusedExportOrCircularImport)

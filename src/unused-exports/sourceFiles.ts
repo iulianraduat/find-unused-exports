@@ -1,4 +1,4 @@
-import * as path from 'path';
+import { sep as pathSep } from 'path';
 import { addGlobInclude, OverviewContext } from '../overviewContext';
 import { TContext } from './context';
 import { getAdjustedPath, globSync, pathResolve } from './fsUtils';
@@ -78,8 +78,7 @@ function fixPaths(paths: string[]): string[] {
 
 const reBackslash = new RegExp('\\\\', 'g');
 function fixPath(filePath: string) {
-  const fsSep = path.sep;
-  switch (path.sep) {
+  switch (pathSep) {
     case '/':
       return filePath;
     case '\\':

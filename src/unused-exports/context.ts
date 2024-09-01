@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import { existsSync, lstatSync } from 'fs';
 import { OverviewContext } from '../overviewContext';
 import { pathResolve, readJsonFile } from './fsUtils';
 import { log } from './log';
@@ -163,7 +163,7 @@ function getExclude(
 
 function getGlobDir(pathToPrj: string, fsPath: string): string {
   const dir = pathResolve(pathToPrj, fsPath);
-  return fs.existsSync(dir) && fs.lstatSync(dir).isDirectory()
+  return existsSync(dir) && lstatSync(dir).isDirectory()
     ? `${fsPath}/**/*`
     : fsPath;
 }

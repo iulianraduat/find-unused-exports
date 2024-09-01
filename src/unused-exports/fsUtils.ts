@@ -1,6 +1,6 @@
-import * as fs from 'fs';
+import { existsSync, lstatSync, readFileSync } from 'fs';
 import { glob } from 'glob';
-import * as path from 'path';
+import { posix, resolve } from 'path';
 import { OverviewContext } from '../overviewContext';
 import { log } from './log';
 
@@ -8,12 +8,12 @@ export const readJsonFile = (
   path: string,
   overviewContext: OverviewContext
 ): { [kes: string]: any } | undefined => {
-  if (fs.existsSync(path) === false) {
+  if (existsSync(path) === false) {
     return undefined;
   }
 
   try {
-    let content = fs.readFileSync(path, 'utf8');
+    let content = readFileSync(path, 'utf8');
     /* we remove the comments from it */
     content = content.replace(
       /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
@@ -27,11 +27,11 @@ export const readJsonFile = (
   }
 };
 
-export const readFile = (path: string): string => fs.readFileSync(path, 'utf8');
+export const readFile = (path: string): string => readFileSync(path, 'utf8');
 
 export const isDirectory = (path: string): boolean => {
   try {
-    return fs.lstatSync(path).isDirectory();
+    return lstatSync(path).isDirectory();
   } catch (error) {
     return false;
   }
@@ -39,7 +39,7 @@ export const isDirectory = (path: string): boolean => {
 
 export const isFile = (path: string): boolean => {
   try {
-    return fs.lstatSync(path).isFile();
+    return lstatSync(path).isFile();
   } catch (error) {
     return false;
   }
@@ -50,7 +50,7 @@ export function getAdjustedPath(pathToPrj: string, globPath: string) {
 }
 
 export function pathResolve(...pathSegments: string[]): string {
-  const res = path.resolve(...pathSegments).replace(/\\/g, '/');
+  const res = resolve(...pathSegments).replace(/\\/g, '/');
   return fixDriverLetterCase(res);
 }
 
@@ -74,7 +74,7 @@ export function globSync(
   cwd: string = '.',
   globIgnore?: string[]
 ): string[] {
-  const ignore = globIgnore?.map(path.posix.normalize);
+  const ignore = globIgnore?.map(posix.normalize);
   const res = glob.sync(globRe, {
     cwd,
     ignore,

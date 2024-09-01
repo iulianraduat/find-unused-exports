@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { sep as pathSep } from 'path';
+import { workspace } from 'vscode';
 import { fixPathSeparator } from './fsUtils';
 
 interface TConfig {
@@ -20,7 +20,7 @@ function getConfig(): TConfig | undefined {
   }
 
   try {
-    const content = fs.readFileSync(configPath, 'utf8');
+    const content = readFileSync(configPath, 'utf8');
     const config: TConfig = JSON.parse(content);
     if (config.ignore.files && Array.isArray(config.ignore.files) === false) {
       throw new Error();
@@ -32,17 +32,17 @@ function getConfig(): TConfig | undefined {
 }
 
 function getConfigPath(): string | undefined {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
+  const workspaceFolders = workspace.workspaceFolders;
   if (workspaceFolders === undefined || workspaceFolders.length === 0) {
     return;
   }
 
   const rootPath = workspaceFolders[0].uri.fsPath;
-  const vscodePath = `${rootPath}${path.sep}.vscode`;
-  if (fs.existsSync(vscodePath) === false) {
-    fs.mkdirSync(vscodePath);
+  const vscodePath = `${rootPath}${pathSep}.vscode`;
+  if (existsSync(vscodePath) === false) {
+    mkdirSync(vscodePath);
   }
-  return `${vscodePath}${path.sep}find-unused-exports.json`;
+  return `${vscodePath}${pathSep}find-unused-exports.json`;
 }
 
 function getIgnoreFilenames(): string[] {
@@ -69,7 +69,7 @@ export function addToIgnoreFilenames(filePath: string): void {
 
   alreadyIgnoredFiles.push(fixedFilepath);
   const config: TConfig = { ignore: { files: alreadyIgnoredFiles } };
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  writeFileSync(configPath, JSON.stringify(config, null, 2));
 }
 
 export function isFileIgnored(filePath: string): boolean {

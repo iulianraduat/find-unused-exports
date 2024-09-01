@@ -1,4 +1,4 @@
-import * as path from 'path';
+import { delimiter } from 'path';
 import { OverviewContext } from '../overviewContext';
 import { detectCircularImports } from './circularImports';
 import { makeContext } from './context';
@@ -20,7 +20,7 @@ async function makePathRelativeToProject(
   relations: TRelation[],
   absPathToPrj: string
 ): Promise<void> {
-  const pathDelim = path.delimiter;
+  const pathDelim = delimiter;
   const len = absPathToPrj.length + pathDelim.length;
   relations.forEach((r) => {
     r.path = fixPath(r.path, len);
@@ -61,8 +61,16 @@ export async function app(
   ts = log('🎯 Analysed files', relations.length, ts);
   const notUsed = await getNotUsed(relations);
   const finalList = notUsed.sort(sortNotUsedFn);
-  const numNotUsedExports = finalList.length;
+  const numNotUsedExports = finalList.reduce(
+    (acc, { notUsedExports }) => acc + (notUsedExports?.length ?? 0),
+    0
+  );
   ts = log('🎯 Not used exports', numNotUsedExports, ts);
+  finalList.forEach(({ filePath, notUsedExports }) => {
+    notUsedExports?.forEach((name) =>
+      log('🎯 Not used export', `${filePath}: ${name}`)
+    );
+  }, 0);
 
   const [unusedExportsAndCircularImportsList, numCircularImports] =
     await detectCircularImports(relations, finalList, ts);

@@ -9,9 +9,7 @@ Automatically find all exports in typescript and javascript files which are not 
 
 ## Sponsorship
 
-Please consider sponsoring me through [Patreon](https://www.patreon.com/iulian_radu_at) so I can continue to have time to improve and create more useful tools for you.
-
-[$10/month or €10/month](https://www.patreon.com/iulianraduat) is a small amount which allows me to continue to help you all.
+By purchasing [Coding Guidelines for React with TypeScript](https://www.amazon.com/dp/B0DD3DNDY1) from any Amazon website, you will get a set of guidelines for writing a clean, maintainable, and efficient code. Also you will sponsor me, showing your appreciation for my effort in creating and mentaining this extension.
 
 ## Features
 

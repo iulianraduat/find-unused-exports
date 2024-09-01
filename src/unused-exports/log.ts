@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
+import { OutputChannel, window, workspace } from 'vscode';
+import { appendFileSync, existsSync, mkdirSync, rmSync } from 'fs';
+import { sep as pathSep } from 'path';
 
 export function resetLog() {
   if (isLogOnlyLastRunEnabled() === false) {
@@ -13,17 +13,23 @@ export function resetLog() {
   }
 
   try {
-    fs.rmSync(logPath);
+    rmSync(logPath);
   } catch {
     return;
   }
 }
 
 function isLogOnlyLastRunEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.logOnlyLastRun', false);
+  return workspace
+    .getConfiguration()
+    .get('findUnusedExports.logOnlyLastRun', false);
 }
 
-export function log(category: string, context?: any, ms1970Utc?: number): number {
+export function log(
+  category: string,
+  context?: any,
+  ms1970Utc?: number
+): number {
   const tsNow = Date.now();
 
   const debug = isDebugEnabled();
@@ -31,16 +37,19 @@ export function log(category: string, context?: any, ms1970Utc?: number): number
     return tsNow;
   }
 
-  const msg = context !== undefined ? `${category}: ${JSON.stringify(context, null, 2)}` : category;
+  const msg =
+    context !== undefined
+      ? `${category}: ${JSON.stringify(context, null, 2)}`
+      : category;
   logInVSCodeOutput(msg, ms1970Utc ? tsNow - ms1970Utc : undefined);
   return tsNow;
 }
 
 function isDebugEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.debug', false);
+  return workspace.getConfiguration().get('findUnusedExports.debug', false);
 }
 
-let ochannel: vscode.OutputChannel | undefined;
+let ochannel: OutputChannel | undefined;
 
 export function showOutputWindow() {
   ochannel?.show();
@@ -48,7 +57,7 @@ export function showOutputWindow() {
 
 function logInVSCodeOutput(msg: string, durationMs?: number) {
   if (!ochannel) {
-    ochannel = vscode.window.createOutputChannel('Find unused exports');
+    ochannel = window.createOutputChannel('Find unused exports');
   }
 
   const logMsg = durationMs !== undefined ? `${msg} (${durationMs}ms)` : msg;
@@ -64,27 +73,27 @@ function logInVSCodeOutput(msg: string, durationMs?: number) {
   }
 
   try {
-    fs.appendFileSync(logPath, logMsg);
-    fs.appendFileSync(logPath, '\n');
+    appendFileSync(logPath, logMsg);
+    appendFileSync(logPath, '\n');
   } catch {
     return;
   }
 }
 
 function isLogInFileEnabled(): boolean {
-  return vscode.workspace.getConfiguration().get('findUnusedExports.logInFile', false);
+  return workspace.getConfiguration().get('findUnusedExports.logInFile', false);
 }
 
 function getLogPath(): string | undefined {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
+  const workspaceFolders = workspace.workspaceFolders;
   if (workspaceFolders === undefined || workspaceFolders.length === 0) {
     return;
   }
 
   const rootPath = workspaceFolders[0].uri.fsPath;
-  const vscodePath = `${rootPath}${path.sep}.vscode`;
-  if (fs.existsSync(vscodePath) === false) {
-    fs.mkdirSync(vscodePath);
+  const vscodePath = `${rootPath}${pathSep}.vscode`;
+  if (existsSync(vscodePath) === false) {
+    mkdirSync(vscodePath);
   }
-  return `${vscodePath}${path.sep}find-unused-exports.log`;
+  return `${vscodePath}${pathSep}find-unused-exports.log`;
 }

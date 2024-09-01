@@ -1,4 +1,4 @@
-import * as path from 'path';
+import { dirname } from 'path';
 import { TContext } from './context';
 import {
   fixDriverLetterCase,
@@ -27,7 +27,7 @@ export async function getOnlyProjectImports(
     const { path: filePath, imports } = tsParsed;
     const mapFn = makeImportAbs(
       pathToBaseUrl,
-      path.dirname(filePath),
+      dirname(filePath),
       moduleSuffixes,
       paths,
       allowJs

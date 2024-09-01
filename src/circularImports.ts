@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { TreeItemCollapsibleState } from 'vscode';
 import { Core, FileDataType } from './core';
 import { Provider } from './provider';
 import { DependencyType, TDependency } from './tdependency';
@@ -22,7 +22,7 @@ export class CircularImportsProvider extends Provider {
 function mapFile2Dependency(
   parent: TDependency,
   node: TNotUsed,
-  collapsibleState: vscode.TreeItemCollapsibleState
+  collapsibleState: TreeItemCollapsibleState
 ): TDependency {
   const { filePath, circularImports } = node;
 
@@ -49,15 +49,27 @@ function mapFile2Dependency(
   return row;
 }
 
-function circularImportsInFile(pathToPrj: string | undefined, firstPathname: string, node: TDependency): TDependency[] {
+function circularImportsInFile(
+  pathToPrj: string | undefined,
+  firstPathname: string,
+  node: TDependency
+): TDependency[] {
   const mapFn = mapCircularImport2Dependency(pathToPrj, firstPathname, node);
   return node.circularImports?.map(mapFn) ?? [];
 }
 
-function mapCircularImport2Dependency(pathToPrj: string | undefined, firstPathname: string, parent: TDependency) {
+function mapCircularImport2Dependency(
+  pathToPrj: string | undefined,
+  firstPathname: string,
+  parent: TDependency
+) {
   return (circularImport: string, index: number): TDependency => {
     const absFilePath = resolvePath(pathToPrj, circularImport);
-    const nextImport = getNextImport(firstPathname, parent.circularImports, index);
+    const nextImport = getNextImport(
+      firstPathname,
+      parent.circularImports,
+      index
+    );
 
     return new TDependency(
       parent,
@@ -67,7 +79,7 @@ function mapCircularImport2Dependency(pathToPrj: string | undefined, firstPathna
       false,
       undefined,
       undefined,
-      vscode.TreeItemCollapsibleState.None,
+      TreeItemCollapsibleState.None,
       {
         command: 'unusedExports.findInFile',
         title: 'Find the circular import in file',
@@ -77,13 +89,18 @@ function mapCircularImport2Dependency(pathToPrj: string | undefined, firstPathna
   };
 }
 
-function getNextImport(firstPathname: string, circularImports: string[] | undefined, index: number): string {
+function getNextImport(
+  firstPathname: string,
+  circularImports: string[] | undefined,
+  index: number
+): string {
   if (circularImports === undefined) {
     return '';
   }
 
   index++;
-  const pathname = index < circularImports.length ? circularImports[index] : firstPathname;
+  const pathname =
+    index < circularImports.length ? circularImports[index] : firstPathname;
   return getFileBaseName(pathname);
 }
 

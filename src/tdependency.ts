@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
+import { join as pathJoin } from 'path';
+import { Command, ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode';
 import { Core } from './core';
 
 export enum DependencyType {
@@ -12,7 +12,7 @@ export enum DependencyType {
   REFRESH,
 }
 
-export class TDependency extends vscode.TreeItem {
+export class TDependency extends TreeItem {
   public absFilePath?: string;
   public children?: TDependency[];
   private _core?: Core;
@@ -25,9 +25,8 @@ export class TDependency extends vscode.TreeItem {
     private readonly isCompletelyUnused?: boolean,
     public readonly notUsedExports?: string[],
     public readonly circularImports?: string[],
-    public collapsibleState: vscode.TreeItemCollapsibleState = vscode
-      .TreeItemCollapsibleState.None,
-    public readonly command?: vscode.Command
+    public collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None,
+    public readonly command?: Command
   ) {
     super(label, collapsibleState);
 
@@ -44,8 +43,8 @@ export class TDependency extends vscode.TreeItem {
 
     this.id = this.id + (isExpanded ? 1 : 0);
     this.collapsibleState = isExpanded
-      ? vscode.TreeItemCollapsibleState.Expanded
-      : vscode.TreeItemCollapsibleState.Collapsed;
+      ? TreeItemCollapsibleState.Expanded
+      : TreeItemCollapsibleState.Collapsed;
     return this;
   }
 
@@ -71,7 +70,7 @@ export class TDependency extends vscode.TreeItem {
   private getIconName() {
     switch (this.type) {
       case DependencyType.FOLDER:
-        return new vscode.ThemeIcon('folder-opened');
+        return new ThemeIcon('folder-opened');
       case DependencyType.FILE:
         return this.getIconPath('dependency.svg');
       case DependencyType.UNUSED_EXPORT:
@@ -79,18 +78,18 @@ export class TDependency extends vscode.TreeItem {
       case DependencyType.CIRCULAR_IMPORT:
         return this.getIconPath('circle.svg');
       case DependencyType.EMPTY:
-        return new vscode.ThemeIcon('check');
+        return new ThemeIcon('check');
       case DependencyType.DISABLED:
-        return new vscode.ThemeIcon('circle-large-outline');
+        return new ThemeIcon('circle-large-outline');
       case DependencyType.REFRESH:
-        return new vscode.ThemeIcon('refresh');
+        return new ThemeIcon('refresh');
     }
   }
 
   private getIconPath(icon: string) {
     return {
-      light: path.join(__filename, '..', '..', 'resources', 'light', icon),
-      dark: path.join(__filename, '..', '..', 'resources', 'dark', icon),
+      light: pathJoin(__filename, '..', '..', 'resources', 'light', icon),
+      dark: pathJoin(__filename, '..', '..', 'resources', 'dark', icon),
     };
   }
 

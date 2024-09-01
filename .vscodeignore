@@ -9,10 +9,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 .history/**
-test-project-js/**
-test-project-ignored/**
-test-project-map-paths/**
-test-project-ts/**
+test-project-*/**
 .history/
 ToDo.txt
 images/logo.svg

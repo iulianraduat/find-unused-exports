@@ -1,5 +1,12 @@
-import * as fs from 'fs';
-import * as vscode from 'vscode';
+import { unlink } from 'fs';
+import {
+  Event,
+  EventEmitter,
+  TreeDataProvider,
+  TreeItem,
+  TreeItemCollapsibleState,
+  window,
+} from 'vscode';
 import { Core, FileDataType, someCoreRefreshing } from './core';
 import { Refreshing } from './refreshing';
 import { DependencyType, TDependency } from './tdependency';
@@ -7,7 +14,7 @@ import { TNotUsed } from './unused-exports/notUsed';
 import { isResultExpanded } from './unused-exports/settings';
 import { addToIgnoreFilenames } from './unused-exports/vscUtils';
 
-export class Provider implements vscode.TreeDataProvider<TDependency> {
+export class Provider implements TreeDataProvider<TDependency> {
   /* We need to have it also undefined as an empty array means that the user removed all entries */
   private cacheFolders: TDependency[] | undefined;
   private cacheHidden: string[];
@@ -17,9 +24,9 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     return this.cacheHidden.includes(node.id) === false;
   };
 
-  private _onDidChangeTreeData: vscode.EventEmitter<TDependency | undefined> =
-    new vscode.EventEmitter<TDependency | undefined>();
-  public readonly onDidChangeTreeData: vscode.Event<TDependency | undefined> =
+  private _onDidChangeTreeData: EventEmitter<TDependency | undefined> =
+    new EventEmitter<TDependency | undefined>();
+  public readonly onDidChangeTreeData: Event<TDependency | undefined> =
     this._onDidChangeTreeData.event;
 
   constructor(
@@ -29,7 +36,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     private mapFile2Dependency: (
       parent: TDependency,
       node: TNotUsed,
-      collapsibleState: vscode.TreeItemCollapsibleState,
+      collapsibleState: TreeItemCollapsibleState,
       isNotHidden: (node: TDependency) => boolean
     ) => TDependency,
     private getNoResultsNode: (core: Core) => TDependency,
@@ -60,8 +67,8 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
 
     /* we need to give a chance to VSCode to update the status bar */
     const collapsibleState = isResultExpanded()
-      ? vscode.TreeItemCollapsibleState.Expanded
-      : vscode.TreeItemCollapsibleState.Collapsed;
+      ? TreeItemCollapsibleState.Expanded
+      : TreeItemCollapsibleState.Collapsed;
 
     /* We add the folders */
     this.cacheFolders = this.cores.map((core) => {
@@ -101,8 +108,8 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     }
 
     const collapsibleState = isResultExpanded()
-      ? vscode.TreeItemCollapsibleState.Expanded
-      : vscode.TreeItemCollapsibleState.Collapsed;
+      ? TreeItemCollapsibleState.Expanded
+      : TreeItemCollapsibleState.Collapsed;
     const rows = files
       .map((file) =>
         this.mapFile2Dependency(
@@ -169,9 +176,9 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
       return;
     }
 
-    fs.unlink(filePath, (err: NodeJS.ErrnoException | null) => {
+    unlink(filePath, (err: NodeJS.ErrnoException | null) => {
       if (err) {
-        vscode.window.showInformationMessage(`Cannot delete ${filePath}`);
+        window.showInformationMessage(`Cannot delete ${filePath}`);
         return;
       }
 
@@ -207,7 +214,7 @@ export class Provider implements vscode.TreeDataProvider<TDependency> {
     return element.parent;
   }
 
-  public getTreeItem(element: TDependency): vscode.TreeItem {
+  public getTreeItem(element: TDependency): TreeItem {
     return element;
   }
 

@@ -1,4 +1,12 @@
-import * as vscode from 'vscode';
+import {
+  Event,
+  EventEmitter,
+  ThemeIcon,
+  TreeDataProvider,
+  TreeItem,
+  TreeItemCollapsibleState,
+  workspace,
+} from 'vscode';
 import { Core, someCoreRefreshing } from './core';
 import { OverviewContext } from './overviewContext';
 import { Refreshing } from './refreshing';
@@ -6,12 +14,12 @@ import { TDependency } from './tdependency';
 import { isResultExpanded } from './unused-exports/settings';
 
 export class OverviewProvider
-  implements vscode.TreeDataProvider<TOverviewEntry | TDependency>
+  implements TreeDataProvider<TOverviewEntry | TDependency>
 {
-  private _onDidChangeTreeData: vscode.EventEmitter<
+  private _onDidChangeTreeData: EventEmitter<
     TOverviewEntry | TDependency | undefined
-  > = new vscode.EventEmitter<TOverviewEntry | undefined>();
-  public readonly onDidChangeTreeData: vscode.Event<
+  > = new EventEmitter<TOverviewEntry | undefined>();
+  public readonly onDidChangeTreeData: Event<
     TOverviewEntry | TDependency | undefined
   > = this._onDidChangeTreeData.event;
 
@@ -27,7 +35,7 @@ export class OverviewProvider
     return undefined;
   }
 
-  public getTreeItem(element: TOverviewEntry): vscode.TreeItem {
+  public getTreeItem(element: TOverviewEntry): TreeItem {
     return element;
   }
 
@@ -52,7 +60,7 @@ export class OverviewProvider
     );
 
     /* If we are in a workspace automaticaly created by VSCode for a folder or a workspace with only one folder we skip one level  */
-    if (vscode.workspace.workspaceFolders?.length === 1) {
+    if (workspace.workspaceFolders?.length === 1) {
       return this.getChildren(rows[0]);
     }
 
@@ -156,7 +164,7 @@ export class OverviewProvider
   }
 }
 
-class TOverviewEntry extends vscode.TreeItem {
+class TOverviewEntry extends TreeItem {
   constructor(
     public type: OverviewEntryType,
     label: string,
@@ -167,7 +175,7 @@ class TOverviewEntry extends vscode.TreeItem {
     super(label, getCollapsibleState(type, description));
 
     if (icon) {
-      this.iconPath = new vscode.ThemeIcon(icon);
+      this.iconPath = new ThemeIcon(icon);
     }
     if (description !== undefined) {
       this.description = `${description}`;
@@ -184,19 +192,19 @@ class TOverviewEntry extends vscode.TreeItem {
 function getCollapsibleState(
   type: OverviewEntryType,
   description?: string | number
-): vscode.TreeItemCollapsibleState {
+): TreeItemCollapsibleState {
   if (type !== OverviewEntryType.FOLDER) {
-    return vscode.TreeItemCollapsibleState.None;
+    return TreeItemCollapsibleState.None;
   }
 
   /* A description means there is no package.json */
   if (description) {
-    return vscode.TreeItemCollapsibleState.Collapsed;
+    return TreeItemCollapsibleState.Collapsed;
   }
 
   return isResultExpanded()
-    ? vscode.TreeItemCollapsibleState.Expanded
-    : vscode.TreeItemCollapsibleState.Collapsed;
+    ? TreeItemCollapsibleState.Expanded
+    : TreeItemCollapsibleState.Collapsed;
 }
 
 function getOverviewNode(ctx: OverviewContext): TOverviewEntry {

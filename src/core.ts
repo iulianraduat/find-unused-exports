@@ -1,6 +1,13 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import { accessSync } from 'fs';
+import { join as pathJoin } from 'path';
+import {
+  commands,
+  Selection,
+  TextDocument,
+  TextEditor,
+  window,
+  workspace,
+} from 'vscode';
 import { OverviewContext } from './overviewContext';
 import { app } from './unused-exports/app';
 import { TNotUsed } from './unused-exports/notUsed';
@@ -60,7 +67,7 @@ export class Core {
     this.overviewContext.lastRun = new Date();
 
     return new Promise(async (resolve) => {
-      const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
+      const packageJsonPath = pathJoin(this.workspaceRoot, 'package.json');
       if (this.pathExists(packageJsonPath) === false) {
         this.overviewContext.info = 'No package.json found in workspace';
         resolve(undefined);
@@ -107,8 +114,8 @@ export class Core {
   /* utility functions */
 
   public static open(filePath: string): void {
-    vscode.workspace.openTextDocument(filePath).then((doc) => {
-      vscode.window.showTextDocument(doc);
+    workspace.openTextDocument(filePath).then((doc) => {
+      window.showTextDocument(doc);
     });
   }
 
@@ -116,11 +123,10 @@ export class Core {
     filePath: string,
     unusedExportOrCircularImport: string
   ): void {
-    vscode.workspace.openTextDocument(filePath).then((doc) => {
-      vscode.window.showTextDocument(doc).then(() => {
-        const editor: vscode.TextEditor | undefined =
-          vscode.window.activeTextEditor;
-        const document: vscode.TextDocument | undefined = editor?.document;
+    workspace.openTextDocument(filePath).then((doc) => {
+      window.showTextDocument(doc).then(() => {
+        const editor: TextEditor | undefined = window.activeTextEditor;
+        const document: TextDocument | undefined = editor?.document;
         if (editor === undefined || document === undefined) {
           return;
         }
@@ -131,18 +137,18 @@ export class Core {
           if (line.text.includes(unusedExportOrCircularImport)) {
             const start = line.text.indexOf(unusedExportOrCircularImport);
             const end = start + unusedExportOrCircularImport.length;
-            editor.selection = new vscode.Selection(i, start, i, end);
+            editor.selection = new Selection(i, start, i, end);
             break;
           }
         }
-        vscode.commands.executeCommand('actions.find');
+        commands.executeCommand('actions.find');
       });
     });
   }
 
   private pathExists(p: string): boolean {
     try {
-      fs.accessSync(p);
+      accessSync(p);
     } catch (err) {
       return false;
     }

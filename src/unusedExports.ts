@@ -1,10 +1,9 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
+import { TreeItemCollapsibleState } from 'vscode';
 import { Core, FileDataType } from './core';
 import { Provider } from './provider';
 import { DependencyType, TDependency } from './tdependency';
-import { TNotUsed } from './unused-exports/notUsed';
 import { pathResolve } from './unused-exports/fsUtils';
+import { TNotUsed } from './unused-exports/notUsed';
 
 export class UnusedExportsProvider extends Provider {
   constructor(cores: Core[]) {
@@ -22,7 +21,7 @@ export class UnusedExportsProvider extends Provider {
 function mapFile2Dependency(
   parent: TDependency,
   node: TNotUsed,
-  collapsibleState: vscode.TreeItemCollapsibleState,
+  collapsibleState: TreeItemCollapsibleState,
   isNotHidden: (node: TDependency) => boolean
 ): TDependency {
   const { filePath, isCompletelyUnused, notUsedExports } = node;
@@ -68,7 +67,7 @@ function mapUnusedExport2Dependency(parent: TDependency) {
       false,
       undefined,
       undefined,
-      vscode.TreeItemCollapsibleState.None,
+      TreeItemCollapsibleState.None,
       {
         command: 'unusedExports.findInFile',
         title: 'Find the unused export in file',

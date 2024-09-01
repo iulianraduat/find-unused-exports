@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { workspace } from 'vscode';
 import { readFile } from './fsUtils';
 import { log } from './log';
 import { TTsFile } from './sourceFiles';
@@ -215,7 +215,7 @@ function getMatches(
 }
 
 function isShowIgnoredExportsEnabled(): boolean {
-  return vscode.workspace
+  return workspace
     .getConfiguration()
     .get('findUnusedExports.showIgnoredExports', false);
 }
