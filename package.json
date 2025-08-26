@@ -2,20 +2,17 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
-  "publisher": "iulian-radu-at",
-  "homepage": "https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports",
+  "publisher": "d0whc3r",
+  "homepage": "https://github.com/d0whc3r/find-unused-exports",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iulianraduat/find-unused-exports"
+    "url": "git@github-private.com:d0whc3r/find-unused-exports.git"
   },
   "bugs": {
-    "url": "https://github.com/iulianraduat/find-unused-exports/issues"
-  },
-  "sponsor": {
-    "url": "https://www.amazon.com/dp/B0DD3DNDY1"
+    "url": "https://github.com/d0whc3r/find-unused-exports/issues"
   },
   "engines": {
     "vscode": "^1.75.0"
@@ -36,17 +33,17 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "10.4.5"
+    "glob": "11.0.3"
   },
   "devDependencies": {
-    "@types/node": "16.18.106",
+    "@types/node": "24.3.0",
     "@types/vscode": "1.75.1",
-    "@typescript-eslint/eslint-plugin": "8.3.0",
-    "@typescript-eslint/parser": "8.3.0",
-    "esbuild": "0.23.1",
-    "eslint": "9.9.1",
+    "@typescript-eslint/eslint-plugin": "8.41.0",
+    "@typescript-eslint/parser": "8.41.0",
+    "esbuild": "0.25.9",
+    "eslint": "9.34.0",
     "rimraf": "6.0.1",
-    "typescript": "5.5.4"
+    "typescript": "5.9.2"
   },
   "categories": [
     "Linters"

@@ -1,15 +1,15 @@
 # Find Unused Exports
 
-[![Marketplace Version](https://img.shields.io/vscode-marketplace/v/iulian-radu-at.find-unused-exports)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-[![Installs](https://img.shields.io/vscode-marketplace/i/iulian-radu-at.find-unused-exports)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
-[![Rating](https://img.shields.io/vscode-marketplace/r/iulian-radu-at.find-unused-exports)](https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports)
+[![GitHub Release](https://img.shields.io/github/v/release/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/releases)
+[![GitHub Issues](https://img.shields.io/github/issues/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/issues)
+[![GitHub Stars](https://img.shields.io/github/stars/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/stargazers)
 <a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.png?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
 
 Automatically find all exports in typescript and javascript files which are not imported in other files.
 
-## Sponsorship
+## About This Fork
 
-By purchasing [Coding Guidelines for React with TypeScript](https://www.amazon.com/dp/B0DD3DNDY1) from any Amazon website, you will get a set of guidelines for writing a clean, maintainable, and efficient code. Also you will sponsor me, showing your appreciation for my effort in creating and mentaining this extension.
+This is a fork of the original find-unused-exports extension by iulian-radu-at, maintained to continue providing this useful functionality to the VS Code community. The extension maintains full compatibility with the original while being actively maintained under the GPL-3.0 license.
 
 ## Features
 
@@ -176,8 +176,8 @@ See Change Log [here](CHANGELOG.md)
 
 ## Issues
 
-Submit an [issue](https://github.com/iulian-radu-at/find-unused-exports/issues) if you find any bug or have any request.
+Submit an [issue](https://github.com/d0whc3r/find-unused-exports/issues) if you find any bug or have any request.
 
 ## Contribution
 
-Fork the [repo](https://github.com/iulian-radu-at/find-unused-exports) and submit pull requests.
+Fork the [repo](https://github.com/d0whc3r/find-unused-exports) and submit pull requests.

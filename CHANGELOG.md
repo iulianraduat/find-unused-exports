@@ -2,6 +2,28 @@
 
 All notable changes to the "Find Unused Exports" extension will be documented in this file.
 
+## Fork Notice
+
+This is a fork of the original extension by iulian-radu-at. All previous versions and their changes are preserved below for historical reference.
+
+## 2.1.6 (2025-01-26)
+
+### Added
+
+- Forked from original repository
+- Updated repository URLs and references
+- Maintained GPL-3.0 license compliance
+
+### Changed
+
+- Repository owner changed to d0whc3r
+- Updated all GitHub references and links
+- Removed original author's sponsorship links
+
+### Removed
+
+- Original author's funding configuration
+
 ### Note
 
 This extension assumes a set of default exclude folders:
@@ -81,7 +103,7 @@ This extension assumes a set of default exclude folders:
 - Added support for ignoring not used exports via comments (default false - obey the comment in the code)
   ```javascript
   // find-unused-exports:ignore-next-line-exports
-  export default MyClass;
+  export default MyClass
   ```
 - Added the possibility to remove a file or export from the list of results
 
