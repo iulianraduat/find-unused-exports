@@ -1,6 +1,6 @@
-import { join as pathJoin } from 'path';
-import { Command, ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode';
-import { Core } from './core';
+import { join as pathJoin } from 'path'
+import { Command, ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
+import { Core } from './core'
 
 export enum DependencyType {
   FOLDER,
@@ -13,9 +13,9 @@ export enum DependencyType {
 }
 
 export class TDependency extends TreeItem {
-  public absFilePath?: string;
-  public children?: TDependency[];
-  private _core?: Core;
+  public absFilePath?: string
+  public children?: TDependency[]
+  private _core?: Core
 
   constructor(
     public readonly parent: TDependency | undefined,
@@ -26,63 +26,61 @@ export class TDependency extends TreeItem {
     public readonly notUsedExports?: string[],
     public readonly circularImports?: string[],
     public collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.None,
-    public readonly command?: Command
+    public readonly command?: Command,
   ) {
-    super(label, collapsibleState);
+    super(label, collapsibleState)
 
-    this.description = this.getDescription();
-    this.tooltip = this.getTooltip();
-    this.iconPath = this.getIconName();
-    this.contextValue = this.getContextValue();
+    this.description = this.getDescription()
+    this.tooltip = this.getTooltip()
+    this.iconPath = this.getIconName()
+    this.contextValue = this.getContextValue()
   }
 
   public clone(isExpanded: boolean) {
     if (this.children === undefined) {
-      return this;
+      return this
     }
 
-    this.id = this.id + (isExpanded ? 1 : 0);
-    this.collapsibleState = isExpanded
-      ? TreeItemCollapsibleState.Expanded
-      : TreeItemCollapsibleState.Collapsed;
-    return this;
+    this.id = this.id + (isExpanded ? 1 : 0)
+    this.collapsibleState = isExpanded ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
+    return this
   }
 
   public addChild(child: TDependency) {
     if (this.children === undefined) {
-      this.children = [];
+      this.children = []
     }
 
-    this.children.push(child);
+    this.children.push(child)
   }
 
   private getDescription() {
     switch (this.type) {
       case DependencyType.FOLDER:
-        return '';
+        return ''
       case DependencyType.FILE:
-        return this.isCompletelyUnused ? 'not used' : '';
+        return this.isCompletelyUnused ? 'not used' : ''
       default:
-        return undefined;
+        return undefined
     }
   }
 
   private getIconName() {
     switch (this.type) {
       case DependencyType.FOLDER:
-        return new ThemeIcon('folder-opened');
+        return new ThemeIcon('folder-opened')
       case DependencyType.FILE:
-        return this.getIconPath('dependency.svg');
+        return this.getIconPath('dependency.svg')
       case DependencyType.UNUSED_EXPORT:
-        return this.getIconPath('export.svg');
+        return this.getIconPath('export.svg')
       case DependencyType.CIRCULAR_IMPORT:
-        return this.getIconPath('circle.svg');
+        return this.getIconPath('circle.svg')
       case DependencyType.EMPTY:
-        return new ThemeIcon('check');
+        return new ThemeIcon('check')
       case DependencyType.DISABLED:
-        return new ThemeIcon('circle-large-outline');
+        return new ThemeIcon('circle-large-outline')
       case DependencyType.REFRESH:
-        return new ThemeIcon('refresh');
+        return new ThemeIcon('refresh')
     }
   }
 
@@ -90,43 +88,43 @@ export class TDependency extends TreeItem {
     return {
       light: pathJoin(__filename, '..', '..', 'resources', 'light', icon),
       dark: pathJoin(__filename, '..', '..', 'resources', 'dark', icon),
-    };
+    }
   }
 
   private getTooltip() {
     switch (this.type) {
       case DependencyType.FOLDER:
-        return this.core?.getOverviewContext().pathToPrj;
+        return this.core?.getOverviewContext().pathToPrj
       case DependencyType.UNUSED_EXPORT:
-        return 'not used export';
+        return 'not used export'
       case DependencyType.CIRCULAR_IMPORT:
-        return 'circular import';
+        return 'circular import'
       default:
-        return undefined;
+        return undefined
     }
   }
 
   private getContextValue(): string | undefined {
     switch (this.type) {
       case DependencyType.FOLDER:
-        return 'folder';
+        return 'folder'
       case DependencyType.FILE:
-        return this.isCompletelyUnused ? 'fileNotUsed' : 'file';
+        return this.isCompletelyUnused ? 'fileNotUsed' : 'file'
       case DependencyType.UNUSED_EXPORT:
-        return 'notUsedExport';
+        return 'notUsedExport'
       case DependencyType.CIRCULAR_IMPORT:
-        return 'circularImport';
+        return 'circularImport'
       default:
-        return 'nothingFound';
+        return 'nothingFound'
     }
   }
 
   set core(value: Core | undefined) {
-    this._core = value;
-    this.tooltip = this.getTooltip();
+    this._core = value
+    this.tooltip = this.getTooltip()
   }
 
   get core() {
-    return this._core;
+    return this._core
   }
 }

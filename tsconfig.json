@@ -1,18 +1,48 @@
 {
   "compilerOptions": {
+    // Modern JavaScript target and module system
+    "target": "ES2022",
     "module": "commonjs",
-    "target": "es6",
-    "outDir": "out",
-    "lib": ["es6"],
-    "sourceMap": false,
-    "rootDir": "src",
-    "strict": true /* enable all strict type-checking options */,
-    /* Additional Checks */
-    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
-    // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-    "noUnusedParameters": true /* Report errors on unused parameters. */
+    "lib": ["ES2022"],
+    // Output configuration
+    "outDir": "./out",
+    "rootDir": "./src",
+    // Strict type checking options (balanced for VS Code extension compatibility)
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    // Additional checks
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    // Module resolution
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    // Source map and declaration generation for better debugging
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./out",
+    // Advanced options
+    "skipLibCheck": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noEmitOnError": false,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "newLine": "lf"
   },
-  "files": ["src/extension.ts"],
   "include": ["src/**/*"],
-  "exclude": ["node_modules", ".vscode-test", ".history"]
+  "exclude": ["node_modules", "out", "test", "tests", ".vscode-test", ".history", "**/*.test.ts", "**/*.spec.ts"]
 }

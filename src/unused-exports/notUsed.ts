@@ -1,41 +1,40 @@
-import { TRelation } from './relations';
-import { isResultExpanded } from './settings';
+import { TRelation } from './relations'
+import { isResultExpanded } from './settings'
 
 export async function getNotUsed(relations: TRelation[]): Promise<TNotUsed[]> {
-  const nodes: TNotUsed[] = [];
+  const nodes: TNotUsed[] = []
 
   relations.forEach((rel) => {
-    const { exports, path } = rel;
-    const isLeaking: boolean = exports?.notUsed !== undefined;
+    const { exports, path } = rel
+    const isLeaking: boolean = exports?.notUsed !== undefined
 
     if (isLeaking === false) {
-      return;
+      return
     }
 
     const isCompletelyUnused: boolean = isLeaking
       ? exports?.used?.length === undefined || exports?.used?.length === 0
-      : false;
+      : false
 
-    const notUsedExports = exports?.notUsed?.sort();
+    const notUsedExports = exports?.notUsed?.sort()
 
     const node: TNotUsed = {
       filePath: path,
       isCompletelyUnused,
       isExpanded: isResultExpanded(),
       notUsedExports,
-    };
-    nodes.push(node);
-  });
-  return nodes;
+    }
+    nodes.push(node)
+  })
+  return nodes
 }
 
-export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number =>
-  a.filePath.localeCompare(b.filePath);
+export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath)
 
 export interface TNotUsed {
-  circularImports?: string[];
-  filePath: string;
-  isCompletelyUnused: boolean;
-  isExpanded: boolean;
-  notUsedExports?: string[];
+  circularImports?: string[]
+  filePath: string
+  isCompletelyUnused: boolean
+  isExpanded: boolean
+  notUsedExports?: string[]
 }

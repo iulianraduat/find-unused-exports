@@ -28,7 +28,13 @@
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json,md}\"",
+    "dev": "npm run format && npm run lint:fix && npm run esbuild",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky",
     "pretest": "yarn run compile && yarn run lint",
     "test": "echo node ./out/test/runTest.js"
   },
@@ -36,12 +42,19 @@
     "glob": "11.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.34.0",
     "@types/node": "24.3.0",
     "@types/vscode": "1.75.1",
     "@typescript-eslint/eslint-plugin": "8.41.0",
     "@typescript-eslint/parser": "8.41.0",
     "esbuild": "0.25.9",
     "eslint": "9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
     "rimraf": "6.0.1",
     "typescript": "5.9.2"
   },
@@ -285,6 +298,15 @@
   "findUnusedExports": {
     "exclude": [
       "./src/**/*.stories.@(js|jsx|ts|tsx)"
+    ]
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
     ]
   },
   "resolutions": {

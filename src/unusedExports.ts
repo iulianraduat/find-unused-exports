@@ -1,20 +1,13 @@
-import { TreeItemCollapsibleState } from 'vscode';
-import { Core, FileDataType } from './core';
-import { Provider } from './provider';
-import { DependencyType, TDependency } from './tdependency';
-import { pathResolve } from './unused-exports/fsUtils';
-import { TNotUsed } from './unused-exports/notUsed';
+import { TreeItemCollapsibleState } from 'vscode'
+import { Core, FileDataType } from './core'
+import { Provider } from './provider'
+import { DependencyType, TDependency } from './tdependency'
+import { pathResolve } from './unused-exports/fsUtils'
+import { TNotUsed } from './unused-exports/notUsed'
 
 export class UnusedExportsProvider extends Provider {
   constructor(cores: Core[]) {
-    super(
-      cores,
-      undefined,
-      FileDataType.UNUSED_EXPORTS,
-      mapFile2Dependency,
-      getNoUnusedExports,
-      true
-    );
+    super(cores, undefined, FileDataType.UNUSED_EXPORTS, mapFile2Dependency, getNoUnusedExports, true)
   }
 }
 
@@ -22,12 +15,12 @@ function mapFile2Dependency(
   parent: TDependency,
   node: TNotUsed,
   collapsibleState: TreeItemCollapsibleState,
-  isNotHidden: (node: TDependency) => boolean
+  isNotHidden: (node: TDependency) => boolean,
 ): TDependency {
-  const { filePath, isCompletelyUnused, notUsedExports } = node;
+  const { filePath, isCompletelyUnused, notUsedExports } = node
 
-  const pathToPrj = parent.core?.getOverviewContext().pathToPrj;
-  const absFilePath = pathToPrj ? pathResolve(pathToPrj, filePath) : filePath;
+  const pathToPrj = parent.core?.getOverviewContext().pathToPrj
+  const absFilePath = pathToPrj ? pathResolve(pathToPrj, filePath) : filePath
 
   const row = new TDependency(
     parent,
@@ -42,19 +35,16 @@ function mapFile2Dependency(
       command: 'unusedExports.openFile',
       title: 'Open',
       arguments: [absFilePath],
-    }
-  );
-  row.absFilePath = absFilePath;
-  row.children = unusedExportsInFile(row, isNotHidden);
-  return row;
+    },
+  )
+  row.absFilePath = absFilePath
+  row.children = unusedExportsInFile(row, isNotHidden)
+  return row
 }
 
-function unusedExportsInFile(
-  parent: TDependency,
-  isNotHidden: (node: TDependency) => boolean
-): TDependency[] {
-  const mapFn = mapUnusedExport2Dependency(parent);
-  return parent.notUsedExports?.map(mapFn).filter(isNotHidden) ?? [];
+function unusedExportsInFile(parent: TDependency, isNotHidden: (node: TDependency) => boolean): TDependency[] {
+  const mapFn = mapUnusedExport2Dependency(parent)
+  return parent.notUsedExports?.map(mapFn).filter(isNotHidden) ?? []
 }
 
 function mapUnusedExport2Dependency(parent: TDependency) {
@@ -72,9 +62,9 @@ function mapUnusedExport2Dependency(parent: TDependency) {
         command: 'unusedExports.findInFile',
         title: 'Find the unused export in file',
         arguments: [parent.absFilePath, notUsedExport],
-      }
-    );
-  };
+      },
+    )
+  }
 }
 
 function getNoUnusedExports(core: Core) {
@@ -82,6 +72,6 @@ function getNoUnusedExports(core: Core) {
     undefined,
     core.getOverviewContext().workspaceName + '::NoUnusedExports',
     DependencyType.EMPTY,
-    'No unused exports'
-  );
+    'No unused exports',
+  )
 }

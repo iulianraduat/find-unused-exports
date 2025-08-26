@@ -1,4 +1,4 @@
-import { DecorationOptions, DecorationRenderOptions, Range, TextDocument, TextEditor, ThemeColor, window, workspace } from 'vscode'
+import { DecorationOptions, Range, TextDocument, TextEditor, ThemeColor, window, workspace } from 'vscode'
 import { Core } from './core'
 import { TNotUsed } from './unused-exports/notUsed'
 
@@ -9,10 +9,9 @@ export class UnusedExportsDecorator {
     fontStyle: 'italic',
     opacity: '0.6',
     textDecoration: 'underline wavy',
-    textDecorationColor: new ThemeColor('editorWarning.foreground'),
     overviewRulerColor: new ThemeColor('editorWarning.foreground'),
     overviewRulerLane: 2,
-  } as DecorationRenderOptions)
+  })
 
   private cores: Core[]
   private activeEditor: TextEditor | undefined
