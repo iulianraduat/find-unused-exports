@@ -9,6 +9,7 @@ import {
 } from 'vscode';
 import { CircularImportsProvider } from './circularImports';
 import { Core } from './core';
+import { UnusedExportsDecorator } from './decorations';
 import { OverviewProvider } from './overview';
 import { TDependency } from './tdependency';
 import { showOutputWindow } from './unused-exports/log';
@@ -35,13 +36,23 @@ export function activate(context: ExtensionContext) {
   const circularImportsProvider = new CircularImportsProvider(cores);
   window.registerTreeDataProvider('circularImports', circularImportsProvider);
 
+  // Initialize unused exports decorator
+  const unusedExportsDecorator = new UnusedExportsDecorator(cores);
+  context.subscriptions.push(unusedExportsDecorator);
+
+  // Register decorator as listener for each core to update decorations
+  cores.forEach((core) => {
+    core.registerListener(() => {
+      setTimeout(() => unusedExportsDecorator.updateDecorations(), 100);
+    })
+  })
+
   let disposable: Disposable;
   disposable = commands.registerCommand('unusedExports.refresh', () =>
     refreshAllCores(cores)
   );
   context.subscriptions.push(disposable);
 
-  disposable: Disposable;
   disposable = commands.registerCommand(
     'unusedExports.refreshAndShowSideView',
     () => {
