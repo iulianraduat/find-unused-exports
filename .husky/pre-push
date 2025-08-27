@@ -1,7 +1,2 @@
 #!/usr/bin/env sh
-# Run type checking
-npm run type-check
-
-# Run tests (when they are implemented)
-# npm run test
-echo "Pre-push validation completed successfully"
+npm run validate
