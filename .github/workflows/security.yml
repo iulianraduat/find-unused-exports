@@ -29,10 +29,13 @@ jobs:
       - name: Run dependency check
         run: npm run security:check
 
-      - name: CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   dependency-review:
     name: Dependency Review
@@ -46,3 +49,20 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
+          summary-file: ${{ github.workspace }}/dependency-review-summary.md
+
+      - name: Check summary size
+        run: |
+          FILE_SIZE=$(stat -c%s "${{ github.workspace }}/dependency-review-summary.md")
+          if [ $FILE_SIZE -gt 1024000 ]; then
+            echo "::warning::Dependency review summary too large ($FILE_SIZE bytes), truncating"
+            head -c 1024000 "${{ github.workspace }}/dependency-review-summary.md" > "${{ github.workspace }}/dependency-review-summary-truncated.md"
+            mv "${{ github.workspace }}/dependency-review-summary-truncated.md" "${{ github.workspace }}/dependency-review-summary.md"
+          fi
+          echo "::set-output name=summary_file::${{ github.workspace }}/dependency-review-summary.md"
+
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-review-summary
+          path: ${{ github.workspace }}/dependency-review-summary.md
