@@ -2,12 +2,12 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, beta]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, beta]
 
 env:
-  NODE_VERSION: "22.x"
+  NODE_VERSION: '22.x'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: vsix-package
-          path: "*.vsix"
+          path: '*.vsix'
           retention-days: 7
 
   security:

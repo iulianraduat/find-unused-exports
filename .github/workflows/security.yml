@@ -2,9 +2,9 @@ name: Security Scan
 
 on:
   schedule:
-    - cron: "0 9 * * 1" # Weekly on Monday at 9 AM UTC
+    - cron: '0 9 * * 1' # Weekly on Monday at 9 AM UTC
   pull_request:
-    branches: [main, master]
+    branches: [main, master, beta]
 
 jobs:
   security:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
+          node-version: '22.x'
           cache: npm
 
       - name: Install dependencies
