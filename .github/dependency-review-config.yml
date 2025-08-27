@@ -1,0 +1,37 @@
+# Dependency Review Configuration
+# Optimized to reduce output size and focus on critical issues
+
+# Only fail on high and critical vulnerabilities to reduce noise
+fail_on_severity: 'high'
+
+# Limit the number of vulnerabilities reported to prevent overflow
+max_vulnerabilities: 20
+
+# Only report on direct dependencies, not transitive ones
+allow_dependencies_licenses:
+  - MIT
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - 0BSD
+  - Unlicense
+
+# Deny problematic licenses
+deny_licenses:
+  - GPL-1.0-only
+  - GPL-2.0-only
+  - AGPL-1.0-only
+  - AGPL-3.0-only
+
+# Reduce verbosity in comments
+comment_summary_in_pr: 'always'
+warn_only: false
+
+# Focus on production dependencies
+allow_ghsas: []
+
+# Exclude development dependencies from license checks
+exclude_scopes:
+  - development
+  - test

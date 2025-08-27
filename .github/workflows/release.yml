@@ -335,6 +335,37 @@ jobs:
     needs: [validate-release, release, publish]
     if: always()
     steps:
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            const releaseStatus = '${{ needs.release.result }}' === 'success' ? '✅' : '❌';
+            const publishStatus = '${{ needs.publish.result }}' === 'success' ? '✅' : 
+                                 '${{ needs.publish.result }}' === 'skipped' ? '⏭️' : '❌';
+            
+            const comment = `## 🚀 Release Status
+            
+            **Version:** v${{ needs.validate-release.outputs.new-version }}
+            **Type:** ${{ inputs.release-type }}
+            
+            ${releaseStatus} **Release:** ${releaseStatus === '✅' ? 'Success' : 'Failed'}
+            ${publishStatus} **Publish:** ${publishStatus === '✅' ? 'Success' : publishStatus === '⏭️' ? 'Skipped' : 'Failed'}
+            
+            ${releaseStatus === '✅' ? `📦 [Download VSIX](https://github.com/${{ github.repository }}/releases/tag/v${{ needs.validate-release.outputs.new-version }})` : ''}`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
       - name: Create release summary
         run: |
           echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
@@ -362,8 +393,17 @@ jobs:
           fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📝 Changelog" >> $GITHUB_STEP_SUMMARY
-          echo "${{ needs.validate-release.outputs.changelog }}" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Recent Changes" >> $GITHUB_STEP_SUMMARY
+          # Limit changelog to first 10 lines to prevent GITHUB_STEP_SUMMARY overflow
+          CHANGELOG="${{ needs.validate-release.outputs.changelog }}"
+          echo "$CHANGELOG" | head -10 >> $GITHUB_STEP_SUMMARY
+          
+          # Count total lines and show truncation notice if needed
+          TOTAL_LINES=$(echo "$CHANGELOG" | wc -l)
+          if [ "$TOTAL_LINES" -gt 10 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "_... and $(($TOTAL_LINES - 10)) more changes. See full changelog in the release notes._" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Notify on failure
         if: failure()
