@@ -1,6 +1,11 @@
 # Dependency Review Configuration
 # Optimized to reduce output size and focus on critical issues
 
+# Exclude sample projects from dependency review
+exclude_paths:
+  - "sample-projects/**"
+  - "**/sample-projects/**"
+
 # Only fail on high and critical vulnerabilities to reduce noise
 fail_on_severity: 'high'
 
