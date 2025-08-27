@@ -1,6 +1,8 @@
 # Find Unused Exports
 
+[![CI/CD Pipeline](https://github.com/d0whc3r/find-unused-exports/actions/workflows/ci.yml/badge.svg)](https://github.com/d0whc3r/find-unused-exports/actions/workflows/ci.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/releases)
+[![Codecov](https://codecov.io/gh/d0whc3r/find-unused-exports/branch/beta/graph/badge.svg)](https://codecov.io/gh/d0whc3r/find-unused-exports)
 [![GitHub Issues](https://img.shields.io/github/issues/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/issues)
 [![GitHub Stars](https://img.shields.io/github/stars/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/stargazers)
 <a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.png?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
@@ -86,7 +88,7 @@ If both are used then the include and excluded rules from both of them will be u
 
 Bellow you can see the list of unused exports and circular imports found in the currently opened project as are they displayed by this extension:
 
-![Find Unused Exports](images/screenshot.png)
+![Find Unused Exports](https://raw.githubusercontent.com/d0whc3r/find-unused-exports/refs/heads/beta/images/screenshot.png)
 
 ### Buttons
 
@@ -115,35 +117,28 @@ There are no special requirements.
 ## Extension Settings
 
 - findUnusedExports.considerMainExportsUsed
-
   - Find unused exports: consider all exports from the file used in the main field of package.json as used
   - default false
 
 - findUnusedExports.defaultResultExpanded:
-
   - Find unused exports: show all found results initially expanded (otherwise collapsed)
   - default false
 
 - findUnusedExports.debug:
-
   - Find unused exports: log all actions in an output window
   - default false
 
 - findUnusedExports.logInFile
-
   - Save the log in a file (.vscode/find-unused-exports.log located in the first folder defined for a workspace)
 
 - findUnusedExports.logOnlyLastRun
-
   - Save only the log for the last run/check
 
 - findUnusedExports.showIgnoredExports
-
   - Find unused exports: show all unused exports, even if they are marked as ignored
   - default false
 
 - findUnusedExports.detectCircularImports
-
   - Find unused exports: detect circular imports
   - default false
 
@@ -172,12 +167,8 @@ import MyComponent from './exporting-file';
 
 ## Change Log
 
-See Change Log [here](CHANGELOG.md)
+See Change Log [here](https://raw.githubusercontent.com/d0whc3r/find-unused-exports/refs/heads/beta/CHANGELOG.md)
 
 ## Issues
 
 Submit an [issue](https://github.com/d0whc3r/find-unused-exports/issues) if you find any bug or have any request.
-
-## Contribution
-
-Fork the [repo](https://github.com/d0whc3r/find-unused-exports) and submit pull requests.
