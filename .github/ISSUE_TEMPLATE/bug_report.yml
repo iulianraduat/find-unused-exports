@@ -1,0 +1,307 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve the Find Unused Exports extension
+title: "[BUG] "
+labels: ["bug"]
+assignees: ["d0whc3r"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! 🐛
+
+        Please fill out this form to help us understand and fix the issue.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you have completed the following
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported before
+          required: true
+        - label: I have tested this with the latest version of the extension
+          required: true
+        - label: I have checked the VS Code Developer Console for error messages
+          required: true
+
+  - type: dropdown
+    id: bug-category
+    attributes:
+      label: Bug Category
+      description: What type of bug are you reporting?
+      options:
+        - Extension crashes/errors
+        - Incorrect analysis results
+        - UI/Display issues
+        - Performance problems
+        - Configuration issues
+        - File detection problems
+        - Circular import detection
+        - Export/Import parsing
+        - Integration issues
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug you encountered...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Open VS Code with a TypeScript/JavaScript project
+        2. Install/Enable the Find Unused Exports extension
+        3. Go to '...'
+        4. Click on '....'
+        5. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: A clear description of what actually happened
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem
+      placeholder: You can drag and drop images here
+
+  - type: input
+    id: vscode-version
+    attributes:
+      label: VS Code Version
+      description: What version of VS Code are you using?
+      placeholder: "e.g., 1.85.0"
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension Version
+      description: What version of Find Unused Exports are you using?
+      placeholder: "e.g., 2.1.6"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - Windows 10
+        - Windows 11
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Ubuntu
+        - Other Linux
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation-method
+    attributes:
+      label: Installation Method
+      description: How did you install the extension?
+      options:
+        - VS Code Marketplace
+        - Open VSX
+        - Manual VSIX
+        - Pre-installed
+    validations:
+      required: true
+
+  - type: dropdown
+    id: project-type
+    attributes:
+      label: Project Type
+      description: What type of project are you working with?
+      multiple: true
+      options:
+        - TypeScript
+        - JavaScript
+        - Mixed TypeScript/JavaScript
+        - Monorepo
+        - Single package
+        - React
+        - Vue
+        - Angular
+        - Node.js
+        - Other
+
+  - type: dropdown
+    id: project-size
+    attributes:
+      label: Project Size
+      description: How large is your project?
+      options:
+        - Small (< 100 files)
+        - Medium (100-500 files)
+        - Large (500-1000 files)
+        - Very Large (> 1000 files)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build-tool
+    attributes:
+      label: Build Tool
+      description: What build tool are you using?
+      options:
+        - Webpack
+        - Vite
+        - esbuild
+        - TypeScript Compiler (tsc)
+        - Rollup
+        - Parcel
+        - Other
+        - None
+
+  - type: dropdown
+    id: package-manager
+    attributes:
+      label: Package Manager
+      description: What package manager are you using?
+      options:
+        - npm
+        - yarn
+        - pnpm
+        - bun
+        - Other
+
+  - type: textarea
+    id: project-structure
+    attributes:
+      label: Project Structure
+      description: If relevant, provide a minimal example of your project structure
+      placeholder: |
+        project/
+        ├── src/
+        │   ├── index.ts
+        │   ├── utils/
+        │   └── components/
+        ├── tsconfig.json
+        └── package.json
+
+  - type: textarea
+    id: tsconfig
+    attributes:
+      label: TypeScript Configuration
+      description: Share relevant parts of your tsconfig.json if applicable
+      placeholder: |
+        {
+          "compilerOptions": {
+            "baseUrl": "./src",
+            "paths": {
+              "@/*": ["*"]
+            }
+          }
+        }
+
+  - type: textarea
+    id: extension-config
+    attributes:
+      label: Extension Configuration
+      description: Share your .findUnusedExports.json configuration if you have one
+      placeholder: |
+        {
+          "include": ["src/**/*"],
+          "exclude": ["**/*.test.ts"]
+        }
+
+  - type: textarea
+    id: error-output
+    attributes:
+      label: Error Messages/Output
+      description: Include any error messages from VS Code Developer Console or extension output
+      placeholder: |
+        1. VS Code Developer Console (Help > Toggle Developer Tools > Console)
+        2. Find Unused Exports output panel (if available)
+
+        Paste error messages here...
+
+  - type: textarea
+    id: other-extensions
+    attributes:
+      label: Other Extensions
+      description: List other relevant extensions you have installed
+      placeholder: |
+        - TypeScript Hero
+        - Auto Import - ES6, TS, JSX, TSX
+        - Path Intellisense
+        - etc.
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How Often Does This Occur?
+      description: How frequently do you encounter this bug?
+      options:
+        - Always
+        - Often
+        - Sometimes
+        - Rarely
+        - Only once
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: context-questions
+    attributes:
+      label: Additional Context
+      description: Please check all that apply
+      options:
+        - label: This happens in all projects
+        - label: This happens only in specific projects
+        - label: This worked in a previous version of the extension
+        - label: This might be related to other extensions
+        - label: This happens after VS Code has been running for a while
+        - label: This happens immediately after opening a project
+
+  - type: textarea
+    id: minimal-reproduction
+    attributes:
+      label: Minimal Reproduction
+      description: If possible, provide a way to reproduce this issue
+      placeholder: |
+        - Link to a GitHub repository with minimal reproduction
+        - Zip file with minimal project
+        - Specific steps with a simple project setup
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that might help us understand the problem
+      placeholder: |
+        - Workarounds you've found
+        - Related issues or discussions
+        - Any other relevant details

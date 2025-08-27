@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/d0whc3r/find-unused-exports/discussions
+    about: Ask questions, share ideas, or discuss the extension with the community
+  - name: 📚 Documentation
+    url: https://github.com/d0whc3r/find-unused-exports#readme
+    about: Read the documentation and usage guide
+  - name: 🔧 Contributing Guide
+    url: https://github.com/d0whc3r/find-unused-exports/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute to the project
+  - name: 🚀 VS Code Marketplace
+    url: https://marketplace.visualstudio.com/items?itemName=d0whc3r.find-unused-exports
+    about: View the extension on VS Code Marketplace
