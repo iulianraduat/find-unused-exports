@@ -1,0 +1,44 @@
+{
+  "name": "test-project-advanced-features",
+  "version": "1.0.0",
+  "description": "Advanced features test project for Find Unused Exports extension",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": [
+    "test",
+    "unused-exports",
+    "advanced"
+  ],
+  "author": "Find Unused Exports Test Suite",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/jest": "^29.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "axios": "^1.6.0"
+  },
+  "findUnusedExports": {
+    "include": [
+      "./src/**/*.ts",
+      "./src/**/*.js",
+      "./lib/**/*.d.ts"
+    ],
+    "exclude": [
+      "./src/**/*.test.ts",
+      "./src/**/*.spec.ts",
+      "./src/legacy/**/*",
+      "./src/generated/**/*"
+    ]
+  }
+}

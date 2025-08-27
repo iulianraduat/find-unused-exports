@@ -1,0 +1,19 @@
+{
+  "name": "basic-typescript-example",
+  "version": "1.0.0",
+  "description": "Basic TypeScript project demonstrating unused exports detection",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node out/index.js",
+    "dev": "ts-node index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^18.0.0"
+  },
+  "author": "Find Unused Exports Extension",
+  "license": "MIT"
+}

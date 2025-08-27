@@ -1,0 +1,253 @@
+{
+  "include": [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./lib/**/*.{js,ts}",
+    "./include/**/*.{js,ts}",
+    "./index.{js,ts}",
+    "./main.{js,ts}"
+  ],
+  "exclude": [
+    "./src/**/*.test.{js,ts,jsx,tsx}",
+    "./src/**/*.spec.{js,ts,jsx,tsx}",
+    "./src/**/__tests__/**/*",
+    "./src/**/__mocks__/**/*",
+    "./src/legacy/**/*",
+    "./src/deprecated/**/*",
+    "./src/temp/**/*",
+    "./lib/vendor/**/*",
+    "./lib/third-party/**/*",
+    "./node_modules/**/*",
+    "./dist/**/*",
+    "./build/**/*",
+    "./coverage/**/*",
+    "./.next/**/*",
+    "./out/**/*",
+    "./public/**/*",
+    "./static/**/*",
+    "./assets/**/*",
+    "./docs/**/*",
+    "./scripts/**/*",
+    "./tools/**/*",
+    "./config/**/*.config.{js,ts}",
+    "./webpack.*.{js,ts}",
+    "./rollup.*.{js,ts}",
+    "./vite.*.{js,ts}",
+    "./jest.*.{js,ts}",
+    "./babel.*.{js,ts}",
+    "./eslint.*.{js,ts}",
+    "./prettier.*.{js,ts}",
+    "./tsconfig*.json",
+    "./package*.json",
+    "./*.d.ts",
+    "./types/global.d.ts",
+    "./types/env.d.ts"
+  ],
+  "considerMainExportsUsed": false,
+  "ignoreExportsUsedInFile": true,
+  "allowUnusedTypes": false,
+  "allowUnusedEnums": false,
+  "allowUnusedInterfaces": false,
+  "ignoreFiles": [
+    "./src/utils/polyfills.ts",
+    "./src/utils/globals.ts",
+    "./src/config/env.ts",
+    "./src/types/augmentations.d.ts"
+  ],
+  "ignoreExports": [
+    "default",
+    "__esModule",
+    "displayName",
+    "propTypes",
+    "defaultProps",
+    "contextTypes",
+    "childContextTypes",
+    "getDefaultProps",
+    "getInitialState",
+    "componentWillMount",
+    "componentDidMount",
+    "componentWillReceiveProps",
+    "shouldComponentUpdate",
+    "componentWillUpdate",
+    "componentDidUpdate",
+    "componentWillUnmount",
+    "render"
+  ],
+  "ignoreExportsMatchingRegex": [
+    "^use[A-Z].*",
+    "^with[A-Z].*",
+    "^create[A-Z].*",
+    "^get[A-Z].*Static.*",
+    ".*Reducer$",
+    ".*Action$",
+    ".*Saga$",
+    ".*Epic$",
+    ".*Middleware$",
+    ".*HOC$",
+    ".*Provider$",
+    ".*Consumer$",
+    ".*Context$",
+    ".*Types?$",
+    ".*Constants?$",
+    ".*Config$",
+    ".*Schema$",
+    ".*Model$",
+    ".*Entity$",
+    ".*DTO$",
+    ".*API$",
+    ".*Service$",
+    ".*Repository$",
+    ".*Factory$",
+    ".*Builder$",
+    ".*Validator$",
+    ".*Transformer$",
+    ".*Mapper$",
+    ".*Helper$",
+    ".*Util$",
+    ".*Utils$",
+    ".*Mock$",
+    ".*Stub$",
+    ".*Fixture$",
+    ".*Test.*",
+    ".*Spec.*"
+  ],
+  "maxUnusedExports": 100,
+  "exitCodeOnUnusedExports": 1,
+  "outputFormat": "json",
+  "showProgress": true,
+  "verbose": false,
+  "debug": false,
+  "cache": true,
+  "cacheLocation": "./.unused-exports-cache",
+  "parallel": true,
+  "maxWorkers": 4,
+  "timeout": 30000,
+  "memoryLimit": "2GB",
+  "extensions": [".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs"],
+  "moduleResolution": "node",
+  "baseUrl": "./",
+  "paths": {
+    "@/*": ["./src/*"],
+    "@/components/*": ["./src/components/*"],
+    "@/utils/*": ["./src/utils/*"],
+    "@/services/*": ["./src/services/*"],
+    "@/types/*": ["./src/types/*"],
+    "@/hooks/*": ["./src/hooks/*"],
+    "@/store/*": ["./src/store/*"],
+    "@/assets/*": ["./src/assets/*"],
+    "@/config/*": ["./src/config/*"],
+    "@/constants/*": ["./src/constants/*"],
+    "~/*": ["./src/*"]
+  },
+  "aliases": {
+    "@": "./src",
+    "~": "./src",
+    "@components": "./src/components",
+    "@utils": "./src/utils",
+    "@services": "./src/services",
+    "@types": "./src/types",
+    "@hooks": "./src/hooks",
+    "@store": "./src/store",
+    "@assets": "./src/assets",
+    "@config": "./src/config",
+    "@constants": "./src/constants"
+  },
+  "projectType": "typescript",
+  "framework": "react",
+  "bundler": "webpack",
+  "testFramework": "jest",
+  "linter": "eslint",
+  "formatter": "prettier",
+  "packageManager": "npm",
+  "monorepo": false,
+  "workspaces": [],
+  "customRules": [
+    {
+      "name": "ignore-react-components",
+      "description": "Ignore React component lifecycle methods and common patterns",
+      "pattern": "^(render|componentDidMount|componentWillUnmount|useEffect|useState|useCallback|useMemo)$"
+    },
+    {
+      "name": "ignore-api-endpoints",
+      "description": "Ignore API endpoint definitions that might be used dynamically",
+      "pattern": ".*[Ee]ndpoint.*"
+    },
+    {
+      "name": "ignore-event-handlers",
+      "description": "Ignore event handler functions that might be used in templates",
+      "pattern": "^(on[A-Z].*|handle[A-Z].*)$"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "react-plugin",
+      "enabled": true,
+      "options": {
+        "ignoreComponentProps": true,
+        "ignoreHookDependencies": true,
+        "ignoreContextProviders": true
+      }
+    },
+    {
+      "name": "typescript-plugin",
+      "enabled": true,
+      "options": {
+        "ignoreTypeOnlyImports": true,
+        "ignoreDeclarationFiles": true,
+        "ignoreAmbientModules": true
+      }
+    },
+    {
+      "name": "webpack-plugin",
+      "enabled": true,
+      "options": {
+        "ignoreDynamicImports": true,
+        "ignoreWebpackComments": true,
+        "ignoreChunkNames": true
+      }
+    }
+  ],
+  "reporting": {
+    "enabled": true,
+    "outputFile": "./reports/unused-exports.json",
+    "formats": ["json", "csv", "html"],
+    "includeMetrics": true,
+    "includeTimestamp": true,
+    "includeGitInfo": true,
+    "groupBy": ["directory", "fileType", "exportType"],
+    "sortBy": "fileName",
+    "sortOrder": "asc"
+  },
+  "notifications": {
+    "enabled": false,
+    "webhook": "",
+    "email": "",
+    "slack": "",
+    "teams": ""
+  },
+  "integrations": {
+    "ci": {
+      "enabled": true,
+      "failOnUnusedExports": true,
+      "commentOnPR": true,
+      "updateStatus": true
+    },
+    "git": {
+      "enabled": true,
+      "ignoreUncommittedFiles": false,
+      "onlyAnalyzeChangedFiles": false,
+      "compareWithBranch": "main"
+    },
+    "ide": {
+      "enabled": true,
+      "vscode": {
+        "enabled": true,
+        "showInProblems": true,
+        "showInExplorer": true,
+        "showDecorations": true
+      },
+      "webstorm": {
+        "enabled": false
+      }
+    }
+  }
+}

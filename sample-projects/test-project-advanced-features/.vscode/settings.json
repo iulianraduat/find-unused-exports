@@ -1,0 +1,3 @@
+{
+  "findUnusedExports.detectCircularImports": true
+}
