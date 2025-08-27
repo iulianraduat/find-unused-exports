@@ -1,9 +1,9 @@
 import { workspace } from 'vscode'
 
-export function areMainExportsUsed(): boolean {
+export function areMainExportsUsed() {
   return workspace.getConfiguration().get('findUnusedExports.considerMainExportsUsed', false)
 }
 
-export function isResultExpanded(): boolean {
+export function isResultExpanded() {
   return workspace.getConfiguration().get('findUnusedExports.defaultResultExpanded', false)
 }

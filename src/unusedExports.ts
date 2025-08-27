@@ -2,7 +2,7 @@ import { TreeItemCollapsibleState } from 'vscode'
 import { Core, FileDataType } from './core'
 import { Provider } from './provider'
 import { DependencyType, TDependency } from './tdependency'
-import { pathResolve } from './unused-exports/fsUtils'
+import { pathResolve } from './unused-exports/fsUtilities'
 import { TNotUsed } from './unused-exports/notUsed'
 
 export class UnusedExportsProvider extends Provider {
@@ -43,8 +43,8 @@ function mapFile2Dependency(
 }
 
 function unusedExportsInFile(parent: TDependency, isNotHidden: (node: TDependency) => boolean): TDependency[] {
-  const mapFn = mapUnusedExport2Dependency(parent)
-  return parent.notUsedExports?.map(mapFn).filter(isNotHidden) ?? []
+  const mapFunction = mapUnusedExport2Dependency(parent)
+  return parent.notUsedExports?.map((element) => mapFunction(element)).filter((element) => isNotHidden(element)) ?? []
 }
 
 function mapUnusedExport2Dependency(parent: TDependency) {

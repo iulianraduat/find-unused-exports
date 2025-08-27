@@ -1,9 +1,8 @@
-'use strict'
-
 import { Disposable, ExtensionContext, commands, window, workspace } from 'vscode'
 import { CircularImportsProvider } from './circularImports'
 import { Core } from './core'
 import { UnusedExportsDecorator } from './decorations'
+import { ExcludesProvider, IncludesProvider } from './includesExcludes'
 import { OverviewProvider } from './overview'
 import { TDependency } from './tdependency'
 import { showOutputWindow } from './unused-exports/log'
@@ -28,18 +27,32 @@ export function activate(context: ExtensionContext) {
   const circularImportsProvider = new CircularImportsProvider(cores)
   window.registerTreeDataProvider('circularImports', circularImportsProvider)
 
+  const includesProvider = new IncludesProvider(cores)
+  window.registerTreeDataProvider('includes', includesProvider)
+
+  const excludesProvider = new ExcludesProvider(cores)
+  window.registerTreeDataProvider('excludes', excludesProvider)
+
   // Initialize unused exports decorator
   const unusedExportsDecorator = new UnusedExportsDecorator(cores)
   context.subscriptions.push(unusedExportsDecorator)
 
   // Register decorator as listener for each core to update decorations
-  cores.forEach((core) => {
+  for (const core of cores) {
     core.registerListener(() => {
       setTimeout(() => unusedExportsDecorator.updateDecorations(), 100)
     })
-  })
+  }
 
   let disposable: Disposable
+
+  // Listen for configuration changes to refresh views when circular imports setting changes
+  disposable = workspace.onDidChangeConfiguration((event) => {
+    if (event.affectsConfiguration('findUnusedExports.detectCircularImports')) {
+      refreshAllCores(cores)
+    }
+  })
+  context.subscriptions.push(disposable)
   disposable = commands.registerCommand('unusedExports.refresh', () => refreshAllCores(cores))
   context.subscriptions.push(disposable)
 
@@ -121,7 +134,7 @@ export function activate(context: ExtensionContext) {
 }
 
 function refreshAllCores(cores: Core[]) {
-  cores.forEach((core) => core.refresh())
+  for (const core of cores) core.refresh()
 }
 
 // find-unused-exports:ignore-next-line-exports

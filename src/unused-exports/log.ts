@@ -1,14 +1,14 @@
-import { appendFileSync, existsSync, mkdirSync, rmSync } from 'fs'
-import { sep as pathSep } from 'path'
+import { appendFileSync, existsSync, mkdirSync, rmSync } from 'node:fs'
+import path from 'node:path'
 import { OutputChannel, window, workspace } from 'vscode'
 
 export function resetLog() {
-  if (isLogOnlyLastRunEnabled() === false) {
+  if (!isLogOnlyLastRunEnabled()) {
     return
   }
 
   const logPath = getLogPath()
-  if (logPath === undefined) {
+  if (typeof logPath !== 'string') {
     return
   }
 
@@ -27,12 +27,12 @@ export function log(category: string, context?: unknown, ms1970Utc?: number): nu
   const tsNow = Date.now()
 
   const debug = isDebugEnabled()
-  if (debug === false) {
+  if (!debug) {
     return tsNow
   }
 
-  const msg = context !== undefined ? `${category}: ${JSON.stringify(context, null, 2)}` : category
-  logInVSCodeOutput(msg, ms1970Utc ? tsNow - ms1970Utc : undefined)
+  const message = context === undefined ? category : `${category}: ${JSON.stringify(context, null, 2)}`
+  logInVSCodeOutput(message, ms1970Utc ? tsNow - ms1970Utc : undefined)
   return tsNow
 }
 
@@ -46,15 +46,15 @@ export function showOutputWindow() {
   ochannel?.show()
 }
 
-function logInVSCodeOutput(msg: string, durationMs?: number) {
+function logInVSCodeOutput(message: string, durationMs?: number) {
   if (!ochannel) {
     ochannel = window.createOutputChannel('Find unused exports')
   }
 
-  const logMsg = durationMs !== undefined ? `${msg} (${durationMs}ms)` : msg
-  ochannel.appendLine(logMsg)
+  const logMessage = durationMs === undefined ? message : `${message} (${durationMs}ms)`
+  ochannel.appendLine(logMessage)
 
-  if (isLogInFileEnabled() === false) {
+  if (!isLogInFileEnabled()) {
     return
   }
 
@@ -64,7 +64,7 @@ function logInVSCodeOutput(msg: string, durationMs?: number) {
   }
 
   try {
-    appendFileSync(logPath, logMsg)
+    appendFileSync(logPath, logMessage)
     appendFileSync(logPath, '\n')
   } catch {
     return
@@ -82,9 +82,9 @@ function getLogPath(): string | undefined {
   }
 
   const rootPath = workspaceFolders[0].uri.fsPath
-  const vscodePath = `${rootPath}${pathSep}.vscode`
-  if (existsSync(vscodePath) === false) {
+  const vscodePath = path.join(rootPath, '.vscode')
+  if (!existsSync(vscodePath)) {
     mkdirSync(vscodePath)
   }
-  return `${vscodePath}${pathSep}find-unused-exports.log`
+  return path.join(vscodePath, 'find-unused-exports.log')
 }

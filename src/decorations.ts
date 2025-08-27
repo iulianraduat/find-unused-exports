@@ -90,8 +90,8 @@ export class UnusedExportsDecorator {
     const ranges: Range[] = []
 
     // Simple line-by-line search
-    for (let i = 0; i < document.lineCount; i++) {
-      const line = document.lineAt(i)
+    for (let index = 0; index < document.lineCount; index++) {
+      const line = document.lineAt(index)
       const text = line.text
 
       // Look for the export name in lines that start with 'export'
@@ -102,9 +102,9 @@ export class UnusedExportsDecorator {
           const beforeChar = nameIndex > 0 ? text[nameIndex - 1] : ' '
           const afterChar = nameIndex + exportName.length < text.length ? text[nameIndex + exportName.length] : ' '
 
-          if (/\s|[({=:,]/.test(beforeChar) && /\s|[)}=:,;(]/.test(afterChar)) {
-            const startPos = line.range.start.with(i, nameIndex)
-            const endPos = line.range.start.with(i, nameIndex + exportName.length)
+          if (/[\s(,:={]/.test(beforeChar) && /[\s(),:;=}]/.test(afterChar)) {
+            const startPos = line.range.start.with(index, nameIndex)
+            const endPos = line.range.start.with(index, nameIndex + exportName.length)
             ranges.push(new Range(startPos, endPos))
           }
         }

@@ -4,12 +4,12 @@ import { isResultExpanded } from './settings'
 export async function getNotUsed(relations: TRelation[]): Promise<TNotUsed[]> {
   const nodes: TNotUsed[] = []
 
-  relations.forEach((rel) => {
-    const { exports, path } = rel
+  for (const relation of relations) {
+    const { exports, path } = relation
     const isLeaking: boolean = exports?.notUsed !== undefined
 
-    if (isLeaking === false) {
-      return
+    if (!isLeaking) {
+      continue
     }
 
     const isCompletelyUnused: boolean = isLeaking
@@ -25,11 +25,11 @@ export async function getNotUsed(relations: TRelation[]): Promise<TNotUsed[]> {
       notUsedExports,
     }
     nodes.push(node)
-  })
+  }
   return nodes
 }
 
-export const sortNotUsedFn = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath)
+export const sortNotUsedFunction = (a: TNotUsed, b: TNotUsed): number => a.filePath.localeCompare(b.filePath)
 
 export interface TNotUsed {
   circularImports?: string[]

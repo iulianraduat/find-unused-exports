@@ -3,7 +3,7 @@ import { Core, FileDataType } from './core'
 import { Provider } from './provider'
 import { DependencyType, TDependency } from './tdependency'
 import { isCircularImportsEnabled } from './unused-exports/circularImports'
-import { pathResolve } from './unused-exports/fsUtils'
+import { pathResolve } from './unused-exports/fsUtilities'
 import { TNotUsed } from './unused-exports/notUsed'
 
 export class CircularImportsProvider extends Provider {
@@ -50,8 +50,8 @@ function mapFile2Dependency(
 }
 
 function circularImportsInFile(pathToPrj: string | undefined, firstPathname: string, node: TDependency): TDependency[] {
-  const mapFn = mapCircularImport2Dependency(pathToPrj, firstPathname, node)
-  return node.circularImports?.map(mapFn) ?? []
+  const mapFunction = mapCircularImport2Dependency(pathToPrj, firstPathname, node)
+  return node.circularImports?.map((element, index) => mapFunction(element, index)) ?? []
 }
 
 function mapCircularImport2Dependency(pathToPrj: string | undefined, firstPathname: string, parent: TDependency) {
@@ -87,7 +87,7 @@ function getNextImport(firstPathname: string, circularImports: string[] | undefi
   return getFileBaseName(pathname)
 }
 
-const regNextImport = /([^/\\]+)(?:\.[^.]+)$/
+const regNextImport = /([^/\\]+)\.[^.]+$/
 function getFileBaseName(pathname?: string): string {
   if (pathname === undefined) {
     return ''

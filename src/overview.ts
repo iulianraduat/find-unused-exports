@@ -1,4 +1,13 @@
-import { Event, EventEmitter, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, workspace } from 'vscode'
+import {
+  Event,
+  EventEmitter,
+  ProviderResult,
+  ThemeIcon,
+  TreeDataProvider,
+  TreeItem,
+  TreeItemCollapsibleState,
+  workspace,
+} from 'vscode'
 import { Core, someCoreRefreshing } from './core'
 import { OverviewContext } from './overviewContext'
 import { Refreshing } from './refreshing'
@@ -6,21 +15,22 @@ import { TDependency } from './tdependency'
 import { isResultExpanded } from './unused-exports/settings'
 
 export class OverviewProvider implements TreeDataProvider<TOverviewEntry | TDependency> {
+  // eslint-disable-next-line unicorn/prefer-event-target
   private _onDidChangeTreeData: EventEmitter<TOverviewEntry | TDependency | undefined> = new EventEmitter<
     TOverviewEntry | undefined
   >()
   public readonly onDidChangeTreeData: Event<TOverviewEntry | TDependency | undefined> = this._onDidChangeTreeData.event
 
   constructor(private cores: Core[]) {
-    cores.forEach((core) => core.registerListener(this.refresh))
+    for (const core of cores) core.registerListener(this.refresh)
   }
 
   public refresh = () => {
-    this._onDidChangeTreeData.fire(undefined)
+    this._onDidChangeTreeData.fire({ type: OverviewEntryType.FOLDER })
   }
 
-  public getParent() {
-    return undefined
+  public getParent(element: TOverviewEntry): ProviderResult<TOverviewEntry> {
+    return element
   }
 
   public getTreeItem(element: TOverviewEntry): TreeItem {
@@ -52,40 +62,25 @@ export class OverviewProvider implements TreeDataProvider<TOverviewEntry | TDepe
   }
 
   public getChildFile(element: TOverviewEntry): Thenable<TOverviewEntry[]> {
-    const ctx = element.ctx
+    const context = element.context
 
-    if (!ctx) {
+    if (!context) {
       return Promise.resolve([])
     }
 
     const rows = [
-      this.map2DateTime(ctx.lastRun, 'Last run', 'calendar'),
-      this.map2OverviewEntry(ctx.processedFiles, 'Processed files', 'files'),
-      this.map2OverviewEntry(ctx.filesHavingImportsOrExports, 'Files having imports|exports', 'files'),
-      this.map2OverviewEntry(ctx.totalImports, 'Total imports', 'info'),
-      this.map2OverviewEntry(ctx.totalExports, 'Total exports', 'info'),
-      this.map2OverviewEntry(ctx.notUsedExports, 'Not used exports', 'info'),
-      this.map2OverviewEntry(ctx.foundCircularImports, 'Found circular imports', 'info'),
-      this.map2OverviewEntry(ctx.totalEllapsedTime, 'Total ellapsed time (ms)', 'watch'),
-      this.map2OverviewEntry(ctx.pathToPrj, "Project's root", 'folder-opened'),
+      this.map2DateTime(context.lastRun, 'Last run', 'calendar'),
+      this.map2OverviewEntry(context.processedFiles, 'Processed files', 'files'),
+      this.map2OverviewEntry(context.filesHavingImportsOrExports, 'Files having imports|exports', 'files'),
+      this.map2OverviewEntry(context.totalImports, 'Total imports', 'info'),
+      this.map2OverviewEntry(context.totalExports, 'Total exports', 'info'),
+      this.map2OverviewEntry(context.notUsedExports, 'Not used exports', 'info'),
+      this.map2OverviewEntry(context.foundCircularImports, 'Found circular imports', 'info'),
+      this.map2OverviewEntry(context.totalEllapsedTime, 'Total ellapsed time (ms)', 'watch'),
     ]
 
-    ctx.globInclude?.forEach((globInclude) =>
-      rows.push(this.map2LabelValueIcon('Include', globInclude, 'file-text', ctx.countGlobInclude[globInclude] || 0)),
-    )
-
-    ctx.globExclude?.forEach((globExclude, index) =>
-      rows.push(
-        this.map2LabelValueIcon(
-          'Exclude',
-          globExclude,
-          'file-text',
-          ctx.numDefaultExclude && index < ctx.numDefaultExclude ? 'default' : undefined,
-        ),
-      ),
-    )
-
-    ctx.errors?.forEach((error) => rows.push(this.map2LabelValueIcon('Warning', error, 'alert')))
+    if (context.errors)
+      for (const error of context.errors) rows.push(this.map2LabelValueIcon('Warning', error, 'alert'))
 
     return Promise.resolve(rows)
   }
@@ -114,7 +109,7 @@ class TOverviewEntry extends TreeItem {
     label: string,
     icon?: string,
     description?: string | number,
-    public ctx?: OverviewContext,
+    public context?: OverviewContext,
   ) {
     super(label, getCollapsibleState(type, description))
 
@@ -124,10 +119,10 @@ class TOverviewEntry extends TreeItem {
     if (description !== undefined) {
       this.description = `${description}`
     }
-    if (type === OverviewEntryType.FOLDER && ctx?.pathToPrj !== undefined) {
-      this.tooltip = ctx.pathToPrj
+    if (type === OverviewEntryType.FOLDER && context?.pathToPrj !== undefined) {
+      this.tooltip = context.pathToPrj
     }
-    if (type === OverviewEntryType.FOLDER && ctx?.pathToPrj !== undefined) {
+    if (type === OverviewEntryType.FOLDER && context?.pathToPrj !== undefined) {
       this.contextValue = 'folder'
     }
   }
@@ -146,8 +141,8 @@ function getCollapsibleState(type: OverviewEntryType, description?: string | num
   return isResultExpanded() ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
 }
 
-function getOverviewNode(ctx: OverviewContext): TOverviewEntry {
-  return new TOverviewEntry(OverviewEntryType.FOLDER, ctx.workspaceName, 'folder-opened', ctx.info, ctx)
+function getOverviewNode(context: OverviewContext): TOverviewEntry {
+  return new TOverviewEntry(OverviewEntryType.FOLDER, context.workspaceName, 'folder-opened', context.info, context)
 }
 
 enum OverviewEntryType {

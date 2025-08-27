@@ -1,7 +1,7 @@
-import { sep as pathSep } from 'path'
+import path from 'node:path'
 import { OverviewContext, addGlobInclude } from '../overviewContext'
 import { TContext } from './context'
-import { getAdjustedPath, globSync, pathResolve } from './fsUtils'
+import { getAdjustedPath, globSync, pathResolve } from './fsUtilities'
 import { log } from './log'
 
 export interface TTsFile {
@@ -23,12 +23,12 @@ export async function getSourceFiles(pathToPrj: string, context: TContext): Prom
   context.overviewContext.pathToPrj = pathToPrj
 
   if (files === undefined && include === undefined) {
-    const res: TTsFile[] = []
+    const files: TTsFile[] = []
     context.overviewContext.globInclude = [globRegexp]
     context.overviewContext.globExclude = globExcludeExtended
     context.overviewContext.numDefaultExclude = defaultExclude.length
-    globFile(res, pathToPrj, globRegexp, globExcludeExtended, context.overviewContext)
-    return res
+    globFile(files, pathToPrj, globRegexp, globExcludeExtended, context.overviewContext)
+    return files
   }
 
   /* We want to see the stats before doing the actions */
@@ -38,17 +38,17 @@ export async function getSourceFiles(pathToPrj: string, context: TContext): Prom
   context.overviewContext.globExclude = globExclude
   context.overviewContext.numDefaultExclude = undefined
 
-  const res: TTsFile[] = []
+  const sourceFiles: TTsFile[] = []
   if (explicitFiles !== undefined) {
-    globFiles(res, pathToPrj, explicitFiles, undefined, context.overviewContext)
+    globFiles(sourceFiles, pathToPrj, explicitFiles, undefined, context.overviewContext)
   }
   if (include !== undefined) {
-    globFiles(res, pathToPrj, includes, globExclude, context.overviewContext)
+    globFiles(sourceFiles, pathToPrj, includes, globExclude, context.overviewContext)
   }
   // TODO remove duplicated files
   // - can influence the performance as there can be a lot of files already added in the array
   // - now each duplicated file will be scanned again for imports and exports
-  return res
+  return sourceFiles
 }
 
 const getGlobRegexp = (allowJs?: boolean): string => (allowJs ? '**/*.{ts,js}?(x)' : '**/*.ts?(x)')
@@ -59,13 +59,16 @@ function fixPaths(paths: string[]): string[] {
 
 const reBackslash = new RegExp('\\\\', 'g')
 function fixPath(filePath: string) {
-  switch (pathSep) {
-    case '/':
+  switch (path.sep) {
+    case '/': {
       return filePath
-    case '\\':
-      return filePath.replace(reBackslash, '/')
-    default:
+    }
+    case '\\': {
+      return filePath.replaceAll(reBackslash, '/')
+    }
+    default: {
       return filePath
+    }
   }
 }
 
@@ -86,27 +89,27 @@ function applyGlob(filePath: string, globRegexp?: string): string {
   /* we match "/*" at the end of string */
   const reMatchAll = /\/\*$/
   /* we keep "/*" plus the extensions */
-  const ext = globRegexp.substring('**'.length)
-  const fixedFilePath = filePath.replace(reMatchAll, ext)
+  const extension = globRegexp.slice('**'.length)
+  const fixedFilePath = filePath.replace(reMatchAll, extension)
   return fixedFilePath
 }
 
 function globFiles(
-  res: TTsFile[],
+  sourceFiles: TTsFile[],
   pathToPrj: string,
   globRegexp: string[],
   globIgnore: string[] | undefined,
-  ctx: OverviewContext,
+  context: OverviewContext,
 ) {
-  globRegexp.forEach((gre) => globFile(res, pathToPrj, gre, globIgnore, ctx))
+  for (const gre of globRegexp) globFile(sourceFiles, pathToPrj, gre, globIgnore, context)
 }
 
 function globFile(
-  res: TTsFile[],
+  sourceFiles: TTsFile[],
   pathToFolder: string,
   globRegexp: string,
   globIgnore: string[] | undefined,
-  ctx: OverviewContext,
+  context: OverviewContext,
 ) {
   log('📂 Using glob rule', pathResolve(pathToFolder, globRegexp))
   globIgnore &&
@@ -116,10 +119,11 @@ function globFile(
     )
   let count = 0
   globSync(globRegexp, pathToFolder, globIgnore).filter((f: string) => {
-    const source = pathResolve(pathToFolder, f)
+    // globSync returns absolute paths, so we don't need to resolve them again
+    const source = f.startsWith('/') || /^[A-Za-z]:/.test(f) ? f : pathResolve(pathToFolder, f)
     log('└ Found source file', source)
-    res.push({ path: source })
+    sourceFiles.push({ path: source })
     count++
   })
-  addGlobInclude(ctx, getAdjustedPath(fixPath(pathToFolder), globRegexp), count)
+  addGlobInclude(context, getAdjustedPath(fixPath(pathToFolder), globRegexp), count)
 }

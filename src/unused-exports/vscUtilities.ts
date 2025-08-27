@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
-import { sep as pathSep } from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import { workspace } from 'vscode'
-import { fixPathSeparator } from './fsUtils'
+import { fixPathSeparator } from './fsUtilities'
 
 interface TConfig {
   ignore: {
@@ -16,10 +16,10 @@ function getConfig(): TConfig | undefined {
   }
 
   try {
-    const content = readFileSync(configPath, 'utf8')
-    const config: TConfig = JSON.parse(content)
-    if (config.ignore.files && Array.isArray(config.ignore.files) === false) {
-      throw new Error()
+    const content = fs.readFileSync(configPath, 'utf8')
+    const config = JSON.parse(content) as TConfig
+    if (config.ignore.files && !Array.isArray(config.ignore.files)) {
+      throw new Error('findUnusedExports.ignore.files must be an array')
     }
     return config
   } catch {
@@ -27,18 +27,18 @@ function getConfig(): TConfig | undefined {
   }
 }
 
-function getConfigPath(): string | undefined {
+function getConfigPath() {
   const workspaceFolders = workspace.workspaceFolders
   if (workspaceFolders === undefined || workspaceFolders.length === 0) {
     return
   }
 
   const rootPath = workspaceFolders[0].uri.fsPath
-  const vscodePath = `${rootPath}${pathSep}.vscode`
-  if (existsSync(vscodePath) === false) {
-    mkdirSync(vscodePath)
+  const vscodePath = path.join(rootPath, '.vscode')
+  if (!fs.existsSync(vscodePath)) {
+    fs.mkdirSync(vscodePath)
   }
-  return `${vscodePath}${pathSep}find-unused-exports.json`
+  return path.join(vscodePath, 'find-unused-exports.json')
 }
 
 function getIgnoreFilenames(): string[] {
@@ -50,7 +50,7 @@ function getIgnoreFilenames(): string[] {
   return config.ignore.files ?? []
 }
 
-export function addToIgnoreFilenames(filePath: string): void {
+export function addToIgnoreFilenames(filePath: string) {
   const configPath = getConfigPath()
   if (configPath === undefined) {
     return
@@ -65,7 +65,7 @@ export function addToIgnoreFilenames(filePath: string): void {
 
   alreadyIgnoredFiles.push(fixedFilepath)
   const config: TConfig = { ignore: { files: alreadyIgnoredFiles } }
-  writeFileSync(configPath, JSON.stringify(config, null, 2))
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
 }
 
 export function isFileIgnored(filePath: string): boolean {

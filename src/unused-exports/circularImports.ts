@@ -9,7 +9,7 @@ export async function detectCircularImports(
   nodes: TNotUsed[],
   ts?: number,
 ): Promise<[TNotUsed[], number]> {
-  if (isCircularImportsEnabled() === false) {
+  if (!isCircularImportsEnabled()) {
     return [nodes, 0]
   }
 
@@ -27,27 +27,27 @@ export async function detectCircularImports(
   return [nodes, cycles.length]
 }
 
-export function isCircularImportsEnabled(): boolean {
+export function isCircularImportsEnabled() {
   return workspace.getConfiguration().get('findUnusedExports.detectCircularImports', false)
 }
 
 /* Relations */
 
 function getOptimizedRelations(relations: TRelation[]): TRelation[] {
-  let prevRelations = relations
+  let previousRelations = relations
   while (true) {
-    const newRelations = optimizeRelations(prevRelations)
-    if (newRelations.length === prevRelations.length) {
-      return prevRelations
+    const newRelations = optimizeRelations(previousRelations)
+    if (newRelations.length === previousRelations.length) {
+      return previousRelations
     }
-    prevRelations = newRelations
+    previousRelations = newRelations
   }
 }
 
 function optimizeRelations(relations: TRelation[]): TRelation[] {
   return relations
-    .map((rel) => toRelationImports(rel, relations))
-    .filter((rel) => rel !== undefined && hasRelationExports(rel)) as TRelation[]
+    .map((relation) => toRelationImports(relation, relations))
+    .filter((relation) => relation !== undefined && hasRelationExports(relation)) as TRelation[]
 }
 
 function toRelationImports(relation: TRelation, relations: TRelation[]): TRelation | undefined {
@@ -74,14 +74,14 @@ function hasRelationExports(relation: TRelation): boolean {
 }
 
 function stillExists(path: string, relations: TRelation[]): boolean {
-  return relations.findIndex((rel) => rel.path === path) >= 0
+  return relations.some((relation) => relation.path === path)
 }
 
 function array2map4relations(relations: TRelation[]): Record<string, string[]> {
   const map: Record<string, string[]> = {}
-  relations.forEach((rel) => {
-    map[rel.path] = rel.imports?.map((imp) => imp.path) || []
-  })
+  for (const relation of relations) {
+    map[relation.path] = relation.imports?.map((imp) => imp.path) || []
+  }
   return map
 }
 
@@ -92,7 +92,7 @@ function findCirculars(tree: Record<string, string[]>): string[][] {
 
   function visit(id: string, used: string[]): void {
     const index = used.indexOf(id)
-    if (index > -1) {
+    if (index !== -1) {
       const circularPath = index === 0 ? used : used.slice(index)
       /* we avoid pushing an array which will be empty in final */
       if (circularPath.length > 1) {
@@ -113,7 +113,7 @@ function findCirculars(tree: Record<string, string[]>): string[][] {
     }
 
     delete tree[id]
-    deps.forEach((dep) => visit(dep, [...used]))
+    for (const dep of deps) visit(dep, [...used])
   }
 
   for (const id in tree) {
@@ -126,7 +126,7 @@ function findCirculars(tree: Record<string, string[]>): string[][] {
 /* cycles to nodes */
 
 function addCyclesToNodes(cycles: string[][], nodes: TNotUsed[]): void {
-  cycles.forEach((c) => addCycleToNodes(c, nodes))
+  for (const c of cycles) addCycleToNodes(c, nodes)
 }
 
 function addCycleToNodes(circularImportsPath: string[], nodes: TNotUsed[]): void {

@@ -1,5 +1,5 @@
-import { accessSync } from 'fs'
-import { join as pathJoin } from 'path'
+import { accessSync } from 'node:fs'
+import path from 'node:path'
 import { Selection, TextDocument, TextEditor, commands, window, workspace } from 'vscode'
 import { OverviewContext } from './overviewContext'
 import { app } from './unused-exports/app'
@@ -48,11 +48,11 @@ export class Core {
     // We announce all listeners that we refresh
     this.lockRefresh = true
     this.cacheFiles = undefined
-    this.listeners.forEach((listener) => listener())
+    for (const listener of this.listeners) listener()
     await this.doAnalyse()
     // It must happen before we inform the listeners otherwise isRefreshing is returning true
     this.lockRefresh = false
-    this.listeners.forEach((listener) => listener())
+    for (const listener of this.listeners) listener()
   }
 
   public isRefreshing() {
@@ -62,8 +62,8 @@ export class Core {
   private async doAnalyse(): Promise<TNotUsed[] | undefined> {
     this.overviewContext.lastRun = new Date()
 
-    const packageJsonPath = pathJoin(this.workspaceRoot, 'package.json')
-    if (this.pathExists(packageJsonPath) === false) {
+    const packageJsonPath = path.join(this.workspaceRoot, 'package.json')
+    if (!this.pathExists(packageJsonPath)) {
       this.overviewContext.info = 'No package.json found in workspace'
       return undefined
     }
@@ -86,10 +86,12 @@ export class Core {
     const cache = this.cacheFiles ?? []
 
     switch (type) {
-      case FileDataType.CIRCULAR_IMPORTS:
+      case FileDataType.CIRCULAR_IMPORTS: {
         return cache.filter((node) => this.isListNotEmpty(node.circularImports))
-      case FileDataType.UNUSED_EXPORTS:
+      }
+      case FileDataType.UNUSED_EXPORTS: {
         return cache.filter((node) => this.isListNotEmpty(node.notUsedExports))
+      }
     }
   }
 
@@ -104,27 +106,27 @@ export class Core {
   /* utility functions */
 
   public static open(filePath: string): void {
-    workspace.openTextDocument(filePath).then((doc) => {
-      window.showTextDocument(doc)
+    workspace.openTextDocument(filePath).then((document) => {
+      window.showTextDocument(document)
     })
   }
 
   public static findInFile(filePath: string, unusedExportOrCircularImport: string): void {
-    workspace.openTextDocument(filePath).then((doc) => {
-      window.showTextDocument(doc).then(() => {
+    workspace.openTextDocument(filePath).then((document) => {
+      window.showTextDocument(document).then(() => {
         const editor: TextEditor | undefined = window.activeTextEditor
         const document: TextDocument | undefined = editor?.document
         if (editor === undefined || document === undefined) {
           return
         }
 
-        const num = document.lineCount
-        for (let i = 0; i < num; i++) {
-          const line = document.lineAt(i)
+        const numberLines = document.lineCount
+        for (let index = 0; index < numberLines; index++) {
+          const line = document.lineAt(index)
           if (line.text.includes(unusedExportOrCircularImport)) {
             const start = line.text.indexOf(unusedExportOrCircularImport)
             const end = start + unusedExportOrCircularImport.length
-            editor.selection = new Selection(i, start, i, end)
+            editor.selection = new Selection(index, start, index, end)
             break
           }
         }

@@ -1,6 +1,7 @@
-import { existsSync, lstatSync } from 'fs'
+import { existsSync, lstatSync } from 'node:fs'
+import path from 'node:path'
 import { OverviewContext } from '../overviewContext'
-import { pathResolve, readJsonFile } from './fsUtils'
+import { pathResolve, readJsonFile } from './fsUtilities'
 import { log } from './log'
 
 export interface TContext {
@@ -25,12 +26,11 @@ export async function makeContext(pathToPrj: string, overviewContext: OverviewCo
   const pathToJsconfig = pathResolve(pathToPrj, 'jsconfig.json')
   let tsconfig = readJsonFile(pathToTsconfig, overviewContext)
   if (tsconfig) {
-    log('⚙️ Loading configuration from', pathToTsconfig)
-  }
-  if (tsconfig === undefined) {
+    log('⚙️ Loading ts configuration from', pathToTsconfig)
+  } else {
     tsconfig = readJsonFile(pathToJsconfig, overviewContext)
     if (tsconfig) {
-      log('⚙️ Loading config from', pathToJsconfig)
+      log('⚙️ Loading js configuration from', pathToJsconfig)
       const { compilerOptions = {} } = tsconfig
       tsconfig.compilerOptions = {
         ...(typeof compilerOptions === 'object' && compilerOptions !== null ? compilerOptions : {}),
@@ -40,7 +40,10 @@ export async function makeContext(pathToPrj: string, overviewContext: OverviewCo
     }
   }
 
-  const { compilerOptions, exclude, files, include } = tsconfig || {}
+  // Process tsconfig references recursively to collect all includes/excludes
+  const processedTsconfig = await processTsconfigReferences(pathToTsconfig, tsconfig, overviewContext, new Set())
+
+  const { compilerOptions, exclude, files, include } = processedTsconfig || {}
   const jsConfig = { allowJs: true }
   const { allowJs, baseUrl, moduleSuffixes, outDir, paths } = compilerOptions || jsConfig
 
@@ -65,7 +68,7 @@ export async function makeContext(pathToPrj: string, overviewContext: OverviewCo
   const includeFindUnusedExports = mixArrays(includeFindUnusedExports1, includeFindUnusedExports2)
   const excludeFindUnusedExports = mixArrays(excludeFindUnusedExports1, excludeFindUnusedExports2)
 
-  const res: TContext = {
+  return {
     allowJs,
     exclude: getExclude(pathToPrj, excludeFindUnusedExports ?? exclude, excludeFindUnusedExports ? undefined : outDir),
     files: includeFindUnusedExports ? undefined : files,
@@ -77,7 +80,6 @@ export async function makeContext(pathToPrj: string, overviewContext: OverviewCo
     pathToPrj,
     paths,
   }
-  return res
 }
 
 function mixArrays(a?: unknown, b?: unknown): string[] | undefined {
@@ -85,15 +87,15 @@ function mixArrays(a?: unknown, b?: unknown): string[] | undefined {
     return undefined
   }
 
-  if (Array.isArray(a) === false && Array.isArray(b) === false) {
+  if (!Array.isArray(a) && !Array.isArray(b)) {
     return undefined
   }
 
-  if (Array.isArray(a) === false) {
+  if (!Array.isArray(a)) {
     return b as string[]
   }
 
-  if (Array.isArray(b) === false) {
+  if (!Array.isArray(b)) {
     return a as string[]
   }
 
@@ -105,29 +107,132 @@ function getInclude(pathToPrj: string, include?: string[]): string[] | undefined
     return
   }
 
-  const includeDirs = include.map((dir) => getGlobDir(pathToPrj, dir))
-  return includeDirs
+  const includeDirectories = include.map((directory) => getGlobDirectory(pathToPrj, directory))
+  return includeDirectories
 }
 
-function getExclude(pathToPrj: string, exclude?: string[], outDir?: string): string[] | undefined {
+function getExclude(pathToPrj: string, exclude?: string[], outDirirectory?: string): string[] | undefined {
   if (exclude) {
-    const excludeDirs = exclude.map((dir) => getGlobDir(pathToPrj, dir))
+    const excludeDirectories = exclude.map((directory) => getGlobDirectory(pathToPrj, directory))
 
-    if (outDir) {
-      excludeDirs.push(`${outDir}/**/*`)
+    if (outDirirectory) {
+      excludeDirectories.push(`${outDirirectory}/**/*`)
     }
 
-    return excludeDirs
+    return excludeDirectories
   }
 
-  const defaultExcludeDirs = ['node_modules/**/*', 'bower_components/**/*', 'jspm_packages/**/*']
-  if (outDir) {
-    defaultExcludeDirs.push(`${outDir}/**/*`)
+  const defaultExcludeDirectories = ['node_modules/**/*', 'bower_components/**/*', 'jspm_packages/**/*']
+  if (outDirirectory) {
+    defaultExcludeDirectories.push(`${outDirirectory}/**/*`)
   }
-  return defaultExcludeDirs
+  return defaultExcludeDirectories
 }
 
-function getGlobDir(pathToPrj: string, fsPath: string): string {
-  const dir = pathResolve(pathToPrj, fsPath)
-  return existsSync(dir) && lstatSync(dir).isDirectory() ? `${fsPath}/**/*` : fsPath
+function getGlobDirectory(pathToPrj: string, fsPath: string): string {
+  const directory = pathResolve(pathToPrj, fsPath)
+  return existsSync(directory) && lstatSync(directory).isDirectory() ? `${fsPath}/**/*` : fsPath
+}
+
+/**
+ * Recursively processes tsconfig references to collect all includes/excludes
+ * @param tsconfigPath Path to the current tsconfig file
+ * @param tsconfig The parsed tsconfig object
+ * @param overviewContext Context for error reporting
+ * @param visited Set of visited paths to prevent circular references
+ * @returns Combined tsconfig with all referenced includes/excludes
+ */
+async function processTsconfigReferences(
+  tsconfigPath: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tsconfig: any,
+  overviewContext: OverviewContext,
+  visited: Set<string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> {
+  if (!tsconfig || visited.has(tsconfigPath)) {
+    return tsconfig
+  }
+
+  visited.add(tsconfigPath)
+  const result = { ...tsconfig }
+  const references = tsconfig.references
+
+  if (!Array.isArray(references)) {
+    return result
+  }
+
+  const allIncludes: string[] = [...(tsconfig.include || [])]
+  const allExcludes: string[] = [...(tsconfig.exclude || [])]
+  const tsconfigDirectory = path.dirname(tsconfigPath)
+
+  for (const reference of references) {
+    if (!reference || typeof reference !== 'object') {
+      continue
+    }
+
+    const referencePath = (reference as { path?: string }).path
+    if (!referencePath || typeof referencePath !== 'string') {
+      continue
+    }
+
+    // Resolve the reference path relative to the current tsconfig directory
+    let resolvedReferencePath = path.resolve(tsconfigDirectory, referencePath)
+
+    // If the path doesn't end with .json, try to find tsconfig.json in that directory
+    if (!resolvedReferencePath.endsWith('.json')) {
+      const tsconfigInDirectory = path.join(resolvedReferencePath, 'tsconfig.json')
+      resolvedReferencePath = existsSync(tsconfigInDirectory) ? tsconfigInDirectory : `${resolvedReferencePath}.json`
+    }
+
+    if (!existsSync(resolvedReferencePath)) {
+      log(`⚠️ Referenced tsconfig not found: ${resolvedReferencePath}`)
+      continue
+    }
+
+    const referencedTsconfig = readJsonFile(resolvedReferencePath, overviewContext)
+    if (!referencedTsconfig) {
+      continue
+    }
+
+    // Recursively process the referenced tsconfig
+    const processedReference = await processTsconfigReferences(
+      resolvedReferencePath,
+      referencedTsconfig,
+      overviewContext,
+      visited,
+    )
+
+    if (processedReference) {
+      const referenceDirectory = path.dirname(resolvedReferencePath)
+
+      // Add includes from referenced tsconfig, making paths relative to the original project
+      if (Array.isArray(processedReference.include)) {
+        for (const includePath of processedReference.include) {
+          const absoluteIncludePath = path.resolve(referenceDirectory, includePath)
+          const relativeToOriginal = path.relative(path.dirname(tsconfigPath), absoluteIncludePath)
+          allIncludes.push(relativeToOriginal)
+        }
+      }
+
+      // Add excludes from referenced tsconfig, making paths relative to the original project
+      if (Array.isArray(processedReference.exclude)) {
+        for (const excludePath of processedReference.exclude) {
+          const absoluteExcludePath = path.resolve(referenceDirectory, excludePath)
+          const relativeToOriginal = path.relative(path.dirname(tsconfigPath), absoluteExcludePath)
+          allExcludes.push(relativeToOriginal)
+        }
+      }
+    }
+  }
+
+  // Update the result with combined includes/excludes
+  if (allIncludes.length > 0) {
+    result.include = allIncludes
+  }
+  if (allExcludes.length > 0) {
+    result.exclude = allExcludes
+  }
+
+  return result
 }

@@ -2,34 +2,34 @@ import { TExport } from './exports'
 import { TImport } from './imports'
 import { log } from './log'
 import { areMainExportsUsed } from './settings'
-import { isFileIgnored } from './vscUtils'
+import { isFileIgnored } from './vscUtilities'
 
 export async function buildRelations(
   imports: TImport[],
   exports: TExport[],
   mainInPackageJson?: string,
 ): Promise<TRelation[]> {
-  const arr: TRelation[] = []
-  imports.forEach(addImport(arr))
-  exports.forEach(addExport(arr, mainInPackageJson))
-  return arr
+  const array: TRelation[] = []
+  imports.forEach(addImport(array))
+  exports.forEach(addExport(array, mainInPackageJson))
+  return array
 }
 
-const addImport = (arr: TRelation[]) => (anImport: TImport) => {
+const addImport = (array: TRelation[]) => (anImport: TImport) => {
   const { inPath, name, fromPath } = anImport
 
-  let entry = findEntry(arr, inPath)
-  if (entry === undefined) {
+  let entry = findEntry(array, inPath)
+  if (!entry) {
     entry = { path: inPath }
-    arr.push(entry)
+    array.push(entry)
   }
 
-  if (entry.imports === undefined) {
+  if (!entry.imports) {
     entry.imports = []
   }
 
   let importEntry = findImport(entry.imports, fromPath)
-  if (importEntry === undefined) {
+  if (!importEntry) {
     importEntry = {
       path: fromPath,
       names: [],
@@ -40,23 +40,23 @@ const addImport = (arr: TRelation[]) => (anImport: TImport) => {
   importEntry.names.push(name)
 }
 
-const addExport = (arr: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
+const addExport = (array: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
   const { inPath, name, isUsed } = anExport
 
-  let entry = findEntry(arr, inPath)
-  if (entry === undefined) {
+  let entry = findEntry(array, inPath)
+  if (!entry) {
     entry = {
       path: inPath,
     }
-    arr.push(entry)
+    array.push(entry)
   }
 
-  if (entry.exports === undefined) {
+  if (!entry.exports) {
     entry.exports = {}
   }
 
   if (isUsed) {
-    if (entry.exports.used === undefined) {
+    if (!entry.exports.used) {
       entry.exports.used = []
     }
 
@@ -64,7 +64,7 @@ const addExport = (arr: TRelation[], mainInPackageJson?: string) => (anExport: T
     return
   }
 
-  if (entry.exports.notUsed === undefined) {
+  if (!entry.exports.notUsed) {
     entry.exports.notUsed = []
   }
 
@@ -85,16 +85,16 @@ const addExport = (arr: TRelation[], mainInPackageJson?: string) => (anExport: T
   }
 
   /* If the same file is found by multiple glob rules it will produce duplicates in the tree */
-  if (entry.exports.notUsed.some((knownName) => knownName === name)) {
+  if (entry.exports.notUsed.includes(name)) {
     return
   }
 
   entry.exports.notUsed.push(name)
 }
 
-const findEntry = (arr: TRelation[], path: string) => arr.find((entry) => entry.path === path)
+const findEntry = (array: TRelation[], path: string) => array.find((entry) => entry.path === path)
 
-const findImport = (imports: TRelationImport[], path: string) => imports.find((i) => i.path === path)
+const findImport = (imports: TRelationImport[], path: string) => imports.find((index) => index.path === path)
 
 export interface TRelation {
   exports?: TRelationExport

@@ -1,5 +1,5 @@
-import { existsSync, lstatSync, readFileSync } from 'fs'
-import { posix, resolve } from 'path'
+import fs from 'node:fs'
+import nodePath from 'node:path'
 import { glob } from 'glob'
 import { OverviewContext } from '../overviewContext'
 import { log } from './log'
@@ -9,29 +9,31 @@ export const readJsonFile = (
   overviewContext: OverviewContext,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): { [kes: string]: any } | undefined => {
-  if (existsSync(path) === false) {
+  if (!fs.existsSync(path)) {
     return undefined
   }
 
   try {
-    let content = readFileSync(path, 'utf8')
+    let content = fs.readFileSync(path, 'utf8')
     /* we remove the comments from it */
-    content = content.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m))
-    return JSON.parse(content)
-  } catch (e) {
-    if (e instanceof Error) {
-      log(`Error parsing "${path}"`, e.message ?? e)
-      overviewContext.errors?.push(`Error parsing "${path}": ${e.message ?? e}`)
+    content = content.replaceAll(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\S\s]*?\*\/)/g, (m, g) => (g ? '' : m))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parsed = JSON.parse(content) as { [kes: string]: any }
+    return parsed
+  } catch (error) {
+    if (error instanceof Error) {
+      log(`Error parsing "${path}"`, error.message ?? error)
+      overviewContext.errors?.push(`Error parsing "${path}": ${error.message ?? error}`)
     }
     return undefined
   }
 }
 
-export const readFile = (path: string): string => readFileSync(path, 'utf8')
+export const readFile = (path: string): string => fs.readFileSync(path, 'utf8')
 
 export const isDirectory = (path: string) => {
   try {
-    return lstatSync(path).isDirectory()
+    return fs.lstatSync(path).isDirectory()
   } catch {
     return false
   }
@@ -39,7 +41,7 @@ export const isDirectory = (path: string) => {
 
 export const isFile = (path: string) => {
   try {
-    return lstatSync(path).isFile()
+    return fs.lstatSync(path).isFile()
   } catch {
     return false
   }
@@ -50,12 +52,11 @@ export function getAdjustedPath(pathToPrj: string, globPath: string) {
 }
 
 export function pathResolve(...pathSegments: string[]) {
-  const res = resolve(...pathSegments).replace(/\\/g, '/')
-  return fixDriverLetterCase(res)
+  return fixDriverLetterCase(nodePath.resolve(...pathSegments).replaceAll('\\', '/'))
 }
 
 export function fixPathSeparator(filePath: string) {
-  return filePath.replace(/\\/g, '/')
+  return filePath.replaceAll('\\', '/')
 }
 
 const rePathWithDriverLetter = /^[A-Z]:/
@@ -64,14 +65,14 @@ export function fixDriverLetterCase(filePath: string) {
     return filePath
   }
 
-  const driverLetter = filePath.substring(0, 1).toLowerCase()
-  const restPath = filePath.substring(1)
+  const driverLetter = filePath.slice(0, 1).toLowerCase()
+  const restPath = filePath.slice(1)
   return driverLetter + restPath
 }
 
 export function globSync(globRe: string, cwd: string = '.', globIgnore?: string[]) {
-  const ignore = globIgnore?.map(posix.normalize)
-  const res = glob.sync(globRe, {
+  const ignore = globIgnore?.map((element) => nodePath.posix.normalize(element))
+  const result = glob.sync(globRe, {
     cwd,
     ignore,
     nodir: true,
@@ -79,5 +80,5 @@ export function globSync(globRe: string, cwd: string = '.', globIgnore?: string[
     posix: true,
     absolute: true,
   })
-  return res?.map((filePath) => filePath.replace('//?/', ''))
+  return result?.map((filePath) => filePath.replace('//?/', ''))
 }

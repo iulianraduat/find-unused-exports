@@ -22,7 +22,7 @@ export function addGlobInclude(context: OverviewContext, glob: string, count: nu
     context.globInclude = []
   }
 
-  if (context.globInclude.some((globInclude) => globInclude === glob) === false) {
+  if (!context.globInclude.includes(glob)) {
     context.globInclude.push(glob)
   }
 

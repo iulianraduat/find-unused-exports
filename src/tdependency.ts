@@ -1,4 +1,5 @@
-import { join as pathJoin } from 'path'
+/* eslint-disable unicorn/prefer-module */
+import path from 'node:path'
 import { Command, ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
 import { Core } from './core'
 
@@ -56,66 +57,85 @@ export class TDependency extends TreeItem {
 
   private getDescription() {
     switch (this.type) {
-      case DependencyType.FOLDER:
+      case DependencyType.FOLDER: {
         return ''
-      case DependencyType.FILE:
+      }
+      case DependencyType.FILE: {
         return this.isCompletelyUnused ? 'not used' : ''
-      default:
-        return undefined
+      }
+      default: {
+        return
+      }
     }
   }
 
   private getIconName() {
     switch (this.type) {
-      case DependencyType.FOLDER:
+      case DependencyType.FOLDER: {
         return new ThemeIcon('folder-opened')
-      case DependencyType.FILE:
+      }
+      case DependencyType.FILE: {
         return this.getIconPath('dependency.svg')
-      case DependencyType.UNUSED_EXPORT:
+      }
+      case DependencyType.UNUSED_EXPORT: {
         return this.getIconPath('export.svg')
-      case DependencyType.CIRCULAR_IMPORT:
+      }
+      case DependencyType.CIRCULAR_IMPORT: {
         return this.getIconPath('circle.svg')
-      case DependencyType.EMPTY:
+      }
+      case DependencyType.EMPTY: {
         return new ThemeIcon('check')
-      case DependencyType.DISABLED:
+      }
+      case DependencyType.DISABLED: {
         return new ThemeIcon('circle-large-outline')
-      case DependencyType.REFRESH:
+      }
+      case DependencyType.REFRESH: {
         return new ThemeIcon('refresh')
+      }
     }
   }
 
   private getIconPath(icon: string) {
     return {
-      light: pathJoin(__filename, '..', '..', 'resources', 'light', icon),
-      dark: pathJoin(__filename, '..', '..', 'resources', 'dark', icon),
+      light: path.join(__filename, '../..', 'resources', 'light', icon),
+      dark: path.join(__filename, '../..', 'resources', 'dark', icon),
     }
   }
 
   private getTooltip() {
     switch (this.type) {
-      case DependencyType.FOLDER:
+      case DependencyType.FOLDER: {
         return this.core?.getOverviewContext().pathToPrj
-      case DependencyType.UNUSED_EXPORT:
+      }
+      case DependencyType.UNUSED_EXPORT: {
         return 'not used export'
-      case DependencyType.CIRCULAR_IMPORT:
+      }
+      case DependencyType.CIRCULAR_IMPORT: {
         return 'circular import'
-      default:
-        return undefined
+      }
+      default: {
+        return
+      }
     }
   }
 
   private getContextValue(): string | undefined {
     switch (this.type) {
-      case DependencyType.FOLDER:
+      case DependencyType.FOLDER: {
         return 'folder'
-      case DependencyType.FILE:
+      }
+      case DependencyType.FILE: {
         return this.isCompletelyUnused ? 'fileNotUsed' : 'file'
-      case DependencyType.UNUSED_EXPORT:
+      }
+      case DependencyType.UNUSED_EXPORT: {
         return 'notUsedExport'
-      case DependencyType.CIRCULAR_IMPORT:
+      }
+      case DependencyType.CIRCULAR_IMPORT: {
         return 'circularImport'
-      default:
+      }
+      default: {
         return 'nothingFound'
+      }
     }
   }
 

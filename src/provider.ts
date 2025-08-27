@@ -1,11 +1,11 @@
-import { unlink } from 'fs'
+import { unlink } from 'node:fs'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from 'vscode'
 import { Core, FileDataType, someCoreRefreshing } from './core'
 import { Refreshing } from './refreshing'
 import { DependencyType, TDependency } from './tdependency'
 import { TNotUsed } from './unused-exports/notUsed'
 import { isResultExpanded } from './unused-exports/settings'
-import { addToIgnoreFilenames } from './unused-exports/vscUtils'
+import { addToIgnoreFilenames } from './unused-exports/vscUtilities'
 
 export class Provider implements TreeDataProvider<TDependency> {
   /* We need to have it also undefined as an empty array means that the user removed all entries */
@@ -14,9 +14,10 @@ export class Provider implements TreeDataProvider<TDependency> {
   private dependencyType: DependencyType
 
   protected isNotHidden = (node: TDependency): boolean => {
-    return this.cacheHidden.includes(node.id) === false
+    return !this.cacheHidden.includes(node.id)
   }
 
+  // eslint-disable-next-line unicorn/prefer-event-target
   private _onDidChangeTreeData: EventEmitter<TDependency | undefined> = new EventEmitter<TDependency | undefined>()
   public readonly onDidChangeTreeData: Event<TDependency | undefined> = this._onDidChangeTreeData.event
 
@@ -36,7 +37,7 @@ export class Provider implements TreeDataProvider<TDependency> {
     this.cacheHidden = []
     this.dependencyType = getDependencyTypeFrom(fileDataType)
 
-    cores.forEach((core) => core.registerListener(this.refresh))
+    for (const core of cores) core.registerListener(this.refresh)
   }
 
   public refresh = () => {
@@ -45,14 +46,14 @@ export class Provider implements TreeDataProvider<TDependency> {
     const someRefreshing = someCoreRefreshing(this.cores)
     if (someRefreshing) {
       this.cacheFolders = [Refreshing]
-      this._onDidChangeTreeData.fire(undefined)
+      this._onDidChangeTreeData.fire(Refreshing)
       return
     }
 
     const node = this.getNodeIfDisabled?.()
     if (node) {
       this.cacheFolders = [node]
-      this._onDidChangeTreeData.fire(undefined)
+      this._onDidChangeTreeData.fire(node)
       return
     }
 
@@ -76,11 +77,12 @@ export class Provider implements TreeDataProvider<TDependency> {
     })
 
     /* We add the files */
-    this.cacheFolders.forEach((folder) => {
+    for (const folder of this.cacheFolders) {
       folder.children = this.getFiles(folder)
-    })
+    }
 
     this.cacheHidden = []
+    // eslint-disable-next-line unicorn/no-useless-undefined
     this._onDidChangeTreeData.fire(undefined)
   }
 
@@ -99,7 +101,7 @@ export class Provider implements TreeDataProvider<TDependency> {
     const collapsibleState = isResultExpanded() ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
     const rows = files
       .map((file) => this.mapFile2Dependency(parent, file, collapsibleState, this.isNotHidden))
-      .filter(this.isNotHidden)
+      .filter((element) => this.isNotHidden(element))
     return rows
   }
 
@@ -122,7 +124,7 @@ export class Provider implements TreeDataProvider<TDependency> {
 
     if (node.parent === undefined) {
       this.cacheFolders = this.cacheFolders.filter((folder) => folder.id !== node.id)
-      this._onDidChangeTreeData.fire(undefined)
+      this._onDidChangeTreeData.fire(this.cacheFolders[0])
       return
     }
 
@@ -137,7 +139,7 @@ export class Provider implements TreeDataProvider<TDependency> {
 
     /* For the case that we have only one folder displayed and its root is hidden */
     if (node.parent.parent === undefined && this.cacheFolders?.length === 1) {
-      this._onDidChangeTreeData.fire(undefined)
+      this._onDidChangeTreeData.fire(this.cacheFolders[0])
       return
     }
 
@@ -150,8 +152,8 @@ export class Provider implements TreeDataProvider<TDependency> {
       return
     }
 
-    unlink(filePath, (err: NodeJS.ErrnoException | null) => {
-      if (err) {
+    unlink(filePath, (error: NodeJS.ErrnoException | null) => {
+      if (error) {
         window.showInformationMessage(`Cannot delete ${filePath}`)
         return
       }
@@ -179,7 +181,7 @@ export class Provider implements TreeDataProvider<TDependency> {
     })
 
     /* As a folder has nothing as parent we need to provide null to fire() */
-    this._onDidChangeTreeData.fire(undefined)
+    this._onDidChangeTreeData.fire(this.cacheFolders[0])
   }
 
   /* TreeDataProvider specific functions */
@@ -214,17 +216,20 @@ export class Provider implements TreeDataProvider<TDependency> {
       return true
     }
 
-    return children.some((child) => child.type === this.dependencyType) === false
+    return !children.some((child) => child.type === this.dependencyType)
   }
 }
 
 function getDependencyTypeFrom(fileDataType: FileDataType): DependencyType {
   switch (fileDataType) {
-    case FileDataType.UNUSED_EXPORTS:
+    case FileDataType.UNUSED_EXPORTS: {
       return DependencyType.UNUSED_EXPORT
-    case FileDataType.CIRCULAR_IMPORTS:
+    }
+    case FileDataType.CIRCULAR_IMPORTS: {
       return DependencyType.CIRCULAR_IMPORT
-    default:
+    }
+    default: {
       return DependencyType.DISABLED
+    }
   }
 }

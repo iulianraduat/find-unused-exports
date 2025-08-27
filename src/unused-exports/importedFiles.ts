@@ -1,6 +1,6 @@
-import { dirname } from 'path'
+import path from 'node:path'
 import { TContext } from './context'
-import { fixDriverLetterCase, globSync, isDirectory, isFile, pathResolve } from './fsUtils'
+import { fixDriverLetterCase, globSync, isDirectory, isFile, pathResolve } from './fsUtilities'
 import { log } from './log'
 import { TTsImport, TTsParsed } from './parsedFiles'
 
@@ -9,11 +9,14 @@ const defaultModuleSuffixes = ['']
 export async function getOnlyProjectImports(context: TContext, parsedFiles: TTsParsed[]): Promise<TTsParsed[]> {
   const { allowJs, moduleSuffixes = defaultModuleSuffixes, paths, pathToBaseUrl } = context
 
-  parsedFiles.forEach((tsParsed) => {
+  for (const tsParsed of parsedFiles) {
     const { path: filePath, imports } = tsParsed
-    const mapFn = makeImportAbs(pathToBaseUrl, dirname(filePath), moduleSuffixes, paths, allowJs)
-    tsParsed.imports = imports.map(mapFn).filter(importValid)
-  })
+    const mapFunction = makeImportAbs(pathToBaseUrl, path.dirname(filePath), moduleSuffixes, paths, allowJs)
+    tsParsed.imports = imports
+      .map((element) => mapFunction(element))
+      .filter((element) => importValid(element))
+      .filter(Boolean)
+  }
 
   return parsedFiles
 }
@@ -25,20 +28,20 @@ function importValid(anImport: TTsImport | undefined): anImport is TTsImport {
 const makeImportAbs =
   (pathToBaseUrl: string, filePath: string, moduleSuffixes: string[], paths: TContext['paths'], allowJs?: boolean) =>
   (anImport: TTsImport): TTsImport | undefined => {
-    const relPath = anImport.path
+    const relativePath = anImport.path
 
     if (paths) {
       for (const key in paths) {
         const aliasPaths = paths[key]
         const keyPattern = wildcardToPattern(key)
         const pattern = new RegExp(`^${keyPattern}$`)
-        if (pattern.test(relPath) === false) {
+        if (!pattern.test(relativePath)) {
           continue
         }
 
         for (const mapPath of aliasPaths) {
-          const replacement = mapPath.replace(/\*/g, '$1')
-          const tryPath = relPath.replace(pattern, replacement)
+          const replacement = mapPath.replaceAll('*', '$1')
+          const tryPath = relativePath.replace(pattern, replacement)
           const absPath = pathResolve(pathToBaseUrl, tryPath)
           const exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs)
           if (exactPath) {
@@ -51,7 +54,7 @@ const makeImportAbs =
       }
     }
 
-    let absPath = pathResolve(filePath, relPath)
+    let absPath = pathResolve(filePath, relativePath)
     let exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs)
     if (exactPath) {
       return {
@@ -60,7 +63,7 @@ const makeImportAbs =
       }
     }
 
-    absPath = pathResolve(pathToBaseUrl, relPath)
+    absPath = pathResolve(pathToBaseUrl, relativePath)
     exactPath = resolveFilePath(absPath, moduleSuffixes, allowJs)
     if (exactPath) {
       return {
@@ -74,13 +77,13 @@ const makeImportAbs =
 
 const wildcardRe = /\*/g
 function wildcardToPattern(key: string): string {
-  return key.replace(wildcardRe, '(.*)')
+  return key.replaceAll(wildcardRe, '(.*)')
 }
 
 const getGlobRegexp = (path: string, allowJs?: boolean): string =>
   allowJs ? `${path}.{ts,tsx,js,jsx}` : `${path}.{ts,tsx}`
 
-const getDirGlobRegexp = (rootPath: string, allowJs?: boolean): string =>
+const getDirirectoryGlobRegexp = (rootPath: string, allowJs?: boolean): string =>
   pathResolve(rootPath, allowJs ? `index.{ts,tsx,js,jsx}` : `index.{ts,tsx}`)
 
 function resolveFilePath(filePath: string, moduleSuffixes: string[], allowJs?: boolean): string | undefined {
@@ -89,21 +92,18 @@ function resolveFilePath(filePath: string, moduleSuffixes: string[], allowJs?: b
   }
 
   try {
-    /* try it as file */
-    // const globReFile = getGlobRegexp(filePath, allowJs);
-    const resFile = doGlob('file', getGlobRegexp, filePath, moduleSuffixes, allowJs)
-    if (resFile) {
-      return resFile
+    const resourceFile = doGlob('file', getGlobRegexp, filePath, moduleSuffixes, allowJs)
+    if (resourceFile) {
+      return resourceFile
     }
 
-    if (isDirectory(filePath) === false) {
+    if (!isDirectory(filePath)) {
       return
     }
 
-    /* try it as directory */
-    const resDir = doGlob('folder', getDirGlobRegexp, filePath, moduleSuffixes, allowJs)
-    if (resDir) {
-      return resDir
+    const resourceDirectory = doGlob('folder', getDirirectoryGlobRegexp, filePath, moduleSuffixes, allowJs)
+    if (resourceDirectory) {
+      return resourceDirectory
     }
   } catch {
     return
@@ -119,15 +119,15 @@ function doGlob(
   moduleSuffixes: string[],
   allowJs?: boolean,
 ) {
-  const len = moduleSuffixes.length
-  for (let i = 0; i < len; i++) {
-    const extendedFilePath = filePath + moduleSuffixes[i]
-    const res = doOneGlob(tryMode, getGlobRegexp, extendedFilePath, allowJs)
-    if (res) {
-      return res
+  const length = moduleSuffixes.length
+  for (let index = 0; index < length; index++) {
+    const extendedFilePath = filePath + moduleSuffixes[index]
+    const resource = doOneGlob(tryMode, getGlobRegexp, extendedFilePath, allowJs)
+    if (resource) {
+      return resource
     }
   }
-  return undefined
+  return
 }
 
 function doOneGlob(
@@ -138,12 +138,12 @@ function doOneGlob(
 ): string | undefined {
   try {
     const globRe = getGlobRegexp(filePath, allowJs)
-    const res = globSync(globRe)?.[0]
-    return res ? fixDriverLetterCase(res) : undefined
-  } catch (err) {
-    if (err instanceof Error) {
-      log(`Exception glob: cannot resolve path to '${filePath}'. Tried ${tryMode}`, err?.message || err)
+    const resource = globSync(globRe)?.[0]
+    return resource ? fixDriverLetterCase(resource) : undefined
+  } catch (error) {
+    if (error instanceof Error) {
+      log(`Exception glob: cannot resolve path to '${filePath}'. Tried ${tryMode}`, error?.message || error)
     }
-    throw err
+    throw error
   }
 }
