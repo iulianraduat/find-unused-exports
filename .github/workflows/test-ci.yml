@@ -3,6 +3,9 @@ name: Test CI
 on:
   workflow_dispatch:
 
+env:
+  NODE_VERSION: '22.x'
+
 jobs:
   test:
     name: Test CI Pipeline
@@ -12,23 +15,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: ./.github/actions/setup-node
         with:
-          node-version: '22.x'
-          cache: npm
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install dependencies
-        run: HUSKY=0 npm ci --no-audit --no-fund
-
-      - name: Run validation
-        run: npm run validate
+      - name: Run quality checks
+        uses: ./.github/actions/quality-checks
 
       - name: Build and package
-        run: |
-          npm run build:prod
-          npm run package
+        uses: ./.github/actions/build-extension
+        with:
+          build-mode: production
 
       - name: Run security checks
-        run: |
-          npm run security:audit
-          npm run security:check
+        uses: ./.github/actions/security-audit

@@ -1,0 +1,52 @@
+name: 'Build Extension'
+description: 'Build VS Code extension and optionally upload artifacts'
+inputs:
+  build-mode:
+    description: 'Build mode: package or development'
+    required: false
+    default: 'package'
+  upload-artifacts:
+    description: 'Whether to upload build artifacts'
+    required: false
+    default: 'false'
+  artifact-retention-days:
+    description: 'Number of days to retain artifacts'
+    required: false
+    default: '30'
+outputs:
+  vsix-path:
+    description: 'Path to the generated VSIX file'
+    value: ${{ steps.build.outputs.vsix-path }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache build output
+      uses: actions/cache@v4
+      with:
+        path: |
+          out/
+          *.vsix
+        key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'package-lock.json', 'src/**/*.ts', 'tsconfig.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
+
+    - name: Install dependencies
+      shell: bash
+      run: HUSKY=0 npm ci --no-audit --no-fund
+
+    - name: Build extension
+      id: build
+      shell: bash
+      run: |
+        npm run package
+        VSIX_FILE=$(find . -name "*.vsix" -type f | head -1)
+        echo "vsix-path=$VSIX_FILE" >> $GITHUB_OUTPUT
+        echo "Built VSIX: $VSIX_FILE"
+
+    - name: Upload VSIX artifact
+      if: inputs.upload-artifacts == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: vsix-package
+        path: '*.vsix'
+        retention-days: ${{ inputs.artifact-retention-days }}

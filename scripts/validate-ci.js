@@ -15,7 +15,7 @@ const path = require('node:path')
 const REQUIRED_FILES = [
   '.github/workflows/ci.yml',
   '.github/workflows/security.yml',
-  '.github/workflows/manual-release.yml',
+  '.github/workflows/test-ci.yml',
   '.github/workflows/release.yml',
   '.github/dependabot.yml',
   '.releaserc.json',
@@ -124,15 +124,6 @@ async function main() {
     }
     console.log('✅ CI workflow configuration')
 
-    // Validate manual release workflow
-    const manualReleaseWorkflow = fs.readFileSync('.github/workflows/manual-release.yml', 'utf8')
-    const manualMissingSecrets = requiredSecrets.filter((secret) => !manualReleaseWorkflow.includes(secret))
-
-    if (manualMissingSecrets.length > 0) {
-      throw new Error(`Manual release workflow missing required secrets: ${manualMissingSecrets.join(', ')}`)
-    }
-    console.log('✅ Manual release workflow configuration')
-
     // Validate release workflow if it exists
     const releaseWorkflowPath = '.github/workflows/release.yml'
     if (fs.existsSync(releaseWorkflowPath)) {
@@ -150,15 +141,6 @@ async function main() {
     console.log('✅ Semantic release configuration')
 
     console.log('\n🎉 CI/CD validation completed successfully!')
-    console.log('\n📋 Next steps:')
-    console.log('1. Configure required GitHub secrets:')
-    console.log('   - VSCE_PAT: VS Code Marketplace Personal Access Token')
-    console.log('   - OVSX_PAT: Open VSX Registry Personal Access Token')
-    console.log('   - GITHUB_TOKEN: Automatically provided by GitHub Actions')
-    console.log('2. See .github/SETUP.md for detailed setup instructions')
-    console.log('3. Set up branch protection rules')
-    console.log('4. Test the pipeline with a pull request')
-    console.log('5. Monitor the first automated release')
   } catch (error) {
     console.error(`\n❌ Validation failed: ${error.message}`)
     process.exit(1)
