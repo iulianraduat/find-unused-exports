@@ -1,0 +1,55 @@
+name: 'Publish Extension'
+description: 'Publish VS Code extension to marketplaces'
+inputs:
+  vsce-token:
+    description: 'VS Code Marketplace token'
+    required: true
+  ovsx-token:
+    description: 'Open VSX Registry token'
+    required: true
+  publish-vscode:
+    description: 'Whether to publish to VS Code Marketplace'
+    required: false
+    default: 'true'
+  publish-openvsx:
+    description: 'Whether to publish to Open VSX Registry'
+    required: false
+    default: 'true'
+  pre-release:
+    description: 'Whether this is a pre-release'
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: HUSKY=0 npm ci --no-audit --no-fund
+
+    - name: Install vsce and ovsx
+      shell: bash
+      run: npm install -g @vscode/vsce ovsx
+
+    - name: Download VSIX artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: vsix-package
+        path: .
+
+    - name: Publish to VS Code Marketplace
+      if: inputs.publish-vscode == 'true'
+      shell: bash
+      run: |
+        VSIX_FILE=$(find . -name "*.vsix" -type f | head -1)
+        if [ "${{ inputs.pre-release }}" == "true" ]; then
+          vsce publish --pre-release --packagePath "$VSIX_FILE" --pat "${{ inputs.vsce-token }}"
+        else
+          vsce publish --packagePath "$VSIX_FILE" --pat "${{ inputs.vsce-token }}"
+        fi
+
+    - name: Publish to Open VSX Registry
+      if: inputs.publish-openvsx == 'true'
+      shell: bash
+      run: |
+        VSIX_FILE=$(find . -name "*.vsix" -type f | head -1)
+        ovsx publish "$VSIX_FILE" --pat "${{ inputs.ovsx-token }}"

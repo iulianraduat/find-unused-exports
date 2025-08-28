@@ -1,0 +1,47 @@
+name: 'Security Audit'
+description: 'Run security audit and vulnerability checks'
+inputs:
+  audit-level:
+    description: 'Audit level: low, moderate, high, critical'
+    required: false
+    default: 'moderate'
+  fail-on-vulnerabilities:
+    description: 'Whether to fail the build on vulnerabilities'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache security audit results
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm/_logs
+          .audit-ci
+        key: ${{ runner.os }}-security-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-security-
+
+    - name: Install dependencies
+      shell: bash
+      run: HUSKY=0 npm ci --no-audit --no-fund
+
+    - name: Run security audit
+      shell: bash
+      run: npm run security:audit
+
+    - name: Run dependency security check
+      shell: bash
+      run: npm run security:check
+
+    - name: Check for high/critical vulnerabilities
+      if: inputs.fail-on-vulnerabilities == 'true'
+      shell: bash
+      run: |
+        VULN_COUNT=$(npm audit --audit-level=${{ inputs.audit-level }} --json | jq -r '.vulnerabilities | to_entries | map(select(.value.severity == "high" or .value.severity == "critical")) | length' 2>/dev/null || echo '0')
+        if [ "$VULN_COUNT" -gt 0 ]; then
+          echo "Found $VULN_COUNT high/critical vulnerabilities"
+          exit 1
+        else
+          echo "No high/critical vulnerabilities found"
+        fi
