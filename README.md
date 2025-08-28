@@ -2,7 +2,8 @@
 
 [![CI/CD Pipeline](https://github.com/d0whc3r/find-unused-exports/actions/workflows/ci.yml/badge.svg)](https://github.com/d0whc3r/find-unused-exports/actions/workflows/ci.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/releases)
-[![Codecov](https://codecov.io/gh/d0whc3r/find-unused-exports/branch/beta/graph/badge.svg)](https://codecov.io/gh/d0whc3r/find-unused-exports)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/bceb41e6f4e34bcfab6d6b0318c81d78)](https://app.codacy.com/gh/d0whc3r/find-unused-exports/dashboard)
+[![Codacy Coverage](https://app.codacy.com/project/badge/Coverage/bceb41e6f4e34bcfab6d6b0318c81d78)](https://app.codacy.com/gh/d0whc3r/find-unused-exports/dashboard)
 [![GitHub Issues](https://img.shields.io/github/issues/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/issues)
 [![GitHub Stars](https://img.shields.io/github/stars/d0whc3r/find-unused-exports)](https://github.com/d0whc3r/find-unused-exports/stargazers)
 <a href="http://opensource.org/licenses/GPL-3.0" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/license-GPL-orange.png?color=blue&amp;style=flat-square" alt="The GPL-3.0 License"></a>
