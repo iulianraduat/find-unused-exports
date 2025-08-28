@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       release_type:
-        description: "Release type"
+        description: 'Release type'
         required: true
-        default: "patch"
+        default: 'patch'
         type: choice
         options:
           - patch
           - minor
           - major
       skip_tests:
-        description: "Skip tests (emergency only)"
+        description: 'Skip tests (emergency only)'
         required: false
         default: false
         type: boolean
@@ -32,11 +32,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: '20.x'
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Run validation
         if: ${{ !inputs.skip_tests }}
