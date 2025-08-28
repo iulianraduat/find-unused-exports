@@ -68,6 +68,7 @@
     "@vitest/ui": "3.2.4",
     "@vscode/vsce": "3.6.0",
     "audit-ci": "7.1.0",
+    "conventional-changelog-conventionalcommits": "9.1.0",
     "esbuild": "0.25.9",
     "eslint": "9.34.0",
     "eslint-config-prettier": "10.1.8",
