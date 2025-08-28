@@ -1,99 +1,90 @@
-import { OutputChannel, window, workspace } from 'vscode';
-import { appendFileSync, existsSync, mkdirSync, rmSync } from 'fs';
-import { sep as pathSep } from 'path';
+import { appendFileSync, existsSync, mkdirSync, rmSync } from 'node:fs'
+import path from 'node:path'
+import { OutputChannel, window, workspace } from 'vscode'
 
 export function resetLog() {
-  if (isLogOnlyLastRunEnabled() === false) {
-    return;
+  if (!isLogOnlyLastRunEnabled()) {
+    return
   }
 
-  const logPath = getLogPath();
-  if (logPath === undefined) {
-    return;
+  const logPath = getLogPath()
+  if (typeof logPath !== 'string') {
+    return
   }
 
   try {
-    rmSync(logPath);
+    rmSync(logPath)
   } catch {
-    return;
+    return
   }
 }
 
 function isLogOnlyLastRunEnabled(): boolean {
-  return workspace
-    .getConfiguration()
-    .get('findUnusedExports.logOnlyLastRun', false);
+  return workspace.getConfiguration().get('findUnusedExports.logOnlyLastRun', false)
 }
 
-export function log(
-  category: string,
-  context?: any,
-  ms1970Utc?: number
-): number {
-  const tsNow = Date.now();
+export function log(category: string, context?: unknown, ms1970Utc?: number): number {
+  const tsNow = Date.now()
 
-  const debug = isDebugEnabled();
-  if (debug === false) {
-    return tsNow;
+  const debug = isDebugEnabled()
+  if (!debug) {
+    return tsNow
   }
 
-  const msg =
-    context !== undefined
-      ? `${category}: ${JSON.stringify(context, null, 2)}`
-      : category;
-  logInVSCodeOutput(msg, ms1970Utc ? tsNow - ms1970Utc : undefined);
-  return tsNow;
+  const message = context === undefined ? category : `${category}: ${JSON.stringify(context, null, 2)}`
+  logInVSCodeOutput(message, ms1970Utc ? tsNow - ms1970Utc : undefined)
+  return tsNow
 }
 
 function isDebugEnabled(): boolean {
-  return workspace.getConfiguration().get('findUnusedExports.debug', false);
+  return workspace.getConfiguration().get('findUnusedExports.debug', false)
 }
 
-let ochannel: OutputChannel | undefined;
+let ochannel: OutputChannel | undefined
 
 export function showOutputWindow() {
-  ochannel?.show();
+  ochannel?.show()
 }
 
-function logInVSCodeOutput(msg: string, durationMs?: number) {
+function logInVSCodeOutput(message: string, durationMs?: number) {
   if (!ochannel) {
-    ochannel = window.createOutputChannel('Find unused exports');
+    ochannel = window.createOutputChannel('Find unused exports')
   }
 
-  const logMsg = durationMs !== undefined ? `${msg} (${durationMs}ms)` : msg;
-  ochannel.appendLine(logMsg);
+  const logMessage = durationMs === undefined ? message : `${message} (${durationMs}ms)`
+  ochannel.appendLine(logMessage)
 
-  if (isLogInFileEnabled() === false) {
-    return;
+  if (!isLogInFileEnabled()) {
+    return
   }
 
-  const logPath = getLogPath();
+  const logPath = getLogPath()
   if (logPath === undefined) {
-    return;
+    return
   }
 
   try {
-    appendFileSync(logPath, logMsg);
-    appendFileSync(logPath, '\n');
+    appendFileSync(logPath, logMessage)
+    appendFileSync(logPath, '\n')
   } catch {
-    return;
+    return
   }
 }
 
 function isLogInFileEnabled(): boolean {
-  return workspace.getConfiguration().get('findUnusedExports.logInFile', false);
+  return workspace.getConfiguration().get('findUnusedExports.logInFile', false)
 }
 
 function getLogPath(): string | undefined {
-  const workspaceFolders = workspace.workspaceFolders;
+  const workspaceFolders = workspace.workspaceFolders
   if (workspaceFolders === undefined || workspaceFolders.length === 0) {
-    return;
+    return
   }
 
-  const rootPath = workspaceFolders[0].uri.fsPath;
-  const vscodePath = `${rootPath}${pathSep}.vscode`;
-  if (existsSync(vscodePath) === false) {
-    mkdirSync(vscodePath);
+  const rootPath = workspaceFolders[0].uri.fsPath
+  const vscodePath = path.join(rootPath, '.vscode')
+  if (!existsSync(vscodePath)) {
+    mkdirSync(vscodePath)
   }
-  return `${vscodePath}${pathSep}find-unused-exports.log`;
+  return path.join(vscodePath, 'find-unused-exports.log')
 }

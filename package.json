@@ -1,21 +1,18 @@
 {
-  "name": "find-unused-exports",
-  "displayName": "Find unused exports",
+  "name": "better-find-unused-exports",
+  "displayName": "Better Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "2.1.5",
-  "icon": "images/logo.png",
+  "version": "2.1.6",
+  "icon": "images/better-logo.png",
   "license": "GPL-3.0",
-  "publisher": "iulian-radu-at",
-  "homepage": "https://marketplace.visualstudio.com/items?itemName=iulian-radu-at.find-unused-exports",
+  "publisher": "d0whc3r",
+  "homepage": "https://github.com/d0whc3r/find-unused-exports",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iulianraduat/find-unused-exports"
+    "url": "https://github.com/d0whc3r/find-unused-exports.git"
   },
   "bugs": {
-    "url": "https://github.com/iulianraduat/find-unused-exports/issues"
-  },
-  "sponsor": {
-    "url": "https://www.amazon.com/dp/B0DD3DNDY1"
+    "url": "https://github.com/d0whc3r/find-unused-exports/issues"
   },
   "engines": {
     "vscode": "^1.75.0"
@@ -26,27 +23,65 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node --target=es6",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-2.1.5.vsix --profile \"VSCode extension\"",
-    "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts",
-    "pretest": "yarn run compile && yarn run lint",
-    "test": "echo node ./out/test/runTest.js"
+    "prepare": "husky",
+    "lint": "eslint src tests --ext .ts,.js",
+    "lint:fix": "eslint src tests --ext .ts,.js --fix",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\" --ignore-path .gitignore",
+    "type-check": "tsc --noEmit",
+    "build": "npm run type-check && npm run esbuild",
+    "build:prod": "npm run type-check && npm run esbuild-base -- --minify",
+    "build:watch": "npm run esbuild-watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rimraf out coverage",
+    "validate": "npm run clean && npm run type-check && npm run lint && npm run format:check && npm run test:coverage",
+    "pre-release": "npm run validate && npm run build:prod && npm run package",
+    "ci": "npm run validate",
+    "publish:vscode": "vsce publish",
+    "publish:openvsx": "ovsx publish",
+    "publish": "npm run publish:vscode && npm run publish:openvsx",
+    "security:audit": "npm audit --audit-level=moderate --json | jq -r '.vulnerabilities | to_entries | map(select(.value.severity == \"high\" or .value.severity == \"critical\")) | length' || echo '0 high/critical vulnerabilities'",
+    "security:check": "npx audit-ci --moderate --report-type summary",
+    "validate:ci": "node scripts/validate-ci.js"
   },
   "dependencies": {
-    "glob": "10.4.5"
+    "glob": "11.0.3"
   },
   "devDependencies": {
-    "@types/node": "16.18.106",
-    "@types/vscode": "1.75.1",
-    "@typescript-eslint/eslint-plugin": "8.3.0",
-    "@typescript-eslint/parser": "8.3.0",
-    "esbuild": "0.23.1",
-    "eslint": "9.9.1",
+    "@eslint/js": "9.34.0",
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/exec": "7.1.0",
+    "@semantic-release/git": "10.0.1",
+    "@semantic-release/github": "11.0.4",
+    "@semantic-release/npm": "12.0.2",
+    "@total-typescript/ts-reset": "0.6.1",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.3.0",
+    "@types/vscode": "^1.75.1",
+    "@typescript-eslint/eslint-plugin": "8.41.0",
+    "@typescript-eslint/parser": "8.41.0",
+    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/ui": "3.2.4",
+    "@vscode/vsce": "3.6.0",
+    "audit-ci": "7.1.0",
+    "esbuild": "0.25.9",
+    "eslint": "9.34.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-prettier": "5.5.4",
+    "eslint-plugin-unicorn": "60.0.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.1.5",
+    "ovsx": "0.10.5",
+    "prettier": "3.6.2",
     "rimraf": "6.0.1",
-    "typescript": "5.5.4"
+    "semantic-release": "24.2.7",
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
   },
   "categories": [
     "Linters"
@@ -74,6 +109,14 @@
         {
           "id": "circularImports",
           "name": "Circular imports"
+        },
+        {
+          "id": "includes",
+          "name": "Includes"
+        },
+        {
+          "id": "excludes",
+          "name": "Excludes"
         }
       ]
     },
@@ -290,7 +333,16 @@
       "./src/**/*.stories.@(js|jsx|ts|tsx)"
     ]
   },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
   "resolutions": {
-    "ajv": "^6.12.4"
+    "ajv": "6.12.4"
   }
 }

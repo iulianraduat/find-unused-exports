@@ -1,0 +1,13 @@
+# GitHub Copilot configuration
+# This file configures Copilot behavior for code reviews and suggestions
+
+# Exclude sample projects from Copilot analysis and reviews
+exclude:
+  - "sample-projects/**"
+  - "**/sample-projects/**"
+
+# Copilot review settings
+review:
+  exclude_paths:
+    - "sample-projects/**"
+    - "**/sample-projects/**"

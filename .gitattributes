@@ -1,0 +1,8 @@
+# Mark sample projects as documentation/examples
+# This helps GitHub and automated tools treat them appropriately
+sample-projects/** linguist-documentation
+sample-projects/** linguist-vendored
+
+# Exclude sample projects from code analysis and reviews
+sample-projects/** -diff
+sample-projects/** export-ignore

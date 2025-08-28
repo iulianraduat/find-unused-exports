@@ -1,0 +1,20 @@
+{
+  "name": "monorepo-example",
+  "version": "1.0.0",
+  "description": "Monorepo example demonstrating cross-package dependencies and unused exports",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "clean": "npm run clean --workspaces"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "lerna": "^6.0.0"
+  },
+  "author": "Find Unused Exports Extension",
+  "license": "MIT"
+}

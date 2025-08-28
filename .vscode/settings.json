@@ -1,12 +1,100 @@
-// Place your settings in this file to overwrite default and user settings.
 {
+  // File and folder exclusions
   "files.exclude": {
-    "out": false // set this to true to hide the "out" folder with the compiled JS files
+    "out": false, // set this to true to hide the "out" folder with the compiled JS files
+    "**/.git": true,
+    "**/.DS_Store": true
   },
   "search.exclude": {
-    "out": true // set this to false to include "out" folder in search results
+    "out": true, // set this to false to include "out" folder in search results
+    "**/node_modules": true,
+    "**/coverage": true,
+    "**/.git": true,
+    "**/package-lock.json": true
   },
-  // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-  "typescript.tsc.autoDetect": "off",
-  "findUnusedExports.detectCircularImports": true
+  // TypeScript configuration
+  "typescript.tsc.autoDetect": "off", // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  // ESLint configuration
+  "eslint.enable": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.format.enable": true,
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  // Prettier configuration
+  "prettier.enable": true,
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": true,
+  // Editor configuration
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
+  "editor.rulers": [120],
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+  // Language-specific settings
+  "[typescript]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always",
+      "source.organizeImports": "always"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always",
+      "source.organizeImports": "always"
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on"
+  },
+  // Git configuration
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  // Testing configuration
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+  // Extension-specific settings
+  "findUnusedExports.detectCircularImports": true,
+  "findUnusedExports.debug": false,
+  "findUnusedExports.defaultResultExpanded": false,
+  // Terminal configuration
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  // Explorer configuration
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  // Workbench configuration
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.closeOnFileDelete": true,
+  "workbench.tree.indent": 20,
+  "prettier.semi": false,
+  "javascript.format.insertSpaceAfterSemicolonInForStatements": true,
+  "javascript.format.semicolons": "remove",
+  "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
+  "typescript.format.semicolons": "remove",
+  "autoimport.useSemiColon": false
 }

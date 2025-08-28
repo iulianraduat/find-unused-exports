@@ -1,8 +1,3 @@
-import { TDependency, DependencyType } from './tdependency';
+import { DependencyType, TDependency } from './tdependency'
 
-export const Refreshing = new TDependency(
-  undefined,
-  '-',
-  DependencyType.REFRESH,
-  'Refreshing...'
-);
+export const Refreshing = new TDependency(undefined, '-', DependencyType.REFRESH, 'Refreshing...')

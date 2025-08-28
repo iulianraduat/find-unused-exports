@@ -1,7 +1,31 @@
 {
-	// See http://go.microsoft.com/fwlink/?LinkId=827846
-	// for the documentation about the extensions.json format
-	"recommendations": [
-		"dbaeumer.vscode-eslint"
-	]
+  // See http://go.microsoft.com/fwlink/?LinkId=827846
+  // for the documentation about the extensions.json format
+  "recommendations": [
+    // Essential development tools
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // Testing
+    "vitest.explorer",
+
+    // Git and version control
+    "github.vscode-pull-request-github",
+
+    // Code quality and productivity
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.vscode-json",
+
+    // Extension development specific
+    "ms-vscode.extension-test-runner",
+    "ms-vscode.vscode-js-debug",
+
+    // Markdown and documentation
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+
+    // Utilities
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-npm-script"
+  ]
 }

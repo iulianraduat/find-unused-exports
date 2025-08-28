@@ -1,0 +1,13 @@
+{
+  "name": "ignored-files-example",
+  "version": "1.0.0",
+  "description": "Project demonstrating .findUnusedExports.json configuration with ignored files",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Running tests...\" && exit 0",
+    "build": "echo \"Building project...\" && exit 0"
+  },
+  "author": "Find Unused Exports Extension",
+  "license": "MIT"
+}

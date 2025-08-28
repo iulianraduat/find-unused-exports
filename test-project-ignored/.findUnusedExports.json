@@ -1,4 +1,0 @@
-{
-  "include": ["./include/**/*.js"],
-  "exclude": ["./include/*.test.{js,ts}"]
-}

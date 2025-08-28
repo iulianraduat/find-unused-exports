@@ -1,28 +1,24 @@
 {
-	"folders": [
-		{
-			"path": "src",
-			"name": "[CODE]"
-		},
-		{
-			"path": "resources",
-			"name": "[RESOURCES]"
-		},
-		{
-			"path": "test-project-ts",
-			"name": "[TEST-TS]"
-		},
-		{
-			"path": "test-project-js",
-			"name": "[TEST-JS]"
-		},
-		{
-			"path": ".",
-			"name": "[ROOT]"
-		}
-	],
-	"settings": {
-		"typescript.tsc.autoDetect": "off",
-		"findUnusedExports.detectCircularImports": true
-	}
+  "folders": [
+    {
+      "path": "src",
+      "name": "[CODE]",
+    },
+    {
+      "path": "resources",
+      "name": "[RESOURCES]",
+    },
+    {
+      "path": "sample-projects",
+      "name": "[SAMPLE-PROJECTS]",
+    },
+    {
+      "path": ".",
+      "name": "[ROOT]",
+    },
+  ],
+  "settings": {
+    "typescript.tsc.autoDetect": "off",
+    "findUnusedExports.detectCircularImports": true,
+  },
 }

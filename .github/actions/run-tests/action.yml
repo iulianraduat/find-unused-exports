@@ -1,0 +1,103 @@
+name: "Run Tests with Coverage"
+description: "Run tests with coverage reporting and caching"
+inputs:
+  test-type:
+    description: "Type of tests to run: unit, integration, or all"
+    required: false
+    default: "all"
+  coverage-threshold:
+    description: "Minimum coverage threshold"
+    required: false
+    default: "70"
+  upload-coverage:
+    description: "Whether to upload coverage to Codecov"
+    required: false
+    default: "false"
+  codecov-token:
+    description: "Codecov token for coverage upload"
+    required: false
+
+outputs:
+  coverage-percentage:
+    description: "Overall coverage percentage"
+    value: ${{ steps.coverage.outputs.percentage }}
+  tests-passed:
+    description: "Whether all tests passed"
+    value: ${{ steps.test.outputs.passed }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Cache test results
+      uses: actions/cache@v4
+      with:
+        path: |
+          coverage
+          .nyc_output
+          node_modules/.cache
+        key: ${{ runner.os }}-test-${{ hashFiles('tests/**/*.ts', 'src/**/*.ts', 'vitest.config.ts') }}
+        restore-keys: |
+          ${{ runner.os }}-test-
+
+    - name: Run tests
+      id: test
+      shell: bash
+      run: |
+        set +e
+        if [ "${{ inputs.test-type }}" = "unit" ]; then
+          npm run test:unit -- --run --reporter=verbose
+        elif [ "${{ inputs.test-type }}" = "integration" ]; then
+          npm run test:integration -- --run --reporter=verbose
+        else
+          npm run test:coverage -- --run --reporter=verbose
+        fi
+        TEST_EXIT_CODE=$?
+
+        if [ $TEST_EXIT_CODE -eq 0 ]; then
+          echo "passed=true" >> $GITHUB_OUTPUT
+        else
+          echo "passed=false" >> $GITHUB_OUTPUT
+        fi
+
+        exit $TEST_EXIT_CODE
+
+    - name: Extract coverage percentage
+      id: coverage
+      if: inputs.test-type == 'all' || inputs.test-type == 'coverage'
+      shell: bash
+      run: |
+        if [ -f "coverage/coverage-summary.json" ]; then
+          COVERAGE=$(node -p "Math.round(JSON.parse(require('fs').readFileSync('coverage/coverage-summary.json', 'utf8')).total.lines.pct)")
+          echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "Coverage: $COVERAGE%"
+          
+          if [ $COVERAGE -lt ${{ inputs.coverage-threshold }} ]; then
+            echo "❌ Coverage $COVERAGE% is below threshold ${{ inputs.coverage-threshold }}%"
+            exit 1
+          else
+            echo "✅ Coverage $COVERAGE% meets threshold ${{ inputs.coverage-threshold }}%"
+          fi
+        else
+          echo "percentage=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload coverage to Codecov
+      if: inputs.upload-coverage == 'true' && inputs.codecov-token != ''
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ inputs.codecov-token }}
+        files: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        verbose: true
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ runner.os }}-${{ github.sha }}
+        path: |
+          coverage/
+          test-results.xml
+        retention-days: 30

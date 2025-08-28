@@ -1,0 +1,157 @@
+name: 🚀 Feature Request
+description: Suggest a new feature or enhancement for the Find Unused Exports extension
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request"]
+assignees: ["d0whc3r"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! 🎉
+
+        Please fill out this form to help us understand your request better.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you have completed the following
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested before
+          required: true
+        - label: I have read the [Contributing Guidelines](../../CONTRIBUTING.md)
+          required: true
+        - label: I understand this is for the Find Unused Exports VS Code extension
+          required: true
+
+  - type: dropdown
+    id: feature-category
+    attributes:
+      label: Feature Category
+      description: What type of feature are you requesting?
+      options:
+        - Code Analysis Enhancement
+        - User Interface Improvement
+        - Performance Optimization
+        - Configuration/Settings
+        - Integration with Other Tools
+        - Export/Import Functionality
+        - Circular Import Detection
+        - File Management
+        - Developer Experience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: Describe the feature you want...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What pain point are you experiencing?
+      placeholder: |
+        Example: "Currently, when I have a large project with many unused exports, it's difficult to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work? Be as specific as possible.
+      placeholder: |
+        Example: "I would like to see a new button that allows me to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: Describe any alternative solutions you've considered...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve my workflow
+        - High - Significantly impacts my productivity
+        - Critical - Blocking my work
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific scenarios where this feature would be useful
+      placeholder: |
+        1. When working with large TypeScript projects...
+        2. During code refactoring sessions...
+        3. When onboarding new team members...
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups or Examples
+      description: If applicable, add mockups, screenshots, or examples to help explain your feature request
+      placeholder: You can drag and drop images here or provide links to mockups
+
+  - type: dropdown
+    id: project-type
+    attributes:
+      label: Project Type
+      description: What type of projects would benefit from this feature?
+      multiple: true
+      options:
+        - TypeScript projects
+        - JavaScript projects
+        - Monorepo projects
+        - Large enterprise projects
+        - Small/medium projects
+        - Open source projects
+        - All project types
+
+  - type: input
+    id: vscode-version
+    attributes:
+      label: VS Code Version
+      description: What version of VS Code are you using?
+      placeholder: "e.g., 1.85.0"
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension Version
+      description: What version of Find Unused Exports are you using?
+      placeholder: "e.g., 2.1.6"
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or information about the feature request
+      placeholder: Any additional information that might be helpful...
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be interested in contributing to this feature?
+      options:
+        - label: I would be willing to help implement this feature
+        - label: I would be willing to test this feature
+        - label: I would be willing to provide feedback during development

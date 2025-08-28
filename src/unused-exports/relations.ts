@@ -1,116 +1,113 @@
-import { TExport } from './exports';
-import { TImport } from './imports';
-import { log } from './log';
-import { areMainExportsUsed } from './settings';
-import { isFileIgnored } from './vscUtils';
+import { TExport } from './exports'
+import { TImport } from './imports'
+import { log } from './log'
+import { areMainExportsUsed } from './settings'
+import { isFileIgnored } from './vscUtilities'
 
 export async function buildRelations(
   imports: TImport[],
   exports: TExport[],
-  mainInPackageJson?: string
+  mainInPackageJson?: string,
 ): Promise<TRelation[]> {
-  const arr: TRelation[] = [];
-  imports.forEach(addImport(arr));
-  exports.forEach(addExport(arr, mainInPackageJson));
-  return arr;
+  const array: TRelation[] = []
+  imports.forEach(addImport(array))
+  exports.forEach(addExport(array, mainInPackageJson))
+  return array
 }
 
-const addImport = (arr: TRelation[]) => (anImport: TImport) => {
-  const { inPath, name, fromPath } = anImport;
+const addImport = (array: TRelation[]) => (anImport: TImport) => {
+  const { inPath, name, fromPath } = anImport
 
-  let entry = findEntry(arr, inPath);
-  if (entry === undefined) {
-    entry = { path: inPath };
-    arr.push(entry);
+  let entry = findEntry(array, inPath)
+  if (!entry) {
+    entry = { path: inPath }
+    array.push(entry)
   }
 
-  if (entry.imports === undefined) {
-    entry.imports = [];
+  if (!entry.imports) {
+    entry.imports = []
   }
 
-  let importEntry = findImport(entry.imports, fromPath);
-  if (importEntry === undefined) {
+  let importEntry = findImport(entry.imports, fromPath)
+  if (!importEntry) {
     importEntry = {
       path: fromPath,
       names: [],
-    };
-    entry.imports.push(importEntry);
+    }
+    entry.imports.push(importEntry)
   }
 
-  importEntry.names.push(name);
-};
+  importEntry.names.push(name)
+}
 
-const addExport =
-  (arr: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
-    const { inPath, name, isUsed } = anExport;
+const addExport = (array: TRelation[], mainInPackageJson?: string) => (anExport: TExport) => {
+  const { inPath, name, isUsed } = anExport
 
-    let entry = findEntry(arr, inPath);
-    if (entry === undefined) {
-      entry = {
-        path: inPath,
-      };
-      arr.push(entry);
+  let entry = findEntry(array, inPath)
+  if (!entry) {
+    entry = {
+      path: inPath,
+    }
+    array.push(entry)
+  }
+
+  if (!entry.exports) {
+    entry.exports = {}
+  }
+
+  if (isUsed) {
+    if (!entry.exports.used) {
+      entry.exports.used = []
     }
 
-    if (entry.exports === undefined) {
-      entry.exports = {};
-    }
+    entry.exports.used.push(name)
+    return
+  }
 
-    if (isUsed) {
-      if (entry.exports.used === undefined) {
-        entry.exports.used = [];
-      }
+  if (!entry.exports.notUsed) {
+    entry.exports.notUsed = []
+  }
 
-      entry.exports.used.push(name);
-      return;
-    }
+  /* We want to consider all exports in the file used in the main field of package.json as being used */
+  if (inPath === mainInPackageJson && areMainExportsUsed()) {
+    log(
+      `Consider export of "${name}" in "${inPath}" as being used (findUnusedExports.considerMainExportsUsed is enabled).`,
+    )
+    return
+  }
 
-    if (entry.exports.notUsed === undefined) {
-      entry.exports.notUsed = [];
-    }
+  /* We ignore what the user specified in .vscode file */
+  if (isFileIgnored(inPath)) {
+    log(
+      `Consider export of "${name}" in "${inPath}" as being used (see ignore.files in .vscode/find-unused-exports.json).`,
+    )
+    return
+  }
 
-    /* We want to consider all exports in the file used in the main field of package.json as being used */
-    if (inPath === mainInPackageJson && areMainExportsUsed()) {
-      log(
-        `Consider export of "${name}" in "${inPath}" as being used (findUnusedExports.considerMainExportsUsed is enabled).`
-      );
-      return;
-    }
+  /* If the same file is found by multiple glob rules it will produce duplicates in the tree */
+  if (entry.exports.notUsed.includes(name)) {
+    return
+  }
 
-    /* We ignore what the user specified in .vscode file */
-    if (isFileIgnored(inPath)) {
-      log(
-        `Consider export of "${name}" in "${inPath}" as being used (see ignore.files in .vscode/find-unused-exports.json).`
-      );
-      return;
-    }
+  entry.exports.notUsed.push(name)
+}
 
-    /* If the same file is found by multiple glob rules it will produce duplicates in the tree */
-    if (entry.exports.notUsed.some((knownName) => knownName === name)) {
-      return;
-    }
+const findEntry = (array: TRelation[], path: string) => array.find((entry) => entry.path === path)
 
-    entry.exports.notUsed.push(name);
-  };
-
-const findEntry = (arr: TRelation[], path: string) =>
-  arr.find((entry) => entry.path === path);
-
-const findImport = (imports: TRelationImport[], path: string) =>
-  imports.find((i) => i.path === path);
+const findImport = (imports: TRelationImport[], path: string) => imports.find((index) => index.path === path)
 
 export interface TRelation {
-  exports?: TRelationExport;
-  imports?: TRelationImport[];
-  path: string;
+  exports?: TRelationExport
+  imports?: TRelationImport[]
+  path: string
 }
 
 interface TRelationExport {
-  notUsed?: string[];
-  used?: string[];
+  notUsed?: string[]
+  used?: string[]
 }
 
 interface TRelationImport {
-  names: string[];
-  path: string;
+  names: string[]
+  path: string
 }

@@ -1,0 +1,194 @@
+name: ⚡ Performance Issue
+description: Report performance problems with the Find Unused Exports extension
+title: "[PERFORMANCE] "
+labels: ["performance", "bug"]
+assignees: ["d0whc3r"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a performance issue! 🚀
+
+        Performance issues can significantly impact developer experience, so we take them seriously.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm you have completed the following
+      options:
+        - label: I have searched existing issues to ensure this hasn't been reported before
+          required: true
+        - label: I have tested with the latest version of the extension
+          required: true
+        - label: I have tried disabling other extensions to isolate the issue
+          required: true
+
+  - type: dropdown
+    id: performance-type
+    attributes:
+      label: Performance Issue Type
+      description: What type of performance issue are you experiencing?
+      options:
+        - Slow initial scan/analysis
+        - High memory usage
+        - High CPU usage
+        - Slow refresh/re-scan
+        - UI freezing/unresponsive
+        - Extension startup delay
+        - File processing delays
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Describe the performance issue you're experiencing
+      placeholder: |
+        Example: "The extension takes over 30 seconds to complete the initial scan of my project..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: project-size
+    attributes:
+      label: Project Size
+      description: How large is your project?
+      options:
+        - Small (< 100 files)
+        - Medium (100-500 files)
+        - Large (500-1000 files)
+        - Very Large (1000-5000 files)
+        - Huge (> 5000 files)
+    validations:
+      required: true
+
+  - type: input
+    id: file-count
+    attributes:
+      label: Approximate File Count
+      description: How many TypeScript/JavaScript files are in your project?
+      placeholder: "e.g., 1500"
+
+  - type: textarea
+    id: timing-details
+    attributes:
+      label: Timing Details
+      description: Provide specific timing information if available
+      placeholder: |
+        - Initial scan time: X seconds
+        - Refresh time: X seconds
+        - Memory usage: X MB
+        - CPU usage: X%
+
+  - type: dropdown
+    id: when-occurs
+    attributes:
+      label: When Does This Occur?
+      description: When do you notice the performance issue?
+      multiple: true
+      options:
+        - Extension startup
+        - Initial project scan
+        - Manual refresh
+        - File changes/saves
+        - Opening large files
+        - Switching between projects
+        - After VS Code has been running for a while
+        - Constantly/Always
+
+  - type: textarea
+    id: system-specs
+    attributes:
+      label: System Specifications
+      description: Provide details about your system
+      placeholder: |
+        - OS: [e.g., Windows 11, macOS 13.0, Ubuntu 22.04]
+        - CPU: [e.g., Intel i7-10700K, Apple M1 Pro]
+        - RAM: [e.g., 16GB, 32GB]
+        - Storage: [e.g., SSD, NVMe]
+        - VS Code Version: [e.g., 1.85.0]
+        - Extension Version: [e.g., 2.1.6]
+    validations:
+      required: true
+
+  - type: textarea
+    id: project-structure
+    attributes:
+      label: Project Structure
+      description: Describe your project structure and any relevant details
+      placeholder: |
+        - Project type: [Monorepo, Single package, etc.]
+        - Framework: [React, Vue, Angular, Node.js, etc.]
+        - Build tool: [Webpack, Vite, esbuild, etc.]
+        - TypeScript config complexity: [Simple, Complex with many paths, etc.]
+
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Extension Configuration
+      description: Share your extension configuration if you have one
+      placeholder: |
+        .findUnusedExports.json:
+        ```json
+        {
+          "include": [...],
+          "exclude": [...]
+        }
+        ```
+
+  - type: textarea
+    id: other-extensions
+    attributes:
+      label: Other Extensions
+      description: List other extensions you have installed that might be relevant
+      placeholder: |
+        - TypeScript Hero
+        - Auto Import - ES6, TS, JSX, TSX
+        - Path Intellisense
+        - etc.
+
+  - type: textarea
+    id: profiling-data
+    attributes:
+      label: Profiling Data
+      description: If you have profiling data or performance measurements, please share them
+      placeholder: |
+        You can get performance data from:
+        - VS Code Developer Tools (Help > Toggle Developer Tools)
+        - Task Manager / Activity Monitor
+        - VS Code Performance logs
+
+  - type: dropdown
+    id: impact-level
+    attributes:
+      label: Impact Level
+      description: How much does this performance issue impact your work?
+      options:
+        - Low - Slightly annoying but workable
+        - Medium - Noticeable delay but manageable
+        - High - Significantly slows down my workflow
+        - Critical - Makes the extension unusable
+    validations:
+      required: true
+
+  - type: textarea
+    id: workarounds
+    attributes:
+      label: Workarounds
+      description: Have you found any workarounds for this issue?
+      placeholder: |
+        Example: "Disabling circular import detection improves performance..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that might help us understand the performance issue
+      placeholder: |
+        - Does this happen with all projects or just specific ones?
+        - Did performance degrade after a specific version?
+        - Any patterns you've noticed?

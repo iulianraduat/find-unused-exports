@@ -1,0 +1,100 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "outDir": "./dist",
+    "rootDir": ".",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "checkJs": false,
+    "baseUrl": ".",
+    "paths": {
+      // Type definitions
+      "@/types": ["./types/index"],
+      "@/types/*": ["./types/*"],
+      "@types/*": ["./types/*"],
+      // Component aliases
+      "@/components": ["./src/components/index"],
+      "@/components/*": ["./src/components/*"],
+      "@components/*": ["./src/components/*"],
+      // Service aliases
+      "@/services": ["./src/services/index"],
+      "@/services/*": ["./src/services/*"],
+      "@services/*": ["./src/services/*"],
+      // Utility aliases
+      "@/utils": ["./src/utils/index"],
+      "@/utils/*": ["./src/utils/*"],
+      "@utils/*": ["./src/utils/*"],
+      // Function aliases (multiple paths)
+      "@/functions": ["./utils/functions/index"],
+      "@/functions/*": ["./utils/functions/*"],
+      "@functions": ["./utils/functions/index"],
+      "@functions/*": ["./utils/functions/*"],
+      "~functions": ["./utils/functions/index"],
+      "~functions/*": ["./utils/functions/*"],
+      // Config and constants
+      "@/config": ["./src/config/index"],
+      "@/config/*": ["./src/config/*"],
+      "@/constants": ["./src/constants/index"],
+      "@/constants/*": ["./src/constants/*"],
+      // Feature-based aliases
+      "@/features": ["./src/features/index"],
+      "@/features/*": ["./src/features/*"],
+      "@/auth": ["./src/features/auth/index"],
+      "@/auth/*": ["./src/features/auth/*"],
+      "@/dashboard": ["./src/features/dashboard/index"],
+      "@/dashboard/*": ["./src/features/dashboard/*"],
+      "@/profile": ["./src/features/profile/index"],
+      "@/profile/*": ["./src/features/profile/*"],
+      // Asset aliases
+      "@/assets": ["./src/assets/index"],
+      "@/assets/*": ["./src/assets/*"],
+      "@/images": ["./src/assets/images"],
+      "@/images/*": ["./src/assets/images/*"],
+      "@/icons": ["./src/assets/icons"],
+      "@/icons/*": ["./src/assets/icons/*"],
+      // Hook aliases
+      "@/hooks": ["./src/hooks/index"],
+      "@/hooks/*": ["./src/hooks/*"],
+      // Store/State aliases
+      "@/store": ["./src/store/index"],
+      "@/store/*": ["./src/store/*"],
+      "@/reducers": ["./src/store/reducers/index"],
+      "@/reducers/*": ["./src/store/reducers/*"],
+      "@/actions": ["./src/store/actions/index"],
+      "@/actions/*": ["./src/store/actions/*"],
+      // Test aliases
+      "@/test-utils": ["./src/test-utils/index"],
+      "@/test-utils/*": ["./src/test-utils/*"],
+      "@/mocks": ["./src/__mocks__/index"],
+      "@/mocks/*": ["./src/__mocks__/*"],
+      // Root aliases (catch-all)
+      "@/*": ["./src/*"],
+      "~/*": ["./src/*"],
+      "#/*": ["./src/*"],
+      // External library aliases
+      "lodash": ["./node_modules/lodash"],
+      "react": ["./node_modules/react"],
+      "react-dom": ["./node_modules/react-dom"]
+    }
+  },
+  "include": ["src/**/*", "types/**/*", "utils/**/*", "index.ts", "*.d.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "**/__tests__/**/*", "coverage"]
+}
