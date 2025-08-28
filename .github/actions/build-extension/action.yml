@@ -1,10 +1,6 @@
 name: 'Build Extension'
-description: 'Build VS Code extension and optionally upload artifacts'
+description: 'Build VS Code extension and create VSIX package'
 inputs:
-  build-mode:
-    description: 'Build mode: package or development'
-    required: false
-    default: 'package'
   upload-artifacts:
     description: 'Whether to upload build artifacts'
     required: false
@@ -20,19 +16,15 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Cache build output
+    - name: Cache build artifacts
       uses: actions/cache@v4
       with:
         path: |
           out/
           *.vsix
-        key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'package-lock.json', 'src/**/*.ts', 'tsconfig.json') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('package.json', 'package-lock.json', 'src/**/*.ts', 'tsconfig.json', 'esbuild.config.*') }}
         restore-keys: |
           ${{ runner.os }}-build-
-
-    - name: Install dependencies
-      shell: bash
-      run: HUSKY=0 npm ci --no-audit --no-fund
 
     - name: Build extension
       id: build
@@ -40,6 +32,10 @@ runs:
       run: |
         npm run package
         VSIX_FILE=$(find . -name "*.vsix" -type f | head -1)
+        if [ -z "$VSIX_FILE" ]; then
+          echo "Error: No VSIX file generated"
+          exit 1
+        fi
         echo "vsix-path=$VSIX_FILE" >> $GITHUB_OUTPUT
         echo "Built VSIX: $VSIX_FILE"
 

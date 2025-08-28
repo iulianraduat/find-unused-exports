@@ -1,14 +1,24 @@
-name: Test CI
+name: Manual Test
 
 on:
   workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - 'full'
+          - 'quality-only'
+          - 'build-only'
 
 env:
   NODE_VERSION: '22.x'
 
 jobs:
-  test:
-    name: Test CI Pipeline
+  manual-test:
+    name: Manual Test Pipeline
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -16,16 +26,21 @@ jobs:
 
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Run quality checks
+      - name: Quality checks
+        if: contains(github.event.inputs.test_type, 'quality') || github.event.inputs.test_type == 'all'
         uses: ./.github/actions/quality-checks
 
-      - name: Build and package
+      - name: Security audit
+        if: contains(github.event.inputs.test_type, 'security') || github.event.inputs.test_type == 'all'
+        uses: ./.github/actions/security-audit
+        with:
+          audit-level: 'moderate'
+          fail-on-vulnerabilities: 'false'
+
+      - name: Build extension
+        if: contains(github.event.inputs.test_type, 'build') || github.event.inputs.test_type == 'all'
         uses: ./.github/actions/build-extension
         with:
-          build-mode: production
-
-      - name: Run security checks
-        uses: ./.github/actions/security-audit
+          upload-artifacts: 'true'
+          artifact-retention-days: '7'

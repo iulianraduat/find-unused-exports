@@ -168,7 +168,7 @@ import MyComponent from './exporting-file';
 
 ## Change Log
 
-See Change Log [here](https://raw.githubusercontent.com/d0whc3r/find-unused-exports/refs/heads/beta/CHANGELOG.md)
+See Change Log [CHANGELOG.md](./CHANGELOG.md)
 
 ## Issues
 

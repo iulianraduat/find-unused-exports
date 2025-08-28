@@ -16,7 +16,6 @@ const REQUIRED_FILES = [
   '.github/workflows/ci.yml',
   '.github/workflows/security.yml',
   '.github/workflows/test-ci.yml',
-  '.github/workflows/release.yml',
   '.github/dependabot.yml',
   '.releaserc.json',
   '.husky/pre-commit',
