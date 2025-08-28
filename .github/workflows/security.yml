@@ -21,7 +21,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --include=optional --no-audit --no-fund
+        run: HUSKY=0 npm ci --no-audit --no-fund
 
       - name: Run security audit
         run: npm run security:audit
