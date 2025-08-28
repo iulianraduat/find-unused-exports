@@ -49,9 +49,4 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: moderate
-          comment-summary-in-pr: true
-          deny-licenses: GPL-1.0-only, GPL-2.0-only
-          vulnerability-check: true
-          license-check: true
           config-file: ./.github/dependency-review-config.yml
