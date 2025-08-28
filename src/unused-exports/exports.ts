@@ -124,7 +124,11 @@ const getExportedNames = (
 // Normalize both absolute file paths and module specifiers (e.g., './file', 'file')
 // to a comparable basename without extension.
 const normalizePathForCompare = (p: string): string => {
-  const cleaned = p.replace(/^['"]/u, '').replace(/['"]/u, '').replace(/^\.\//u, '').replaceAll('\\', '/')
+  const cleaned = p
+    .replace(/^['"]+/u, '')
+    .replaceAll(/['"]+/gu, '')
+    .replace(/^\.\//u, '')
+    .replaceAll('\\', '/')
   const withoutExtension = cleaned.replace(/\.(tsx?|jsx?)$/u, '')
   const parts = withoutExtension.split('/')
   return parts.at(-1) || withoutExtension

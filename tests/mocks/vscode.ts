@@ -97,7 +97,7 @@ export const createMockFileSystem = (files: Record<string, string>) => {
 
   globalThis.mockVSCode.workspace.findFiles.mockImplementation((pattern: string) => {
     const matchingFiles = [...mockFiles.keys()]
-      .filter((path) => path.includes(pattern.replace('**/', '').replace('*', '')))
+      .filter((path) => path.includes(pattern.replaceAll('**/', '').replaceAll('*', '')))
       .map((path) => ({ fsPath: path, path, scheme: 'file' }))
 
     return Promise.resolve(matchingFiles)
