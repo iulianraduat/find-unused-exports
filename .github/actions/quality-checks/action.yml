@@ -1,73 +1,31 @@
 name: 'Quality Checks'
-description: 'Run code quality checks including linting, formatting, and type checking'
-inputs:
-  skip-tests:
-    description: 'Whether to skip running tests'
-    required: false
-    default: 'false'
-  fix-issues:
-    description: 'Whether to automatically fix linting and formatting issues'
-    required: false
-    default: 'false'
+description: 'Run quality checks including linting, formatting, type checking, and tests'
 runs:
   using: 'composite'
   steps:
-    - name: Cache TypeScript build info
-      uses: actions/cache@v4
-      with:
-        path: |
-          tsconfig.tsbuildinfo
-          out/
-        key: ${{ runner.os }}-typescript-${{ hashFiles('tsconfig.json', 'src/**/*.ts') }}
-        restore-keys: |
-          ${{ runner.os }}-typescript-
-
-    - name: Cache ESLint cache
-      uses: actions/cache@v4
-      with:
-        path: .eslintcache
-        key: ${{ runner.os }}-eslint-${{ hashFiles('.eslintrc.*', 'eslint.config.*', 'src/**/*.ts', 'tests/**/*.ts') }}
-        restore-keys: |
-          ${{ runner.os }}-eslint-
-
-    - name: Install dependencies
-      shell: bash
-      run: HUSKY=0 npm ci --no-audit --no-fund
-
     - name: Type check
       shell: bash
       run: npm run type-check
 
     - name: Lint code
       shell: bash
-      run: |
-        if [ "${{ inputs.fix-issues }}" == "true" ]; then
-          npm run lint:fix
-        else
-          npm run lint
-        fi
+      run: npm run lint -- --cache
 
     - name: Check formatting
       shell: bash
-      run: |
-        if [ "${{ inputs.fix-issues }}" == "true" ]; then
-          npm run format
-        else
-          npm run format:check
-        fi
+      run: npm run format:check
 
-    - name: Cache test results
-      if: inputs.skip-tests == 'false'
+    - name: Cache quality check artifacts
       uses: actions/cache@v4
       with:
         path: |
           coverage/
           .vitest/
-        key: ${{ runner.os }}-tests-${{ hashFiles('vitest.config.ts', 'src/**/*.ts', 'tests/**/*.ts') }}
+          out/
+        key: ${{ runner.os }}-quality-artifacts-${{ hashFiles('src/**/*.ts', 'tests/**/*.ts', 'vitest.config.*') }}
         restore-keys: |
-          ${{ runner.os }}-tests-
+          ${{ runner.os }}-quality-artifacts-
 
     - name: Run tests with coverage
-      if: inputs.skip-tests == 'false'
       shell: bash
       run: npm run test:coverage

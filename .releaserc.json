@@ -72,7 +72,7 @@
       {
         "verifyConditionsCmd": "npm run validate:ci",
         "prepareCmd": "npm run build:prod && npm run package && echo '${nextRelease.version}' > .semantic-release-new-release",
-        "publishCmd": "echo 'Release ${nextRelease.version} prepared for marketplace publishing'"
+        "publishCmd": "npm run publish:vscode && npm run publish:openvsx"
       }
     ],
     [

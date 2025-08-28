@@ -1,9 +1,9 @@
 name: 'Setup Node.js'
-description: 'Setup Node.js with advanced npm cache'
+description: 'Setup Node.js with caching and dependency installation'
 inputs:
   node-version:
     description: 'Node.js version to use'
-    required: true
+    required: false
     default: '22'
 runs:
   using: 'composite'
@@ -12,16 +12,18 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: npm
-        cache-dependency-path: package-lock.json
+        cache: 'npm'
 
-    - name: Cache node_modules
+    - name: Cache quality check artifacts
       uses: actions/cache@v4
       with:
         path: |
-          node_modules
-          ~/.npm
-        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('package-lock.json') }}
+          .eslintcache
+          tsconfig.tsbuildinfo
+        key: ${{ runner.os }}-quality-${{ hashFiles('package.json', 'package-lock.json', 'eslint.config.*', 'tsconfig.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-${{ inputs.node-version }}-
-          ${{ runner.os }}-node-
+          ${{ runner.os }}-quality-
+
+    - name: Install dependencies
+      shell: bash
+      run: HUSKY=0 npm ci --no-audit --no-fund

@@ -14,55 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test & Build
+  ci:
+    name: CI Pipeline
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Run quality checks
-        uses: ./.github/actions/quality-checks
-
-      - name: Build extension
-        uses: ./.github/actions/build-extension
-        with:
-          build-mode: production
-          upload-artifacts: true
-          artifact-retention-days: 7
-
-      - name: Upload coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@v1.3.0
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage/lcov.info
-        continue-on-error: true
-
-  security:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Run security audit
-        uses: ./.github/actions/security-audit
-
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    needs: [test, security]
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/beta') && github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,37 +26,27 @@ jobs:
 
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Download VSIX artifact
-        uses: actions/download-artifact@v4
+      - name: Run quality checks
+        uses: ./.github/actions/quality-checks
+
+      - name: Run security audit
+        uses: ./.github/actions/security-audit
+
+      - name: Build extension
+        uses: ./.github/actions/build-extension
+
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1.3.0
         with:
-          name: vsix-package
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: coverage/lcov.info
+        continue-on-error: true
 
       - name: Semantic Release
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/beta') && github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: npx semantic-release
-
-  publish:
-    name: Publish Extension
-    runs-on: ubuntu-latest
-    needs: [release]
-    if: success()
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download VSIX artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: vsix-package
-
-      - name: Publish Extension
-        uses: ./.github/actions/publish-extension
-        with:
-          vsce-token: ${{ secrets.VSCE_PAT }}
-          ovsx-token: ${{ secrets.OVSX_PAT }}
-          publish-vscode: true
-          publish-openvsx: true
