@@ -924,3 +924,18 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.3.0 (2025-08-31)
+
+### Added
+
+- Added support for glob (unix style) in ignore.files from find-used-exports.json
+  -- Always use a glob starting with "\*\*/" as it is matched against a full path
+
+### Changes
+
+- Nothing
+
+### Removed
+
+- Nothing

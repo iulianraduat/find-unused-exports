@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -26,7 +26,7 @@
     "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node --target=es6",
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "package": "vsce package",
-    "install:local": "code --install-extension find-unused-exports-2.2.0.vsix --profile \"VSCode extension\"",
+    "install:local": "code --install-extension find-unused-exports-2.3.0.vsix --profile \"VSCode extension\"",
     "publish": "vsce publish",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "test-compile": "rimraf out && tsc -p ./",
@@ -36,7 +36,8 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "10.4.5"
+    "glob": "10.4.5",
+    "minimatch": "10.0.3"
   },
   "devDependencies": {
     "@types/node": "16.18.106",

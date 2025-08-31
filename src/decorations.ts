@@ -9,7 +9,6 @@ import {
   workspace,
 } from 'vscode';
 import { Core, FileDataType } from './core';
-import { log } from './unused-exports/log';
 import { TNotUsed } from './unused-exports/notUsed';
 
 const themeWarningFgColor = new ThemeColor('editorWarning.foreground');
@@ -48,7 +47,6 @@ export class UnusedExportsDecorator {
     );
 
     window.onDidChangeActiveTextEditor((editor) => {
-      log('onDidChangeActiveTextEditor', editor?.document.fileName);
       this.activeEditor = editor;
       this.updateDecorations(editor);
     });
@@ -61,7 +59,6 @@ export class UnusedExportsDecorator {
         event.contentChanges.length > 0 &&
         event.document.isDirty
       ) {
-        log('onDidChangeTextDocument', event.document.fileName);
         this.updateDecorations(activeTextEditor);
       }
     });
@@ -80,49 +77,31 @@ export class UnusedExportsDecorator {
 
     const target = editor ? [editor] : window.visibleTextEditors;
     for (const activeTextEditor of target) {
-      log('---');
-      log('activeTextEditor', activeTextEditor?.document.fileName);
-      log(
-        'isHighlightUnusedExportsInEditorEnabled',
-        isHighlightUnusedExportsInEditorEnabled() ? 'enabled' : 'disabled'
-      );
-
       if (!activeTextEditor?.document.fileName) {
-        log('!activeTextEditor || !isHighlightUnusedInEditorEnabled');
         continue;
       }
 
       if (!isHighlightUnusedExportsInEditorEnabled()) {
-        log('!isHighlightUnusedExportsInEditorEnabled');
         activeTextEditor.setDecorations(decorationType, []);
         continue;
       }
 
       const document = activeTextEditor.document;
       const filePath = document.fileName;
-      log('filePath', filePath);
 
       const core = this.findCoreForFile(filePath);
-      log('core', core);
       if (!core) {
-        log('!core', filePath);
         continue;
       }
 
       const unusedExportsData = this.getUnusedExportsForFile(core, filePath);
-      log(
-        'unusedExportsData.notUsedExports',
-        unusedExportsData?.notUsedExports
-      );
       if (!unusedExportsData?.notUsedExports) {
-        log('!unusedExportsData?.notUsedExports');
         activeTextEditor.setDecorations(decorationType, []);
         continue;
       }
 
       const decorations: DecorationOptions[] = [];
       for (const unusedExport of unusedExportsData.notUsedExports) {
-        log('unusedExport', unusedExport);
         this.findExportInDocument(decorations, document, unusedExport);
       }
 
@@ -141,15 +120,12 @@ export class UnusedExportsDecorator {
     core: Core,
     filePath: string
   ): TNotUsed | undefined {
-    log('getUnusedExportsForFile', filePath);
     const unusedExportsData = core.getFilesData(FileDataType.UNUSED_EXPORTS);
-    log('unusedExportsData', unusedExportsData);
     const workspaceRoot = core.getOverviewContext().pathToPrj;
     const relativePath = filePath
       .replace(workspaceRoot, '')
       .replace(/^[/\\]/, '')
       .replace(/\\/g, '/');
-    log('relativePath', relativePath);
 
     return unusedExportsData.find(({ filePath }) => filePath === relativePath);
   }
