@@ -147,6 +147,11 @@ There are no special requirements.
   - Find unused exports: detect circular imports
   - default false
 
+- findUnusedExports.highlightUnusedExportsInEditor
+
+  - Find unused exports: highlights unused exports in editor
+  - default false
+
 ## Known Issues
 
 If the main/entry file has exports then this extension marks it as "not used" and allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.

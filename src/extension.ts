@@ -9,6 +9,7 @@ import {
 } from 'vscode';
 import { CircularImportsProvider } from './circularImports';
 import { Core } from './core';
+import { UnusedExportsDecorator } from './decorations';
 import { OverviewProvider } from './overview';
 import { TDependency } from './tdependency';
 import { showOutputWindow } from './unused-exports/log';
@@ -41,7 +42,6 @@ export function activate(context: ExtensionContext) {
   );
   context.subscriptions.push(disposable);
 
-  disposable: Disposable;
   disposable = commands.registerCommand(
     'unusedExports.refreshAndShowSideView',
     () => {
@@ -145,6 +145,9 @@ export function activate(context: ExtensionContext) {
     (filePath: string, unusedExportOrCircularImport: string) =>
       Core.findInFile(filePath, unusedExportOrCircularImport)
   );
+  context.subscriptions.push(disposable);
+
+  disposable = new UnusedExportsDecorator(cores);
   context.subscriptions.push(disposable);
 
   refreshAllCores(cores);

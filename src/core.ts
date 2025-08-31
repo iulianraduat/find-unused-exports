@@ -29,7 +29,7 @@ export class Core {
   };
 
   private cacheFiles?: TNotUsed[];
-  private listeners: Array<() => void> = [];
+  private listeners: Array<(ready: boolean) => void> = [];
   private lockRefresh: boolean = false;
 
   constructor(workspaceName: string, private workspaceRoot: string) {
@@ -37,7 +37,7 @@ export class Core {
     this.overviewContext.pathToPrj = workspaceRoot;
   }
 
-  public registerListener(listener: () => void) {
+  public registerListener(listener: (ready: boolean) => void) {
     if (!this.listeners) {
       this.listeners = [];
     }
@@ -52,11 +52,11 @@ export class Core {
     // We announce all listeners that we refresh
     this.lockRefresh = true;
     this.cacheFiles = undefined;
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach((listener) => listener(false));
     await this.doAnalyse();
     // It must happen before we inform the listeners otherwise isRefreshing is returning true
     this.lockRefresh = false;
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach((listener) => listener(true));
   }
 
   public isRefreshing() {

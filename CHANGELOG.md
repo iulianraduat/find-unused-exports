@@ -910,3 +910,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.2.0 (2025-08-31)
+
+### Added
+
+- Hightlights in editor the found unused exports by this extension (credit goes to d0whc3r)
+
+### Changes
+
+- Nothing
+
+### Removed
+
+- Nothing
