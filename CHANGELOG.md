@@ -948,7 +948,7 @@ This extension assumes a set of default exclude folders:
 
 ### Changes
 
-- Nothing
+- Updated packages
 
 ### Removed
 

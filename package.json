@@ -36,18 +36,18 @@
     "test": "echo node ./out/test/runTest.js"
   },
   "dependencies": {
-    "glob": "10.4.5",
-    "minimatch": "10.0.3"
+    "glob": "10.5.0",
+    "minimatch": "10.1.1"
   },
   "devDependencies": {
     "@types/node": "16.18.106",
     "@types/vscode": "1.75.1",
-    "@typescript-eslint/eslint-plugin": "8.3.0",
-    "@typescript-eslint/parser": "8.3.0",
-    "esbuild": "0.23.1",
-    "eslint": "9.9.1",
-    "rimraf": "6.0.1",
-    "typescript": "5.5.4"
+    "@typescript-eslint/eslint-plugin": "8.48.0",
+    "@typescript-eslint/parser": "8.48.0",
+    "esbuild": "0.27.0",
+    "eslint": "9.39.1",
+    "rimraf": "6.1.2",
+    "typescript": "5.9.3"
   },
   "categories": [
     "Linters"
