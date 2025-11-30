@@ -154,7 +154,7 @@ There are no special requirements.
 
 ## Known Issues
 
-If the main/entry file has exports then this extension marks it as "not used" and allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.
+If the main/entry file has exports then this extension marks them as "not used", it allows you to remove it. Hence, please check before deleting any file if it is the main/entry file.
 
 There is no support for defined paths aliases or rootDirs in tsconfig.json and jsconfig.json files.
 

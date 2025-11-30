@@ -2,7 +2,7 @@
   "name": "find-unused-exports",
   "displayName": "Find unused exports",
   "description": "A Visual Studio Code extension for displaying all unused exports in a typescript/javascript project.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "icon": "images/logo.png",
   "license": "GPL-3.0",
   "publisher": "iulian-radu-at",
@@ -95,6 +95,11 @@
         "icon": "$(debug)"
       },
       {
+        "command": "unusedExports.saveAllUnusedExports",
+        "title": "Save",
+        "icon": "$(save)"
+      },
+      {
         "command": "unusedExports.expandAllUnusedExports",
         "title": "Expand all rows",
         "icon": "$(expand-all)"
@@ -168,19 +173,24 @@
           "group": "navigation@2"
         },
         {
-          "command": "unusedExports.expandAllUnusedExports",
-          "when": "view == unusedExports",
+          "command": "unusedExports.saveAllUnusedExports",
+          "when": "view == unusedExports && showSaveAllUnusedExportsButton",
           "group": "navigation@1"
         },
         {
-          "command": "unusedExports.collapseAllUnusedExports",
+          "command": "unusedExports.expandAllUnusedExports",
           "when": "view == unusedExports",
           "group": "navigation@2"
         },
         {
-          "command": "unusedExports.refresh",
+          "command": "unusedExports.collapseAllUnusedExports",
           "when": "view == unusedExports",
           "group": "navigation@3"
+        },
+        {
+          "command": "unusedExports.refresh",
+          "when": "view == unusedExports",
+          "group": "navigation@4"
         },
         {
           "command": "unusedExports.enableCircularImports",

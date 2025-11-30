@@ -16,7 +16,7 @@ import { addToIgnoreFilenames } from './unused-exports/vscUtils';
 
 export class Provider implements TreeDataProvider<TDependency> {
   /* We need to have it also undefined as an empty array means that the user removed all entries */
-  private cacheFolders: TDependency[] | undefined;
+  protected cacheFolders: TDependency[] | undefined;
   private cacheHidden: string[];
   private dependencyType: DependencyType;
 
@@ -42,13 +42,15 @@ export class Provider implements TreeDataProvider<TDependency> {
     private getNoResultsNode: (core: Core) => TDependency,
     private allowCollapseRoot: boolean
   ) {
+    this.refresh = this.refresh.bind(this);
+
     this.cacheHidden = [];
     this.dependencyType = getDependencyTypeFrom(fileDataType);
 
     cores.forEach((core) => core.registerListener(this.refresh));
   }
 
-  public refresh = () => {
+  public refresh() {
     this.cacheHidden = [];
 
     const someRefreshing = someCoreRefreshing(this.cores);
@@ -93,7 +95,7 @@ export class Provider implements TreeDataProvider<TDependency> {
 
     this.cacheHidden = [];
     this._onDidChangeTreeData.fire(undefined);
-  };
+  }
 
   private getFiles(parent: TDependency): TDependency[] | undefined {
     const core = parent.core;

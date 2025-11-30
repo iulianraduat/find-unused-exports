@@ -939,3 +939,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.4.0 (2025-11-30)
+
+### Added
+
+- Added support to export as CSV or JSON the list of unused exports
+
+### Changes
+
+- Nothing
+
+### Removed
+
+- Nothing

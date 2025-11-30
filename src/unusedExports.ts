@@ -1,4 +1,10 @@
-import { TreeItemCollapsibleState } from 'vscode';
+import {
+  commands,
+  TreeItemCollapsibleState,
+  Uri,
+  window,
+  workspace,
+} from 'vscode';
 import { Core, FileDataType } from './core';
 import { Provider } from './provider';
 import { DependencyType, TDependency } from './tdependency';
@@ -15,6 +21,96 @@ export class UnusedExportsProvider extends Provider {
       getNoUnusedExports,
       true
     );
+  }
+
+  public async refresh() {
+    super.refresh();
+
+    if (!this.cacheFolders?.length) {
+      commands.executeCommand(
+        'setContext',
+        'showSaveAllUnusedExportsButton',
+        false
+      );
+      return;
+    }
+
+    const entries = await this.getChildren(this.cacheFolders[0]);
+    commands.executeCommand(
+      'setContext',
+      'showSaveAllUnusedExportsButton',
+      entries.length > 0 && entries[0].type !== DependencyType.EMPTY
+    );
+  }
+
+  public async saveAll() {
+    const filename = await this.askForFilenameCsvJson();
+    if (!filename || !this.cacheFolders?.length) {
+      return;
+    }
+
+    const entries = await this.getChildren(this.cacheFolders[0]);
+    if (!entries.length) {
+      return;
+    }
+
+    if (filename.fsPath.endsWith('csv')) {
+      this.saveAllInCsv(filename, entries);
+    } else {
+      this.saveAllInJson(filename, entries);
+    }
+  }
+
+  private async saveAllInCsv(filename: Uri, entries: TDependency[]) {
+    const lines: string[] = ['filepath,unused exported'];
+
+    for (const item of entries) {
+      const exports = await this.getChildren(item);
+      for (const { label } of exports) {
+        lines.push(`${item.label},${label}`);
+      }
+    }
+
+    const csv = lines.join('\n');
+    const data = new TextEncoder().encode(csv);
+    await workspace.fs.writeFile(filename, data);
+    window.showInformationMessage('CSV written successfully');
+  }
+
+  private async saveAllInJson(filename: Uri, entries: TDependency[]) {
+    const json: Record<string, string[]> = {};
+
+    for (const item of entries) {
+      const exports = await this.getChildren(item);
+      json[item.label] = exports.map(({ label }) => label);
+    }
+
+    const content = JSON.stringify(json, null, 2);
+    const data = new TextEncoder().encode(content);
+    await workspace.fs.writeFile(filename, data);
+    window.showInformationMessage('JSON written successfully');
+  }
+
+  private async askForFilenameCsvJson() {
+    if (!this.cacheFolders) {
+      window.showInformationMessage('No unused exports');
+      return;
+    }
+
+    const filename = await window.showSaveDialog({
+      saveLabel: 'Export unused exports',
+      filters: {
+        'CSV Files': ['csv'],
+        'JSON Files': ['json'],
+      },
+    });
+
+    if (!filename) {
+      // window.showWarningMessage('No filename provided');
+      return;
+    }
+
+    return filename;
   }
 }
 

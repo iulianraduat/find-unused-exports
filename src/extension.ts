@@ -57,6 +57,14 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(disposable);
 
   disposable = commands.registerCommand(
+    'unusedExports.saveAllUnusedExports',
+    () => {
+      unusedExportsProvider.saveAll();
+    }
+  );
+  context.subscriptions.push(disposable);
+
+  disposable = commands.registerCommand(
     'unusedExports.expandAllUnusedExports',
     () => {
       unusedExportsProvider.expandAll();
