@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { minimatch } from 'minimatch';
+import { isMatch } from 'picomatch';
 import { sep as pathSep } from 'path';
 import { workspace } from 'vscode';
 import { fixPathSeparator } from './fsUtils';
@@ -81,6 +81,6 @@ export function isFileIgnored(filePath: string): boolean {
 
   const alreadyIgnoredFiles = getIgnoreFilenames();
   return alreadyIgnoredFiles.some(
-    (file) => file === filePath || minimatch(filePath, file)
+    (file) => file === filePath || isMatch(filePath, file)
   );
 }

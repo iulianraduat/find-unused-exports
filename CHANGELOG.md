@@ -953,3 +953,17 @@ This extension assumes a set of default exclude folders:
 ### Removed
 
 - Nothing
+
+## 2.4.1 (2026-06-04)
+
+### Added
+
+- Nothing
+
+### Changes
+
+- Replaced vulnerable library
+
+### Removed
+
+- Nothing
